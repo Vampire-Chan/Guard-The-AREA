@@ -23,7 +23,7 @@ public class GunfightMenu : Script
 
     public GunfightMenu()
     {
-        MainScript._guardSpawner = new GuardSpawner("./scripts/GuardsPosition.xml"); // Initialize guard spawner
+        MainScript._guardSpawner = new GuardSpawner("./scripts/GuardsPosition.xml", "./scripts/Guards.xml"); // Initialize guard spawner
 
         menuPool = new ObjectPool();
 

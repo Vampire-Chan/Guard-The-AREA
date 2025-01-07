@@ -1,0 +1,138 @@
+<!--Different XML File for guard related values.-->
+<Guards>
+	<!-- Guard: Gruppe6    -->
+	<Guard name="gruppe6_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_marmoured_02</PedModel>
+		<PedModel>s_m_marmoured_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Police LSPD    -->
+	<Guard name="lspd_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_y_cop_01</PedModel>
+		<PedModel>s_f_y_cop_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Police Sheriff    -->
+	<Guard name="lssd_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_y_sheriff_01</PedModel>
+		<PedModel>s_f_y_sheriff_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Park Ranger Guard    -->
+	<Guard name="park_ranger_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_y_pranger_01</PedModel>
+		<PedModel>s_f_y_pranger_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Security Guard    -->
+	<Guard name="security_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_m_security_01</PedModel>
+		<PedModel>s_m_m_security_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Federal IAA -->
+	<Guard name="iaa_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_m_ciasec_01</PedModel>
+		<PedModel>s_m_m_ciasec_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Federal FIB -->
+	<Guard name="fib_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_m_fibsec_01</PedModel>
+		<PedModel>s_m_m_fiboffice_01</PedModel>
+		<PedModel>s_m_m_fiboffice_02</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	<!-- Guard: Merryweather -->
+	<Guard name="mw_guard">
+		<!-- Ped Model -->
+		<PedModel>s_m_y_blackops_01</PedModel>
+		<PedModel>s_m_y_blackops_02</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+	
+	<!-- Guard: Franklin's Families Guard-->
+	<Guard name="families_guard">
+		<!-- Ped Model -->
+		<PedModel>G_F_Y_Families_01</PedModel>
+		<PedModel>G_M_Y_FamFor_01 </PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_NIGHTSTICK</Weapon>
+		<Weapon>WEAPON_FLASHLIGHT</Weapon>
+		<Weapon>WEAPON_STUNGUN</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+	</Guard>
+</Guards>
