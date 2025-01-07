@@ -1,0 +1,10 @@
+D:\Source-Codes\Dispatch\bin\Debug\net48\YTMenu.dll
+D:\Source-Codes\Dispatch\bin\Debug\net48\YTMenu.pdb
+D:\Source-Codes\Dispatch\bin\Debug\net48\LemonUI.SHVDN3.dll
+D:\Source-Codes\Dispatch\bin\Debug\net48\ScriptHookVDotNet3.dll
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.csproj.AssemblyReference.cache
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.GeneratedMSBuildEditorConfig.editorconfig
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.csproj.CoreCompileInputs.cache
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.csproj.Up2Date
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.dll
+D:\Source-Codes\Dispatch\obj\Debug\net48\YTMenu.pdb
