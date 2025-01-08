@@ -1,117 +1,111 @@
 ﻿using GTA;
-using GTA.Math;
 using System.Collections.Generic;
-using System.Xml.Linq;
+using System;
 
 public class GuardSpawner
 {
-    private List<Area> _areas; // List of areas
-    private Dictionary<string, GuardInfo> _guards; // Dictionary of guard info
-    private string _xmlFilePath;
+    private readonly Dictionary<string, GuardInfo> _guards;
+    private readonly List<Area> _areas;
 
-    // Constructor to initialize the guard spawner
     public GuardSpawner(string areasFilePath, string guardsFilePath)
     {
-        _xmlFilePath = areasFilePath;
+        // Loading the XML files and initializing dictionaries
         var xmlReader = new XmlReader(areasFilePath, guardsFilePath);
-        _areas = xmlReader.LoadAreasFromXml(); // Load areas from XML
-        _guards = xmlReader.LoadGuardsFromXml(); // Load guards from XML
-        Logger.Log($"Loaded {_areas.Count} areas and {_guards.Count} guards from XML."); // Log the number of areas and guards loaded
+        _areas = xmlReader.LoadAreasFromXml();
+        _guards = xmlReader.LoadGuardsFromXml();
+        Logger.Log($"Loaded {_areas.Count} areas and {_guards.Count} guards from XML.");
     }
 
-    // Method to check player proximity and spawn guards if needed
     public void CheckPlayerProximityAndSpawn(Player player)
     {
-        foreach (var area in _areas) // Iterate through each area
+        foreach (var area in _areas)
         {
-            Logger.Log($"Checking area {area.Name} for player proximity..."); // Log area check
+            Logger.Log($"Checking area {area.Name} for player proximity...");
             bool isPlayerNear = false;
-            foreach (var spawnPoint in area.SpawnPoints) // Check each spawn point
+            foreach (var spawnPoint in area.SpawnPoints)
             {
-                Logger.Log($"Checking spawn point {spawnPoint.Position}..."); // Log spawn point check
-                float distance = player.Character.Position.DistanceTo(spawnPoint.Position); // Calculate distance
-                Logger.Log($"Distance to spawn point: {distance}"); // Log distance
-                if (distance < 100f) // Player is within 100m
+                float distance = player.Character.Position.DistanceTo(spawnPoint.Position);
+                Logger.Log($"Distance to spawn point: {distance}");
+                if (distance < 100f)
                 {
                     isPlayerNear = true;
-                    if (area.CanRespawn() && area.SpawnReady) // Cooldown passed and spawn ready
+                    if (area.CanRespawn() && area.SpawnReady)
                     {
-                        SpawnGuards(area); // Spawn guards for the area
-                        area.UpdateLastSpawnTime(); // Update the last spawn time for the area
-                        Logger.Log($"Guards spawning in area {area.Name}"); // Log guards spawned
+                        SpawnGuards(area);
+                        area.UpdateLastSpawnTime();
+                        Logger.Log($"Guards spawning in area {area.Name}");
                     }
-                    area.SpawnReady = false; // Set spawn ready to false while player is in the area
-                    break; // Stop checking after spawning guards
+                    area.SpawnReady = false;
+                    break;
                 }
             }
             if (!isPlayerNear)
             {
-                area.SpawnReady = true; // Set spawn ready to true when player leaves the area
-                area.RemoveGuards(); // Remove guards when player is not near
-                Logger.Log($"Guards removed from area {area.Name}"); // Log guards removed
+                area.SpawnReady = true;
+                area.RemoveGuards();
+                Logger.Log($"Guards removed from area {area.Name}");
             }
         }
     }
 
-    // Method to spawn guards in the area
     private void SpawnGuards(Area area)
     {
-        Logger.Log($"Attempting to spawn guards for area {area.Name} with model {area.Model}.");
-
-        if (_guards.TryGetValue(area.Model, out GuardInfo guardInfo))
+        try
         {
-            foreach (var spawnPoint in area.SpawnPoints) // Iterate through spawn points
+            Logger.Log($"Attempting to spawn guards for area {area.Name} with model {area.Model}.");
+
+            if (_guards.TryGetValue(area.Model, out GuardInfo guardInfo))
             {
-                if (area.GuardAssignments[spawnPoint] == null) // Check if guard is not assigned
+                foreach (var spawnPoint in area.SpawnPoints)
                 {
-                    var guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardInfo); // Create guard
-                    Logger.Log("Initializing guard..."); // Log guard initialization
-                    guard.Spawn(); // Spawn the guard
-                    area.GuardAssignments[spawnPoint] = guard; // Assign guard to spawn point
+                    if (area.GuardAssignments.ContainsKey(spawnPoint) && area.GuardAssignments[spawnPoint] != null)
+                    {
+                        Logger.Log($"Guard already assigned to spawn point at {spawnPoint.Position}, skipping.");
+                        continue; // Skip if guard is already assigned to this spawn point
+                    }
+
+                    var guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardInfo);
+                    Logger.Log("Initializing guard...");
+                    guard.Spawn();
+                    area.GuardAssignments[spawnPoint] = guard;
+                    Logger.Log($"Guard spawned at {spawnPoint.Position} in area {area.Name}.");
                 }
             }
+            else
+            {
+                Logger.Log($"ERROR: Guard model {area.Model} not found in the dictionary.");
+                Logger.Log($"Available models: {string.Join(", ", _guards.Keys)}");
+                throw new KeyNotFoundException($"Guard model {area.Model} not found in the dictionary.");
+            }
         }
-        else
+        catch (KeyNotFoundException ex)
         {
-            Logger.Log($"Guard model {area.Model} not found in the dictionary.");
-            throw new KeyNotFoundException($"Guard model {area.Model} not found in the dictionary.");
+            Logger.Log($"KeyNotFoundException: {ex.Message}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"Exception: {ex.Message}");
+            throw;
         }
     }
-
-    // Method to add a spawn point to an area and save it to the XML
-    public void AddSpawnPoint(string areaName, Vector3 position, float heading)
+        
+    public void DiagnoseGuardModels()
     {
-        var area = _areas.Find(a => a.Name == areaName);
-        if (area != null)
+        Logger.Log("=== Guard Models Diagnostic ===");
+        foreach (var guard in _guards)
         {
-            area.AddSpawnPoint(position, heading);
-            SaveSpawnPointToXml(areaName, position, heading);
+            Logger.Log($"Guard Type: '{guard.Key}'");
+            Logger.Log($"- Ped Models: {string.Join(", ", guard.Value.PedModels)}");
+            Logger.Log($"- Weapons: {string.Join(", ", guard.Value.Weapons)}");
         }
-    }
 
-    // Method to save a new spawn point to the XML file
-    private void SaveSpawnPointToXml(string areaName, Vector3 position, float heading)
-    {
-        XDocument xml = XDocument.Load(_xmlFilePath);
-        var areaElement = xml.Root.Element("Area");
-
-        if (areaElement != null)
+        Logger.Log("=== Areas Diagnostic ===");
+        foreach (var area in _areas)
         {
-            XElement newSpawnPoint = new XElement("SpawnPoint",
-                new XElement("Position",
-                    new XAttribute("x", position.X),
-                    new XAttribute("y", position.Y),
-                    new XAttribute("z", position.Z)),
-                new XElement("Heading", heading));
-
-            areaElement.Add(newSpawnPoint);
-            xml.Save(_xmlFilePath);
+            Logger.Log($"Area: '{area.Name}'");
+            Logger.Log($"- Model: '{area.Model}'");
+            Logger.Log($"- Spawn Points: {area.SpawnPoints.Count}");
         }
-    }
-
-    // Method to get the list of areas
-    public List<Area> GetAreas()
-    {
-        return _areas;
     }
 }

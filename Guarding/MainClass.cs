@@ -14,6 +14,7 @@ public class MainScript
 
         // Check player proximity and spawn guards
         _guardSpawner.CheckPlayerProximityAndSpawn(player);
+        _guardSpawner.DiagnoseGuardModels();
         Logger.Log("Checking player proximity and spawning guards...");
     }
 }

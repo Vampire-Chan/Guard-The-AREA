@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Math;
+using System;
 using System.Collections.Generic;
 
 public class Area
@@ -46,11 +47,19 @@ public class Area
     // Method to remove all guards from the area
     public void RemoveGuards()
     {
-        foreach (var guard in GuardAssignments.Values)
+        try
         {
-            guard?.Remove(); // Remove guard if it exists
+            foreach (var guard in GuardAssignments.Values)
+            {
+                guard?.Remove();
+            }
+            GuardAssignments.Clear(); // Clear all guard assignments
+            Logger.Log($"All guards removed from area '{Name}'.");
         }
-        GuardAssignments.Clear(); // Clear all guard assignments
+        catch (Exception ex)
+        {
+            Logger.Log($"Error removing guards from area '{Name}': {ex.Message}");
+        }
     }
 }
 

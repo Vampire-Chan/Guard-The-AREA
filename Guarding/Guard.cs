@@ -56,9 +56,20 @@ public class Guard
     }
 
     // Method to remove the guard
+    public bool IsRemoved { get; private set; } = false;
+
     public void Remove()
     {
-        guardPed?.Delete(); // Remove the guard ped from the game world
-        guardPed = null; // Clear the guard ped reference
+        try
+        {
+            guardPed?.Delete();
+            guardPed = null;
+            IsRemoved = true;
+            Logger.Log("Guard successfully removed");
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"Error removing guard: {ex.Message}");
+        }
     }
 }
