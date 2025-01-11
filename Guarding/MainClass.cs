@@ -65,7 +65,7 @@ public class PlayerPositionLogger : Script
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.KeyCode == _logKey && _isLoggingEnabled && _isPositionLoggingEnabled)
+        if (e.KeyCode == _logKey  && _isPositionLoggingEnabled)
         {
             LogPlayerPosition();
         }

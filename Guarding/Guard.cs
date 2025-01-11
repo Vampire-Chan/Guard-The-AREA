@@ -39,38 +39,35 @@ public class Guard
             }
 
             var rand = new Random();
-            string modelName = Config.PedModels[rand.Next(Config.PedModels.Count)];
-            Logger.Log($"Selected ped model: {modelName}");
+            //string modelName = Config.PedModels[rand.Next(0, Config.PedModels.Count)];
+            //Logger.Log($"Selected ped model: {modelName}");
 
-            guardPed = World.CreatePed(modelName, Position);
+            guardPed = World.CreatePed(Config.PedModels[rand.Next(0, Config.PedModels.Count)], Position);
             if (guardPed == null)
             {
-                throw new InvalidOperationException($"Failed to create ped with model {modelName}");
+                //throw new InvalidOperationException($"Failed to create ped with model {modelName}");
             }
 
             guardPed.Heading = Heading;
             guardPed.Task.GuardCurrentPosition();
 
-            foreach (var weapon in Config.Weapons)
-            {
-                guardPed.Weapons.Give(weapon, 400, true, true);
-            }
+            
+                guardPed.Weapons.Give(Config.Weapons[rand.Next(0, Config.Weapons.Count)], 400, true, true);
+            
 
             guardPed.Armor = 400;
             guardPed.DiesOnLowHealth = false;
             guardPed.MaxHealth = 400;
             guardPed.Health = 400;
-            
 
-
-            guardPed.CanSufferCriticalHits = true;
+            //guardPed.CanSufferCriticalHits = true;
             guardPed.CombatAbility = CombatAbility.Professional;
             guardPed.CombatMovement = CombatMovement.WillAdvance;
             guardPed.CombatRange = CombatRange.Medium;
             guardPed.FiringPattern = FiringPattern.FullAuto;
             guardPed.Accuracy = 200;
             guardPed.ShootRate = 1000;
-            guardPed.SetConfigFlag(PedConfigFlagToggles.NoCriticalHits, true);
+            //guardPed.SetConfigFlag(PedConfigFlagToggles.NoCriticalHits, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
             //guardPed.SetConfigFlag(PedConfigFlagToggles.DisableHelmetArmor, false);
             guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
@@ -94,7 +91,7 @@ public class Guard
 
                 Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect);
             }
-            Logger.Log($"Guard spawned at position {Position} with model {modelName}.");
+            //Logger.Log($"Guard spawned at position {Position} with model {modelName}.");
         }
         else if (Type == "vehicle")
         {
@@ -104,20 +101,20 @@ public class Guard
             }
 
             var rand = new Random();
-            string vehicleModelName = Config.VehicleModels[rand.Next(Config.VehicleModels.Count)];
-            Logger.Log($"Selected vehicle model: {vehicleModelName}");
+            //string vehicleModelName = Config.VehicleModels[rand.Next(Config.VehicleModels.Count)];
+            //Logger.Log($"Selected vehicle model: {vehicleModelName}");
 
-            guardVehicle = World.CreateVehicle(vehicleModelName, Position);
+            guardVehicle = World.CreateVehicle(Config.VehicleModels[rand.Next(Config.VehicleModels.Count)], Position);
             if (guardVehicle == null)
             {
-                throw new InvalidOperationException($"Failed to create vehicle with model {vehicleModelName}");
+               // throw new InvalidOperationException($"Failed to create vehicle with model {vehicleModelName}");
             }
 
             guardVehicle.Heading = Heading;
             guardVehicle.IsPersistent = true;
             guardVehicle.EngineHealth = 2000;
 
-            Logger.Log($"Vehicle spawned at position {Position} with model {vehicleModelName}.");
+            //Logger.Log($"Vehicle spawned at position {Position} with model {vehicleModelName}.");
         }
     }
 
@@ -130,9 +127,7 @@ public class Guard
         }
         else if (Type == "vehicle" && guardVehicle != null && guardVehicle.Exists())
         {
-            //if (!guardVehicle.Driver.IsAlive)
             guardVehicle.Delete();
-
             Logger.Log($"Guard vehicle despawned at position {Position}.");
         }
         else

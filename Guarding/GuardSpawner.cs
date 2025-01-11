@@ -7,6 +7,7 @@ public class GuardSpawner
 {
     private List<Area> _areas;
     private List<Guard> _guards;
+    private List<Guard> _removedones;
     private Dictionary<string, GuardConfig> _guardConfigs;
 
     public GuardSpawner(string xmlFilePath)
@@ -15,11 +16,11 @@ public class GuardSpawner
         _areas = xml.LoadAreasFromXml();
         _guardConfigs = xml.LoadGuardConfigs();
         _guards = new List<Guard>();
+        _removedones = new List<Guard>();
         Logger.Log($"Loaded {_areas.Count} areas from XML.");
     }
 
     private Area temparea = null;
-
 
     public void CheckAllTime()
     {
@@ -27,12 +28,13 @@ public class GuardSpawner
         {
             foreach (var guard in _guards.ToList()) // Use ToList() to avoid modifying the collection while iterating
             {
-                if (guard?.guardPed != null )
+                if (guard?.guardPed != null)
                 {
                     if (guard.guardPed.IsDead)
                     {
                         guard.guardPed.MarkAsNoLongerNeeded();
                         _guards.Remove(guard);
+                        _removedones.Add(guard);
                     }
                     else if (!guard.guardPed.Exists())
                     {
@@ -45,10 +47,17 @@ public class GuardSpawner
                     {
                         guard.guardVehicle.MarkAsNoLongerNeeded();
                         _guards.Remove(guard);
+                        _removedones.Add(guard);
                     }
                     else if (!guard.guardVehicle.Exists())
                     {
                         _guards.Remove(guard);
+                    }
+                    else if (guard.guardVehicle.Driver != null || guard.guardVehicle.PassengerCount != 0)
+                    {
+                        guard.guardVehicle.MarkAsNoLongerNeeded();
+                        _guards.Remove(guard);
+                        _removedones.Add(guard);
                     }
                 }
             }
@@ -75,13 +84,13 @@ public class GuardSpawner
 
                 float distance = player.Character.Position.DistanceTo(spawnPoint.Position);
                 Logger.Log($"Distance to spawn point: {distance}");
-                if (distance < 100f)
+                if (distance < 150f)
                 {
                     SpawnGuards(area);
                     Logger.Log($"Guards trying to spawn in area {area.Name}");
                     break;
                 }
-                else if (distance > 130f)
+                else if (distance > 170f)
                 {
                     DespawnGuards(area);
                     break;
@@ -89,7 +98,6 @@ public class GuardSpawner
             }
         }
     }
-
 
     private void SpawnGuards(Area area)
     {
@@ -105,27 +113,45 @@ public class GuardSpawner
         {
             Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardConfig, area.Name, spawnPoint.Type);
             Logger.Log("Initializing guard...");
-            if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
+
+            // Check if the guard is already in the _removedones list
+            if (!_removedones.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
             {
-                _guards.Add(guard);
-                guard.Spawn();
+                if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
+                {
+                    _guards.Add(guard);
+                    guard.Spawn();
+                }
             }
         }
     }
+
     public void UnInitialize()
     {
         foreach (var guard in _guards.ToList()) // Use ToList() to avoid modifying the collection while iterating
         {
             if (guard != null && guard.guardPed != null && guard.guardPed.Exists())
             {
-                guard.Despawn();
+                guard.guardPed.MarkAsNoLongerNeeded();
             }
             if (guard != null && guard.guardVehicle != null && guard.guardVehicle.Exists())
             {
-                guard.Despawn();
+                guard.guardVehicle.MarkAsNoLongerNeeded();
+            }
+        }
+        foreach (var guard in _removedones.ToList()) // Use ToList() to avoid modifying the collection while iterating
+        {
+            if (guard != null && guard.guardPed != null && guard.guardPed.Exists())
+            {
+                guard.guardPed.MarkAsNoLongerNeeded();
+            }
+            if (guard != null && guard.guardVehicle != null && guard.guardVehicle.Exists())
+            {
+                guard.guardVehicle.MarkAsNoLongerNeeded();
             }
         }
         _guards.Clear();
+        _removedones.Clear();
         Logger.Log("All guards have been uninitialized and despawned.");
     }
 
@@ -138,6 +164,15 @@ public class GuardSpawner
             {
                 guard.Despawn();
                 _guards.Remove(guard);
+            }
+        }
+
+        var removedGuardsToRemove = _removedones.Where(g => g.AreaName == area.Name).ToList();
+        foreach(var guard in removedGuardsToRemove)
+        {
+            if (guard != null)
+            {
+                _removedones.Remove(guard);
             }
         }
         Logger.Log($"All guards in area {area.Name} have been despawned.");

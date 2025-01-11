@@ -1,6 +1,5 @@
 D:\Source-Codes\WorldOfImprovements\bin\Debug\net48\GuardTheArea.dll
 D:\Source-Codes\WorldOfImprovements\bin\Debug\net48\GuardTheArea.pdb
-D:\Source-Codes\WorldOfImprovements\bin\Debug\net48\LemonUI.SHVDN3.dll
 D:\Source-Codes\WorldOfImprovements\bin\Debug\net48\ScriptHookVDotNet3.dll
 D:\Source-Codes\WorldOfImprovements\obj\Debug\net48\Guarding.csproj.AssemblyReference.cache
 D:\Source-Codes\WorldOfImprovements\obj\Debug\net48\Guarding.GeneratedMSBuildEditorConfig.editorconfig
