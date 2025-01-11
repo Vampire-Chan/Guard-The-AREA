@@ -1,111 +1,99 @@
 ﻿using GTA;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 
 public class GuardSpawner
 {
-    private readonly Dictionary<string, GuardInfo> _guards;
-    private readonly List<Area> _areas;
+    private List<Area> _areas; // List of areas
+    private List<Guard> _guards; // List of guards
 
-    public GuardSpawner(string areasFilePath, string guardsFilePath)
+    public GuardSpawner(string xmlFilePath)
     {
-        // Loading the XML files and initializing dictionaries
-        var xmlReader = new XmlReader(areasFilePath, guardsFilePath);
-        _areas = xmlReader.LoadAreasFromXml();
-        _guards = xmlReader.LoadGuardsFromXml();
-        Logger.Log($"Loaded {_areas.Count} areas and {_guards.Count} guards from XML.");
+        XmlReader xml = new XmlReader(xmlFilePath);
+        _areas = xml.LoadAreasFromXml(); // Load areas from XML
+        _guards = new List<Guard>(); // Initialize guards list
+        Logger.Log($"Loaded {_areas.Count} areas from XML."); // Log the number of areas loaded
+    }
+    private Area temparea = null;
+    public void UnInitialize()
+    {
+        foreach(var guard in _guards)
+        {
+            if (guard.guardPed.Exists())
+            {
+                guard.Despawn();
+            }
+        }
+        _guards.Clear();
     }
 
-    public void CheckPlayerProximityAndSpawn(Player player)
+    public void CheckAllTime()
     {
-        foreach (var area in _areas)
+        if (temparea != null)
         {
-            Logger.Log($"Checking area {area.Name} for player proximity...");
-            bool isPlayerNear = false;
-            foreach (var spawnPoint in area.SpawnPoints)
+            foreach (var guard in _guards)
             {
-                float distance = player.Character.Position.DistanceTo(spawnPoint.Position);
-                Logger.Log($"Distance to spawn point: {distance}");
-                if (distance < 100f)
+                if (guard.guardPed.IsDead)
                 {
-                    isPlayerNear = true;
-                    if (area.CanRespawn() && area.SpawnReady)
-                    {
-                        SpawnGuards(area);
-                        area.UpdateLastSpawnTime();
-                        Logger.Log($"Guards spawning in area {area.Name}");
-                    }
-                    area.SpawnReady = false;
+                    guard.guardPed.MarkAsNoLongerNeeded(); //we keep in list so taht they dont spawn again
+                }
+                else if (!guard.guardPed.Exists())
+                {
+                    _guards.Remove(guard);
+                }
+            }
+
+        }
+    }
+    public void CheckPlayerProximityAndSpawn(Player player) // Check player's proximity
+    {
+        CheckAllTime();
+        foreach (var area in _areas) // Iterate through each area
+        {
+            temparea = area;
+            Logger.Log($"Checking area {area.Name} for player proximity..."); // Log area check
+            foreach (var spawnPoint in area.SpawnPoints) // Check each spawn point
+            {
+                Logger.Log($"Checking spawn point {spawnPoint.Position}..."); // Log spawn point check
+                float distance = player.Character.Position.DistanceTo(spawnPoint.Position); // Calculate distance
+                Logger.Log($"Distance to spawn point: {distance}"); // Log distance
+                if (distance < 100f) // Player is within 100m
+                {
+                    SpawnGuards(area); // Spawn guards for the area
+                    Logger.Log($"Guards trying to spawn in area {area.Name}"); // Log guards spawned
+                    break; // Stop checking after spawning guards
+                }
+                else if (distance > 130f)
+                {
+                    DespawnGuards(area);
                     break;
                 }
             }
-            if (!isPlayerNear)
-            {
-                area.SpawnReady = true;
-                area.RemoveGuards();
-                Logger.Log($"Guards removed from area {area.Name}");
-            }
         }
     }
 
-    private void SpawnGuards(Area area)
+    private void SpawnGuards(Area area) // Spawn all guards in area
     {
-        try
+        foreach (var spawnPoint in area.SpawnPoints) // Iterate through spawn points
         {
-            Logger.Log($"Attempting to spawn guards for area {area.Name} with model {area.Model}.");
-
-            if (_guards.TryGetValue(area.Model, out GuardInfo guardInfo))
+            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, area.Model, area.Name); // Create guard
+            Logger.Log("Initializing guard..."); // Log guard initialization
+            if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName)) // Check if guard is already present
             {
-                foreach (var spawnPoint in area.SpawnPoints)
-                {
-                    if (area.GuardAssignments.ContainsKey(spawnPoint) && area.GuardAssignments[spawnPoint] != null)
-                    {
-                        Logger.Log($"Guard already assigned to spawn point at {spawnPoint.Position}, skipping.");
-                        continue; // Skip if guard is already assigned to this spawn point
-                    }
+                _guards.Add(guard); // Add guard to list
+                guard.Spawn(); // Spawn the guard
+            }
 
-                    var guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardInfo);
-                    Logger.Log("Initializing guard...");
-                    guard.Spawn();
-                    area.GuardAssignments[spawnPoint] = guard;
-                    Logger.Log($"Guard spawned at {spawnPoint.Position} in area {area.Name}.");
-                }
-            }
-            else
-            {
-                Logger.Log($"ERROR: Guard model {area.Model} not found in the dictionary.");
-                Logger.Log($"Available models: {string.Join(", ", _guards.Keys)}");
-                throw new KeyNotFoundException($"Guard model {area.Model} not found in the dictionary.");
-            }
-        }
-        catch (KeyNotFoundException ex)
-        {
-            Logger.Log($"KeyNotFoundException: {ex.Message}");
-            throw;
-        }
-        catch (Exception ex)
-        {
-            Logger.Log($"Exception: {ex.Message}");
-            throw;
         }
     }
-        
-    public void DiagnoseGuardModels()
-    {
-        Logger.Log("=== Guard Models Diagnostic ===");
-        foreach (var guard in _guards)
-        {
-            Logger.Log($"Guard Type: '{guard.Key}'");
-            Logger.Log($"- Ped Models: {string.Join(", ", guard.Value.PedModels)}");
-            Logger.Log($"- Weapons: {string.Join(", ", guard.Value.Weapons)}");
-        }
 
-        Logger.Log("=== Areas Diagnostic ===");
-        foreach (var area in _areas)
+    public void DespawnGuards(Area area)
+    {
+        var guardsToRemove = _guards.Where(g => g.AreaName == area.Name).ToList();
+        foreach (var guard in guardsToRemove)
         {
-            Logger.Log($"Area: '{area.Name}'");
-            Logger.Log($"- Model: '{area.Model}'");
-            Logger.Log($"- Spawn Points: {area.SpawnPoints.Count}");
+            guard.Despawn();
+            _guards.Remove(guard);
         }
     }
 }

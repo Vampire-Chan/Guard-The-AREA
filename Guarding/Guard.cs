@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Math;
+using GTA.Native;
 using System;
 using System.Collections.Generic;
 
@@ -7,69 +8,98 @@ public class Guard
 {
     public Vector3 Position { get; set; } // Guard position
     public float Heading { get; set; } // Guard heading
-    public GuardInfo GuardInfo { get; set; } // Guard info
-    private Ped guardPed; // The actual guard ped
+    public string AreaName { get; set; } // Area name
+    public string Model { get; set; } // Guard model
 
-    // Define the relationship group for guards
-    private static readonly RelationshipGroup guardGroup = World.AddRelationshipGroup("SC_GUARD");
+    public Ped guardPed;
 
-    // Constructor to initialize guard properties
-    public Guard(Vector3 position, float heading, GuardInfo guardInfo)
+    // Define multiple models for each guard type (e.g., Gruppe6, Police, etc.)
+    private static readonly Dictionary<string, List<PedHash>> GuardModels = new Dictionary<string, List<PedHash>>()
+    {
+        { "gruppe6_guard", new List<PedHash> { PedHash.Armoured01SMM, PedHash.Armoured02SMM } },
+        { "police_guard", new List<PedHash> { PedHash.Cop01SMY, PedHash.Swat01SMY, PedHash.Cop01SFY } },
+        { "military_guard", new List<PedHash> { PedHash.Marine01SMY, PedHash.Marine02SMY, PedHash.Marine03SMY } }
+    };
+
+    public Guard(GTA.Math.Vector3 position, float heading, string model, string areaName)
     {
         Position = position;
         Heading = heading;
-        GuardInfo = guardInfo;
+        Model = model;
+        AreaName = areaName;
     }
 
-    // Method to spawn the guard
+
+    private static RelationshipGroup guardGroup = StringHash.AtStringHash("SC_GUARD");
+
+    // Spawn the guard at the given position and heading
     public void Spawn()
     {
-        // Get a random guard model from the list for this guard type
-        var randomModel = GuardInfo.PedModels[new Random().Next(GuardInfo.PedModels.Count)];
-        var model = new Model(randomModel);
-
-        if (!model.IsLoaded)
         {
-            model.Request();
-            while (!model.IsLoaded) Script.Wait(10);
+            // Get a random guard model from the list for this guard type
+            PedHash modelHash = GetRandomPedModelForGuard(Model);
+
+            // Guard spawn logic (adjust based on your framework or game engine)
+            guardPed = World.CreatePed(modelHash, Position); // Create guard with model
+            guardPed.Heading = Heading; // Set heading
+            guardPed.Task.GuardCurrentPosition(); // Guard specific area
+
+            guardPed.Weapons.Give(WeaponHash.CarbineRifle, 400, true, true); // Give weapon (e.g., pistol)
+            guardPed.Armor = 400; // Set armor to 400
+            guardPed.Health = 400; // Set health to 400
+            guardPed.Weapons.Select(WeaponHash.CarbineRifle); // Select the weapon
+
+            guardPed.CanSufferCriticalHits = true; // Disable critical hits
+            guardPed.CombatAbility = CombatAbility.Professional;
+            guardPed.CombatMovement = CombatMovement.WillAdvance;
+            guardPed.CombatRange = CombatRange.Medium;
+            guardPed.FiringPattern = FiringPattern.FullAuto;
+            guardPed.Accuracy = 100;
+            guardPed.ShootRate = 500;
+
+            Function.Call(Hash.SET_PED_RANDOM_PROPS, guardPed);
+
+            // Create and set up the guard relationship group
+            guardGroup = World.AddRelationshipGroup("SC_GUARD");
+
+            // Set guard relationships
+            guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion); // Guards are companions with their own kind
+            guardGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect); // Guards respect the player
+
+            // Assign the relationship group to the spawned guard
+            guardPed.RelationshipGroup = guardGroup;
+
+            // Make the player respect the guard group
+            Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect); // Player respects the guards
+
+
+            Logger.Log($"Guard spawned at position {Position} with model {modelHash}.");
+            //guardPed.RelationshipGroup = RelationshipGroup.Hate; // Optional: set relationship group
+
         }
+    }
+    public void Despawn()
+    {
+        // Despawn logic (adjust based on your framework or game engine)
+        if (guardPed != null || guardPed.Exists())
+            guardPed.Delete();
 
-        // Create the guard ped
-        guardPed = World.CreatePed(model, Position); // Create guard with model
-        guardPed.Heading = Heading; // Set heading
-        guardPed.Task.GuardCurrentPosition(); // Guard specific area
-
-        // Equip guard with a random weapon from the list
-        var randomWeapon = GuardInfo.Weapons[new Random().Next(0, GuardInfo.Weapons.Count)];
-        guardPed.Weapons.Give(randomWeapon, 300, true, true);
-
-        guardPed.Armor = 100; // Set armor to 100
-        guardPed.CanSufferCriticalHits = true; // Disable critical hits
-
-        // Set guard relationships
-        guardPed.RelationshipGroup = guardGroup; // Assign the relationship group to the spawned guard
-        guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion); // Guards are companions with their own kind
-        guardGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect); // Guards respect the player
-        Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect); // Player respects the guards
-
-        Logger.Log($"Guard spawned at position {Position} with model {randomModel}.");
+        Logger.Log($"Guard despawned at position {Position}.");
     }
 
-    // Method to remove the guard
-    public bool IsRemoved { get; private set; } = false;
-
-    public void Remove()
+    // Get a random Ped model hash for the specified guard model
+    private PedHash GetRandomPedModelForGuard(string modelName)
     {
-        try
+        if (GuardModels.ContainsKey(modelName))
         {
-            guardPed?.Delete();
-            guardPed = null;
-            IsRemoved = true;
-            Logger.Log("Guard successfully removed");
+            List<PedHash> availableModels = GuardModels[modelName]; // Get list of available models for the guard type
+            Random rand = new Random();
+            int index = rand.Next(availableModels.Count); // Select a random model from the list
+            Logger.Log($"Selected model {availableModels[index]} for guard type {modelName}.");
+            return availableModels[index]; // Return the randomly selected model
         }
-        catch (Exception ex)
-        {
-            Logger.Log($"Error removing guard: {ex.Message}");
-        }
+
+        // Default model if not recognized
+        return PedHash.Security01SMM;
     }
 }

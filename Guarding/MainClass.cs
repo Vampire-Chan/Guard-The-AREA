@@ -4,19 +4,36 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 
-public class MainScript
+public class MainScript : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
- 
-    public void OnTick() // Called every tick/frame
+    
+    public MainScript()
+    {
+        _guardSpawner = new GuardSpawner("./scripts/Areas.xml"); // Initialize guard spawner
+        Tick += OnTick; // Bind the tick event
+        Aborted += OnAbort; // Bind the abort event
+    }
+
+    private void OnTick(object sender, EventArgs e) // Called every tick/frame
     {
         Player player = Game.Player; // Get the player object
-
         // Check player proximity and spawn guards
         _guardSpawner.CheckPlayerProximityAndSpawn(player);
-        _guardSpawner.DiagnoseGuardModels();
-        Logger.Log("Checking player proximity and spawning guards...");
     }
+
+    private void OnAbort(object sender, EventArgs e)
+    {
+        // Ensure guards are despawned
+        _guardSpawner.UnInitialize();
+
+        // Unbind events to prevent memory leaks
+        Tick -= OnTick;
+
+        // Log a message for debugging purposes
+        // UI.Notify("MainScript cleanup completed.");
+    }
+
 }
 
 public class PlayerPositionLogger : Script
@@ -51,19 +68,23 @@ public class PlayerPositionLogger : Script
             var position = player.Position;
             var heading = player.Heading;
 
-            // Prepare the log entry
-            string logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Position: X: {position.X:F2}, Y: {position.Y:F2}, Z: {position.Z:F2}, Heading: {heading:F2}";
+            // Prepare the XML log entry
+            string logEntry = $"  <SpawnPoint>\n" +
+                              $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
+                              $"    <Heading>{heading:F2}</Heading>\n" +
+                              $"  </SpawnPoint>";
 
             // Write to the log file
             File.AppendAllText(_logFilePath, logEntry + Environment.NewLine);
 
             // Notify the user
-          //  UI.Notify("Position logged!");
+            // UI.Notify("Position logged in XML format!");
         }
         catch (Exception ex)
         {
-         //   UI.Notify($"Error logging position: {ex.Message}");
+            // UI.Notify($"Error logging position: {ex.Message}");
         }
     }
+
 }
 
