@@ -1,58 +1,86 @@
-﻿using GTA.Math;
+﻿// XmlReader.cs
+using GTA.Math;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 
 public class XmlReader
 {
-    private readonly string _xmlFilePath; // XML File Path
+    private readonly string _xmlFilePath;
+    private readonly string _guardsXmlPath;
 
-    public XmlReader(string filePath)
+    public XmlReader(string areasFilePath)
     {
-        _xmlFilePath = filePath; // Set file path
+        _xmlFilePath = areasFilePath;
+        // Assuming Guards.xml is in the same directory
+        _guardsXmlPath = Path.Combine(Path.GetDirectoryName(areasFilePath), "Guards.xml");
     }
 
-    public List<Area> LoadAreasFromXml() // Load areas from XML
+    public List<Area> LoadAreasFromXml()
     {
-        var areas = new List<Area>(); // Store areas
+        var areas = new List<Area>();
 
-        XElement xml = XElement.Load(_xmlFilePath); // Load XML
+        XElement xml = XElement.Load(_xmlFilePath);
 
-        foreach (var areaElement in xml.Elements("Area")) // Iterate through areas
+        foreach (var areaElement in xml.Elements("Area"))
         {
-            string areaName = areaElement.Attribute("name")?.Value; // Get area name
-            string model = areaElement.Attribute("model")?.Value; // Get area model name
-            Area area = new Area(areaName, model); // Create new area with model
+            string areaName = areaElement.Attribute("name")?.Value;
+            string model = areaElement.Attribute("model")?.Value;
+            Area area = new Area(areaName, model);
 
-            foreach (var spawnPointElement in areaElement.Elements("SpawnPoint")) // Iterate spawn points
+            foreach (var spawnPointElement in areaElement.Elements("SpawnPoint"))
             {
-                var positionElement = spawnPointElement.Element("Position"); // Get position
-                float x = float.Parse(positionElement.Attribute("x")?.Value); // X position
-                float y = float.Parse(positionElement.Attribute("y")?.Value); // Y position
-                float z = float.Parse(positionElement.Attribute("z")?.Value); // Z position
+                var positionElement = spawnPointElement.Element("Position");
+                float x = float.Parse(positionElement.Attribute("x")?.Value);
+                float y = float.Parse(positionElement.Attribute("y")?.Value);
+                float z = float.Parse(positionElement.Attribute("z")?.Value);
 
-                float heading = float.Parse(spawnPointElement.Element("Heading")?.Value); // Heading
+                float heading = float.Parse(spawnPointElement.Element("Heading")?.Value);
+                string type = spawnPointElement.Attribute("type")?.Value ?? "ped";
 
-                Vector3 position = new Vector3(x, y, z); // Create position vector
-                area.AddSpawnPoint(position, heading); // Add spawn point to area
+                Vector3 position = new Vector3(x, y, z);
+                area.AddSpawnPoint(position, heading, type);
             }
 
-            areas.Add(area); // Add area to list
+            areas.Add(area);
         }
 
-        return areas; // Return list of areas
+        return areas;
     }
 
-    public class Guard
+    public Dictionary<string, GuardConfig> LoadGuardConfigs()
     {
-        public string Name { get; set; }
-        public List<string> PedModels { get; set; }
-        public List<string> Weapons { get; set; }
+        var guardConfigs = new Dictionary<string, GuardConfig>();
+        XElement xml = XElement.Load(_guardsXmlPath);
 
-        public Guard(string name)
+        foreach (var guardElement in xml.Elements("Guard"))
         {
-            Name = name;
-            PedModels = new List<string>();
-            Weapons = new List<string>();
+            string guardName = guardElement.Attribute("name")?.Value;
+            var config = new GuardConfig
+            {
+                Name = guardName,
+                PedModels = guardElement.Elements("PedModel")
+                                        .Select(x => x.Value)
+                                        .ToList(),
+                Weapons = guardElement.Elements("Weapon")
+                                      .Select(x => x.Value)
+                                      .ToList(),
+                VehicleModels = guardElement.Elements("VehicleModel")
+                                            .Select(x => x.Value)
+                                            .ToList()
+            };
+            guardConfigs[guardName] = config;
         }
+
+        return guardConfigs;
     }
+}
+
+public class GuardConfig
+{
+    public string Name { get; set; }
+    public List<string> PedModels { get; set; }
+    public List<string> Weapons { get; set; }
+    public List<string> VehicleModels { get; set; }
 }

@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Source-Codes\\Dispatch\\YTMenu.csproj",
-      "projectName": "YTMenu",
-      "projectPath": "D:\\Source-Codes\\Dispatch\\YTMenu.csproj",
+      "projectUniqueName": "D:\\Source-Codes\\WorldOfImprovements\\Guarding.csproj",
+      "projectName": "GuardTheArea",
+      "projectPath": "D:\\Source-Codes\\WorldOfImprovements\\Guarding.csproj",
       "packagesPath": "D:\\Applications\\Microsoft Visual Studio\\Packages\\NugetCache",
-      "outputPath": "D:\\Source-Codes\\Dispatch\\obj\\",
+      "outputPath": "D:\\Source-Codes\\WorldOfImprovements\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "D:\\Applications\\Microsoft\\Shared\\NuGetPackages"

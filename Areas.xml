@@ -2,112 +2,150 @@
 <Areas>
 	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
 	<Area name="MichealHouse" model="gruppe6_guard">
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-817.86" y="175.38" z="72.23" />
 			<Heading>93.34</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-819.22" y="179.18" z="72.23" />
 			<Heading>107.00</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-818.06" y="177.89" z="76.71" />
 			<Heading>110.15</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-810.48" y="167.38" z="72.23" />
 			<Heading>100.46</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-804.99" y="165.72" z="71.56" />
 			<Heading>120.01</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-799.27" y="161.98" z="71.49" />
 			<Heading>15.95</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-790.36" y="153.83" z="70.67" />
 			<Heading>39.01</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-797.73" y="148.40" z="69.67" />
 			<Heading>271.91</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-781.07" y="167.67" z="67.47" />
 			<Heading>209.29</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-764.14" y="158.80" z="67.47" />
 			<Heading>99.85</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-762.67" y="139.89" z="67.47" />
 			<Heading>42.96</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-780.27" y="138.33" z="67.47" />
 			<Heading>320.69</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-781.71" y="150.67" z="67.47" />
 			<Heading>278.05</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-781.97" y="176.90" z="73.44" />
 			<Heading>2.92</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-769.42" y="185.03" z="73.15" />
 			<Heading>87.96</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-789.58" y="191.33" z="72.95" />
 			<Heading>194.21</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-812.26" y="177.59" z="72.15" />
 			<Heading>22.35</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-816.63" y="181.41" z="72.15" />
 			<Heading>214.63</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-842.44" y="162.61" z="67.16" />
 			<Heading>177.03</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-842.38" y="155.38" z="66.99" />
 			<Heading>358.23</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-820.97" y="153.16" z="70.18" />
 			<Heading>7.21</Heading>
 		</SpawnPoint>
-		<SpawnPoint>
+		<SpawnPoint type="ped">
 			<Position x="-844.58" y="181.10" z="70.56" />
 			<Heading>194.70</Heading>
 		</SpawnPoint>
-		</Area>
-<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
-	<Area name="FrankHouse" model="gruppe6_guard">
-	  <SpawnPoint>
-    <Position x="3.65" y="531.43" z="175.34" />
-    <Heading>322.31</Heading>
+		  <SpawnPoint type="vehicle">
+    <Position x="-851.99" y="171.52" z="67.42" />
+    <Heading>357.31</Heading>
   </SpawnPoint>
-  <SpawnPoint>
-    <Position x="7.08" y="542.04" z="176.03" />
-    <Heading>312.99</Heading>
+  <SpawnPoint type="vehicle">
+    <Position x="-853.32" y="148.53" z="62.60" />
+    <Heading>357.29</Heading>
   </SpawnPoint>
-  <SpawnPoint>
-    <Position x="15.96" y="544.14" z="176.03" />
-    <Heading>38.08</Heading>
+
+	</Area>
+	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
+	<Area name="FrankHouse" model="families_guard">
+		<SpawnPoint type="ped">
+			<Position x="3.65" y="531.43" z="175.34" />
+			<Heading>322.31</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="7.08" y="542.04" z="176.03" />
+			<Heading>312.99</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="15.96" y="544.14" z="176.03" />
+			<Heading>38.08</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="19.66" y="550.21" z="176.21" />
+			<Heading>64.93</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="vehicle">
+    		<Position x="8.52" y="560.24" z="176.21" />
+    		<Heading>123.90</Heading>
+  		</SpawnPoint>
+
+	</Area>
+
+	<Area name="ArmyGate1" model="army1_guard">
+	<SpawnPoint type="ped">
+    <Position x="-1614.36" y="2806.01" z="17.73" />
+    <Heading>293.30</Heading>
   </SpawnPoint>
-  <SpawnPoint>
-    <Position x="19.66" y="550.21" z="176.21" />
-    <Heading>64.93</Heading>
+  <SpawnPoint type="ped">
+    <Position x="-1597.93" y="2816.26" z="17.36" />
+    <Heading>134.12</Heading>
   </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-1594.36" y="2797.36" z="17.03" />
+    <Heading>227.13</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-1590.56" y="2795.90" z="17.07" />
+    <Heading>173.88</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-1589.64" y="2783.35" z="16.72" />
+    <Heading>263.41</Heading>
+  </SpawnPoint>
+
 	</Area>
 </Areas>

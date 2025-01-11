@@ -1,33 +1,36 @@
-﻿using GTA.Math;
+﻿// In AreaGuarding.cs
+using GTA.Math;
 using System.Collections.Generic;
 
 public class Area
 {
-    public string Name { get; set; } // Area Name
-    public string Model { get; set; } // Guard model for the area
-    public List<GuardSpawnPoint> SpawnPoints { get; set; } // Spawn Points
+    public string Name { get; set; }
+    public string Model { get; set; }
+    public List<GuardSpawnPoint> SpawnPoints { get; set; }
 
     public Area(string name, string model)
     {
-        Name = name; // Set area name
-        Model = model; // Set guard model
-        SpawnPoints = new List<GuardSpawnPoint>(); // Initialize spawn points list
+        Name = name;
+        Model = model;
+        SpawnPoints = new List<GuardSpawnPoint>();
     }
 
-    public void AddSpawnPoint(Vector3 position, float heading) // Add spawn point
+    public void AddSpawnPoint(Vector3 position, float heading, string type)
     {
-        SpawnPoints.Add(new GuardSpawnPoint(position, heading)); // Add spawn point to list
+        SpawnPoints.Add(new GuardSpawnPoint(position, heading, type));
     }
 }
 
 public class GuardSpawnPoint
 {
-    public Vector3 Position { get; set; } // Position
-    public float Heading { get; set; } // Heading
+    public Vector3 Position { get; set; }
+    public float Heading { get; set; }
+    public string Type { get; set; }
 
-    public GuardSpawnPoint(Vector3 position, float heading)
+    public GuardSpawnPoint(Vector3 position, float heading, string type)
     {
-        Position = position; // Set position
-        Heading = heading; // Set heading
+        Position = position;
+        Heading = heading;
+        Type = type;
     }
 }

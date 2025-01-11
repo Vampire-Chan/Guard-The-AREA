@@ -4,6 +4,7 @@ using System.IO;
 public static class Logger
 {
     private static readonly string LogFilePath = "./scripts/Logging.log";
+    private static bool _enabled;
 
     static Logger()
     {
@@ -11,8 +12,18 @@ public static class Logger
         Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
     }
 
+    public static void SetEnabled(bool enabled)
+    {
+        _enabled = enabled;
+    }
+
     public static void Log(string message)
     {
+        if (!_enabled)
+        {
+            return;
+        }
+
         try
         {
             string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";

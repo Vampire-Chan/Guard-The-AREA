@@ -1,67 +1,85 @@
-﻿using GTA;
+﻿// GuardSpawner.cs
+using GTA;
 using System.Collections.Generic;
 using System.Linq;
 
 public class GuardSpawner
 {
-    private List<Area> _areas; // List of areas
-    private List<Guard> _guards; // List of guards
+    private List<Area> _areas;
+    private List<Guard> _guards;
+    private Dictionary<string, GuardConfig> _guardConfigs;
 
     public GuardSpawner(string xmlFilePath)
     {
         XmlReader xml = new XmlReader(xmlFilePath);
-        _areas = xml.LoadAreasFromXml(); // Load areas from XML
-        _guards = new List<Guard>(); // Initialize guards list
-        Logger.Log($"Loaded {_areas.Count} areas from XML."); // Log the number of areas loaded
+        _areas = xml.LoadAreasFromXml();
+        _guardConfigs = xml.LoadGuardConfigs();
+        _guards = new List<Guard>();
+        Logger.Log($"Loaded {_areas.Count} areas from XML.");
     }
+
     private Area temparea = null;
-    public void UnInitialize()
-    {
-        foreach(var guard in _guards)
-        {
-            if (guard.guardPed.Exists())
-            {
-                guard.Despawn();
-            }
-        }
-        _guards.Clear();
-    }
+
 
     public void CheckAllTime()
     {
         if (temparea != null)
         {
-            foreach (var guard in _guards)
+            foreach (var guard in _guards.ToList()) // Use ToList() to avoid modifying the collection while iterating
             {
-                if (guard.guardPed.IsDead)
+                if (guard?.guardPed != null )
                 {
-                    guard.guardPed.MarkAsNoLongerNeeded(); //we keep in list so taht they dont spawn again
+                    if (guard.guardPed.IsDead)
+                    {
+                        guard.guardPed.MarkAsNoLongerNeeded();
+                        _guards.Remove(guard);
+                    }
+                    else if (!guard.guardPed.Exists())
+                    {
+                        _guards.Remove(guard);
+                    }
                 }
-                else if (!guard.guardPed.Exists())
+                if (guard?.guardVehicle != null)
                 {
-                    _guards.Remove(guard);
+                    if (guard.guardVehicle.IsDead)
+                    {
+                        guard.guardVehicle.MarkAsNoLongerNeeded();
+                        _guards.Remove(guard);
+                    }
+                    else if (!guard.guardVehicle.Exists())
+                    {
+                        _guards.Remove(guard);
+                    }
                 }
             }
-
         }
     }
-    public void CheckPlayerProximityAndSpawn(Player player) // Check player's proximity
+
+    public void CheckPlayerProximityAndSpawn(Player player)
     {
+        if (player?.Character == null)
+        {
+            Logger.Log("Player or Player.Character is null. Skipping proximity check.");
+            return;
+        }
+
         CheckAllTime();
-        foreach (var area in _areas) // Iterate through each area
+
+        foreach (var area in _areas)
         {
             temparea = area;
-            Logger.Log($"Checking area {area.Name} for player proximity..."); // Log area check
-            foreach (var spawnPoint in area.SpawnPoints) // Check each spawn point
+            Logger.Log($"Checking area {area.Name} for player proximity...");
+            foreach (var spawnPoint in area.SpawnPoints)
             {
-                Logger.Log($"Checking spawn point {spawnPoint.Position}..."); // Log spawn point check
-                float distance = player.Character.Position.DistanceTo(spawnPoint.Position); // Calculate distance
-                Logger.Log($"Distance to spawn point: {distance}"); // Log distance
-                if (distance < 100f) // Player is within 100m
+                if (spawnPoint?.Position == null) continue; // Ensure valid spawn point
+
+                float distance = player.Character.Position.DistanceTo(spawnPoint.Position);
+                Logger.Log($"Distance to spawn point: {distance}");
+                if (distance < 100f)
                 {
-                    SpawnGuards(area); // Spawn guards for the area
-                    Logger.Log($"Guards trying to spawn in area {area.Name}"); // Log guards spawned
-                    break; // Stop checking after spawning guards
+                    SpawnGuards(area);
+                    Logger.Log($"Guards trying to spawn in area {area.Name}");
+                    break;
                 }
                 else if (distance > 130f)
                 {
@@ -72,19 +90,43 @@ public class GuardSpawner
         }
     }
 
-    private void SpawnGuards(Area area) // Spawn all guards in area
-    {
-        foreach (var spawnPoint in area.SpawnPoints) // Iterate through spawn points
-        {
-            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, area.Model, area.Name); // Create guard
-            Logger.Log("Initializing guard..."); // Log guard initialization
-            if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName)) // Check if guard is already present
-            {
-                _guards.Add(guard); // Add guard to list
-                guard.Spawn(); // Spawn the guard
-            }
 
+    private void SpawnGuards(Area area)
+    {
+        if (!_guardConfigs.ContainsKey(area.Model))
+        {
+            Logger.Log($"Guard model {area.Model} not found in configurations.");
+            return;
         }
+
+        var guardConfig = _guardConfigs[area.Model];
+
+        foreach (var spawnPoint in area.SpawnPoints)
+        {
+            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardConfig, area.Name, spawnPoint.Type);
+            Logger.Log("Initializing guard...");
+            if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
+            {
+                _guards.Add(guard);
+                guard.Spawn();
+            }
+        }
+    }
+    public void UnInitialize()
+    {
+        foreach (var guard in _guards.ToList()) // Use ToList() to avoid modifying the collection while iterating
+        {
+            if (guard != null && guard.guardPed != null && guard.guardPed.Exists())
+            {
+                guard.Despawn();
+            }
+            if (guard != null && guard.guardVehicle != null && guard.guardVehicle.Exists())
+            {
+                guard.Despawn();
+            }
+        }
+        _guards.Clear();
+        Logger.Log("All guards have been uninitialized and despawned.");
     }
 
     public void DespawnGuards(Area area)
@@ -92,8 +134,12 @@ public class GuardSpawner
         var guardsToRemove = _guards.Where(g => g.AreaName == area.Name).ToList();
         foreach (var guard in guardsToRemove)
         {
-            guard.Despawn();
-            _guards.Remove(guard);
+            if (guard != null)
+            {
+                guard.Despawn();
+                _guards.Remove(guard);
+            }
         }
+        Logger.Log($"All guards in area {area.Name} have been despawned.");
     }
 }
