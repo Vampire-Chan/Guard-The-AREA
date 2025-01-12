@@ -1,5 +1,6 @@
 ﻿// GuardSpawner.cs
 using GTA;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,6 +10,7 @@ public class GuardSpawner
     private List<Guard> _guards;
     private List<Guard> _removedones;
     private Dictionary<string, GuardConfig> _guardConfigs;
+
 
     public GuardSpawner(string xmlFilePath)
     {
@@ -39,6 +41,24 @@ public class GuardSpawner
                     else if (!guard.guardPed.Exists())
                     {
                         _guards.Remove(guard);
+                    }
+
+                    if(guard.guardPed.IsInCombat)
+                    {
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
+                        guard.guardPed.SetCombatAttribute(CombatAttributes.DisableReactToBuddyShot, true);
+                        guard.guardPed.SetConfigFlag(PedConfigFlagToggles.CanPerformArrest, true);
+                        //guard.guardPed.SetConfigFlag(PedConfigFlagToggles.can, true);
+                        guard.guardPed.MarkAsNoLongerNeeded();
+                        guard.guardPed.Task.CombatHatedTargetsAroundPed(1000);
+                        guard.guardPed.HearingRange = 200;
+                        guard.guardPed.SeeingRange = 75;
+                        _guards.Remove(guard);
+                        _removedones.Add(guard);
                     }
                 }
                 if (guard?.guardVehicle != null)
@@ -108,12 +128,19 @@ public class GuardSpawner
         }
 
         var guardConfig = _guardConfigs[area.Model];
-
+        
         foreach (var spawnPoint in area.SpawnPoints)
         {
-            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, guardConfig, area.Name, spawnPoint.Type);
-            Logger.Log("Initializing guard...");
+            var rand = new Random();
 
+            var ped = guardConfig.PedModels[rand.Next(0, guardConfig.PedModels.Count)];
+            var weapon = guardConfig.Weapons[rand.Next(0, guardConfig.Weapons.Count)];
+            var vehicle = guardConfig.VehicleModels[rand.Next(0, guardConfig.VehicleModels.Count)];
+
+            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, area.Name, spawnPoint.Type,vehicle, ped, weapon);
+            
+            Logger.Log("Initializing guard...");
+            guard.scenario = MainScript.scenarios[rand.Next(MainScript.scenarios.Length)];
             // Check if the guard is already in the _removedones list
             if (!_removedones.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
             {

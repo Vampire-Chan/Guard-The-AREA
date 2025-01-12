@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <AssemblyName>GuardTheArea</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
@@ -14,6 +14,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LemonUI.SHVDN3">
+      <HintPath>..\..\Games\GTAV\scripts\LemonUI.SHVDN3.dll</HintPath>
+    </Reference>
     <Reference Include="ScriptHookVDotNet3">
       <HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
     </Reference>

@@ -4,11 +4,34 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using GTA.UI;
+using GTA.Native;
+using GTA.Math;
 
 public class MainScript : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
-    
+
+    public static string[] scenarios = new string[]
+    {
+        "WORLD_HUMAN_AA_COFFEE",
+        "WORLD_HUMAN_AA_SMOKE",
+        "WORLD_HUMAN_BINOCULARS",
+        "WORLD_HUMAN_CLIPBOARD",
+        "WORLD_HUMAN_COP_IDLES",
+        "WORLD_HUMAN_DRINKING",
+        "WORLD_HUMAN_GUARD_PATROL",
+        "WORLD_HUMAN_GUARD_STAND",
+        "WORLD_HUMAN_GUARD_STAND_ARMY",
+        //"WORLD_HUMAN_LEANING",
+        //"WORLD_HUMAN_SEAT_STEPS",
+        //"WORLD_HUMAN_SEAT_WALL",
+        //"WORLD_HUMAN_SEAT_WALL_EATING",
+        //"WORLD_HUMAN_SEAT_WALL_TABLET",
+        "WORLD_HUMAN_SECURITY_SHINE_TORCH",
+        "WORLD_HUMAN_SMOKING",
+        "WORLD_HUMAN_STAND_MOBILE"
+    };
+
     public MainScript()
     {
         _guardSpawner = new GuardSpawner("./scripts/Areas.xml"); // Initialize guard spawner
@@ -36,6 +59,87 @@ public class MainScript : Script
     }
 
 }
+public class GateManager : Script
+{
+    public GateManager()
+    {
+        Tick += OnTick;
+    }
+
+    // Door heading states: 0 (closed), 1 (opened), -1 (opened but weird)
+    // States: Locked doors have 0 as heading (closed), other states are 1 (unlocked)
+
+    private void OnTick(object sender, EventArgs e)
+    {
+        if (TryGetDoorInFront(out var doorProp, out var heading, out var isLocked))
+        {
+            if (isLocked)
+            {
+                // Unlock the door and ensure a valid heading is set
+                float newHeading = heading == 0 ? 0 : heading; // Default to 0 if locked and closed
+                GTA.UI.Screen.ShowSubtitle($"Unlocking Door: {doorProp.Model.Hash}, Heading: {newHeading}, Locked: {isLocked}");
+                Function.Call(Hash.SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, doorProp.Model.Hash, doorProp.Position.X, doorProp.Position.Y, doorProp.Position.Z, false, newHeading, false);
+            }
+            else
+            {
+                GTA.UI.Screen.ShowSubtitle($"Door already unlocked: {doorProp.Model.Hash}, Heading: {heading}, Locked: {isLocked}");
+            }
+        }
+    }
+
+    private bool TryGetDoorInFront(out Prop doorProp, out float heading, out bool isLocked)
+    {
+        Vector3 position = Game.Player.Character.Position;
+        Vector3 position2 = position + Game.Player.Character.ForwardVector * 1f;
+        float radius = 3f;
+
+        Prop[] nearbyProps = World.GetNearbyProps(position2, radius);
+        foreach (Prop prop in nearbyProps)
+        {
+            if (IsDoor(prop, out heading, out isLocked))
+            {
+                doorProp = prop;
+                return true;
+            }
+        }
+
+        // If no door is found, initialize out parameters and return false
+        doorProp = null;
+        heading = 0f;
+        isLocked = false;
+        return false;
+    }
+
+    private bool IsDoor(Prop prop, out float heading, out bool isLocked)
+    {
+        // Initialize output parameters
+        heading = 0f;
+        isLocked = false;
+
+        if (prop == null)
+        {
+            return false;
+        }
+
+        int hash = prop.Model.Hash;
+
+        // Use OutputArgument to capture the results of the native function
+        OutputArgument lockedStatus = new OutputArgument();
+        OutputArgument doorHeading = new OutputArgument();
+
+        // Call the native function to get the door state
+        Function.Call(Hash.GET_STATE_OF_CLOSEST_DOOR_OF_TYPE, hash, prop.Position.X, prop.Position.Y, prop.Position.Z, lockedStatus, doorHeading);
+
+        // Extract the results from the OutputArgument objects
+        isLocked = lockedStatus.GetResult<bool>();
+        heading = doorHeading.GetResult<float>();
+
+        // Additional checks can be added to determine if the prop qualifies as a door
+        return true;
+    }
+}
+
+
 
 
 public class PlayerPositionLogger : Script

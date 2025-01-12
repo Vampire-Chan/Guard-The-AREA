@@ -9,75 +9,73 @@ public class Guard
     public Vector3 Position { get; set; }
     public float Heading { get; set; }
     public string AreaName { get; set; }
-    public GuardConfig Config { get; set; }
     public string Type { get; set; }
-
     public Ped guardPed;
     public Vehicle guardVehicle;
+    private string VehicleModelName;
+    private string PedModelName;
+    private string WeaponName;
 
-    public Guard(Vector3 position, float heading, GuardConfig config, string areaName, string type)
+    Random rand = new Random();
+    public Guard(Vector3 position, float heading, string areaName, string type, string vehicle, string ped, string weapon)
     {
         Position = position;
         Heading = heading;
-        Config = config ?? throw new ArgumentNullException(nameof(config), "Config cannot be null");
         AreaName = areaName ?? throw new ArgumentNullException(nameof(areaName), "Area name cannot be null");
         Type = type ?? throw new ArgumentNullException(nameof(type), "Type cannot be null");
+        VehicleModelName = vehicle;
+        PedModelName = ped;
+        WeaponName = weapon;
     }
 
     private static RelationshipGroup guardGroup = World.AddRelationshipGroup("SC_GUARD");
 
+    public string scenario;
+
     public void Spawn()
     {
-        // Log the initial state
         Logger.Log($"Spawning guard at position {Position}, heading {Heading}, area {AreaName}, type {Type}");
 
         if (Type == "ped")
         {
-            if (Config.PedModels == null || Config.PedModels.Count == 0)
-            {
-                throw new InvalidOperationException("PedModels must be defined in the configuration");
-            }
-
-            var rand = new Random();
-            //string modelName = Config.PedModels[rand.Next(0, Config.PedModels.Count)];
-            //Logger.Log($"Selected ped model: {modelName}");
-
-            guardPed = World.CreatePed(Config.PedModels[rand.Next(0, Config.PedModels.Count)], Position);
+            guardPed = World.CreatePed(PedModelName, Position);
             if (guardPed == null)
             {
-                //throw new InvalidOperationException($"Failed to create ped with model {modelName}");
+                Logger.Log("Failed to create guard ped.");
+                return;
             }
 
             guardPed.Heading = Heading;
-            guardPed.Task.GuardCurrentPosition();
+            guardPed.Weapons.Give(WeaponName, 400, true, true);
 
-            
-                guardPed.Weapons.Give(Config.Weapons[rand.Next(0, Config.Weapons.Count)], 400, true, true);
-            
-
-            guardPed.Armor = 400;
+            guardPed.Armor = 200;
             guardPed.DiesOnLowHealth = false;
             guardPed.MaxHealth = 400;
             guardPed.Health = 400;
 
-            //guardPed.CanSufferCriticalHits = true;
             guardPed.CombatAbility = CombatAbility.Professional;
             guardPed.CombatMovement = CombatMovement.WillAdvance;
             guardPed.CombatRange = CombatRange.Medium;
             guardPed.FiringPattern = FiringPattern.FullAuto;
             guardPed.Accuracy = 200;
             guardPed.ShootRate = 1000;
-            //guardPed.SetConfigFlag(PedConfigFlagToggles.NoCriticalHits, true);
+
             guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
-            //guardPed.SetConfigFlag(PedConfigFlagToggles.DisableHelmetArmor, false);
             guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.AllowNearbyCoverUsage, true);
-            //guardPed.SetConfigFlag(PedConfigFlagToggles.HasBulletProofVest, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.ActivateRagdollFromMinorPlayerContact, false);
-            //guardPed.SetConfigFlag(PedConfigFlagToggles.DontActivateRagdollFromBulletImpact, true);
+
+
 
             Function.Call(Hash.SET_PED_RANDOM_PROPS, guardPed);
 
+            // Randomly select a scenario from the list
+            string selectedScenario = scenario;
+
+            // Start the in-place scenario (active by default)
+            guardPed.Task.StartScenarioInPlace(selectedScenario);
+
+            //guardPed.Task.PlayAnimation(, crClipName, 8f, 1f, -1, AnimationFlags.Loop, 0f);
             if (guardPed.PedType == PedType.Cop || guardPed.PedType == PedType.Swat || guardPed.PedType == PedType.Army)
             {
                 //donothing
@@ -91,30 +89,26 @@ public class Guard
 
                 Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect);
             }
-            //Logger.Log($"Guard spawned at position {Position} with model {modelName}.");
+
+            // Uncomment the block below to test the "at-position" scenario instead
+            //guardPed.Task.StartScenarioAtPosition(selectedScenario, Position*2, Heading);
+
+            Logger.Log($"Guard spawned with scenario {selectedScenario}.");
         }
         else if (Type == "vehicle")
         {
-            if (Config.VehicleModels == null || Config.VehicleModels.Count == 0)
-            {
-                throw new InvalidOperationException("VehicleModels must be defined in the configuration");
-            }
-
-            var rand = new Random();
-            //string vehicleModelName = Config.VehicleModels[rand.Next(Config.VehicleModels.Count)];
-            //Logger.Log($"Selected vehicle model: {vehicleModelName}");
-
-            guardVehicle = World.CreateVehicle(Config.VehicleModels[rand.Next(Config.VehicleModels.Count)], Position);
+            guardVehicle = World.CreateVehicle(VehicleModelName, Position);
             if (guardVehicle == null)
             {
-               // throw new InvalidOperationException($"Failed to create vehicle with model {vehicleModelName}");
+                Logger.Log("Failed to create guard vehicle.");
+                return;
             }
 
             guardVehicle.Heading = Heading;
             guardVehicle.IsPersistent = true;
             guardVehicle.EngineHealth = 2000;
 
-            //Logger.Log($"Vehicle spawned at position {Position} with model {vehicleModelName}.");
+            Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
     }
 
