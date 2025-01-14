@@ -1,5 +1,6 @@
 ﻿// GuardSpawner.cs
 using GTA;
+using GTA.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ public class GuardSpawner
     private List<Guard> _removedones;
     private Dictionary<string, GuardConfig> _guardConfigs;
 
+    private const float SPAWN_DISTANCE = 150f;
+    private const float DESPAWN_DISTANCE = 170f;
 
     public GuardSpawner(string xmlFilePath)
     {
@@ -28,54 +31,36 @@ public class GuardSpawner
     {
         if (temparea != null)
         {
-            foreach (var guard in _guards.ToList()) // Use ToList() to avoid modifying the collection while iterating
+            foreach (var guard in _guards.ToList())
             {
                 if (guard?.guardPed != null)
                 {
-                    if (guard.guardPed.IsDead)
+                    // Check if guard is dead or no longer exists
+                    if (guard.guardPed.IsDead || !guard.guardPed.Exists())
                     {
-                        guard.guardPed.MarkAsNoLongerNeeded();
+                        if (guard.guardPed != null)
+                        {
+                            guard.guardPed.MarkAsNoLongerNeeded();
+                        }
                         _guards.Remove(guard);
                         _removedones.Add(guard);
-                    }
-                    else if (!guard.guardPed.Exists())
-                    {
-                        _guards.Remove(guard);
+                        continue;
                     }
 
-                    if(guard.guardPed.IsInCombat)
-                    {
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
-                        guard.guardPed.SetCombatAttribute(CombatAttributes.DisableReactToBuddyShot, true);
-                        guard.guardPed.SetConfigFlag(PedConfigFlagToggles.CanPerformArrest, true);
-                        //guard.guardPed.SetConfigFlag(PedConfigFlagToggles.can, true);
-                        guard.guardPed.MarkAsNoLongerNeeded();
-                        guard.guardPed.Task.CombatHatedTargetsAroundPed(1000);
-                        guard.guardPed.HearingRange = 200;
-                        guard.guardPed.SeeingRange = 75;
-                        _guards.Remove(guard);
-                        _removedones.Add(guard);
-                    }
+                    // Update combat state for each guard
+                    guard.UpdateCombatState();
                 }
+
+                // Check vehicle status
                 if (guard?.guardVehicle != null)
                 {
-                    if (guard.guardVehicle.IsDead)
+                    if (guard.guardVehicle.IsDead || !guard.guardVehicle.Exists() ||
+                        guard.guardVehicle.Driver != null || guard.guardVehicle.PassengerCount != 0)
                     {
-                        guard.guardVehicle.MarkAsNoLongerNeeded();
-                        _guards.Remove(guard);
-                        _removedones.Add(guard);
-                    }
-                    else if (!guard.guardVehicle.Exists())
-                    {
-                        _guards.Remove(guard);
-                    }
-                    else if (guard.guardVehicle.Driver != null || guard.guardVehicle.PassengerCount != 0)
-                    {
-                        guard.guardVehicle.MarkAsNoLongerNeeded();
+                        if (guard.guardVehicle != null)
+                        {
+                            guard.guardVehicle.MarkAsNoLongerNeeded();
+                        }
                         _guards.Remove(guard);
                         _removedones.Add(guard);
                     }
@@ -97,24 +82,24 @@ public class GuardSpawner
         foreach (var area in _areas)
         {
             temparea = area;
-            Logger.Log($"Checking area {area.Name} for player proximity...");
-            foreach (var spawnPoint in area.SpawnPoints)
-            {
-                if (spawnPoint?.Position == null) continue; // Ensure valid spawn point
+            Vector3 areaCentroid = area.GetCentroid();
+            float areaRadius = area.GetRadius();
 
-                float distance = player.Character.Position.DistanceTo(spawnPoint.Position);
-                Logger.Log($"Distance to spawn point: {distance}");
-                if (distance < 150f)
-                {
-                    SpawnGuards(area);
-                    Logger.Log($"Guards trying to spawn in area {area.Name}");
-                    break;
-                }
-                else if (distance > 170f)
-                {
-                    DespawnGuards(area);
-                    break;
-                }
+            float distanceToCentroid = player.Character.Position.DistanceTo(areaCentroid);
+            Logger.Log($"Checking area {area.Name}, distance to centroid: {distanceToCentroid}");
+
+            // Adjust spawn/despawn distances based on area radius
+            float adjustedSpawnDistance = SPAWN_DISTANCE + areaRadius;
+            float adjustedDespawnDistance = DESPAWN_DISTANCE + areaRadius;
+
+            if (distanceToCentroid < adjustedSpawnDistance)
+            {
+                SpawnGuards(area);
+                Logger.Log($"Guards spawning in area {area.Name}");
+            }
+            else if (distanceToCentroid > adjustedDespawnDistance)
+            {
+                DespawnGuards(area);
             }
         }
     }
@@ -128,27 +113,19 @@ public class GuardSpawner
         }
 
         var guardConfig = _guardConfigs[area.Model];
-        
+
         foreach (var spawnPoint in area.SpawnPoints)
         {
-            var rand = new Random();
+            // Create guard with the config
+            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading,
+           area.Name, spawnPoint.Type, guardConfig, spawnPoint.Scenario, area);
 
-            var ped = guardConfig.PedModels[rand.Next(0, guardConfig.PedModels.Count)];
-            var weapon = guardConfig.Weapons[rand.Next(0, guardConfig.Weapons.Count)];
-            var vehicle = guardConfig.VehicleModels[rand.Next(0, guardConfig.VehicleModels.Count)];
-
-            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, area.Name, spawnPoint.Type,vehicle, ped, weapon);
-            
-            Logger.Log("Initializing guard...");
-            guard.scenario = MainScript.scenarios[rand.Next(MainScript.scenarios.Length)];
-            // Check if the guard is already in the _removedones list
-            if (!_removedones.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
+            // Check if the guard should be spawned
+            if (!_removedones.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName) &&
+                !_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
             {
-                if (!_guards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName))
-                {
-                    _guards.Add(guard);
-                    guard.Spawn();
-                }
+                _guards.Add(guard);
+                guard.Spawn();
             }
         }
     }

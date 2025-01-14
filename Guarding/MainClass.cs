@@ -6,12 +6,13 @@ using System.Windows.Forms;
 using GTA.UI;
 using GTA.Native;
 using GTA.Math;
+using System.Collections.Generic;
 
 public class MainScript : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
 
-    public static string[] scenarios = new string[]
+    public static List<string> scenarios = new()
     {
         "WORLD_HUMAN_AA_COFFEE",
         "WORLD_HUMAN_AA_SMOKE",

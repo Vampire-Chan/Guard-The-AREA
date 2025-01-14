@@ -17,17 +17,35 @@ public class XmlReader
         _guardsXmlPath = Path.Combine(Path.GetDirectoryName(areasFilePath), "Guards.xml");
     }
 
+    private List<string> ParseRelationshipString(string relationshipString)
+    {
+        if (string.IsNullOrWhiteSpace(relationshipString))
+            return null;
+
+        return relationshipString.Split(',')
+                               .Select(x => x.Trim())
+                               .Where(x => !string.IsNullOrWhiteSpace(x))
+                               .ToList();
+    }
+
     public List<Area> LoadAreasFromXml()
     {
         var areas = new List<Area>();
-
         XElement xml = XElement.Load(_xmlFilePath);
 
         foreach (var areaElement in xml.Elements("Area"))
         {
             string areaName = areaElement.Attribute("name")?.Value;
             string model = areaElement.Attribute("model")?.Value;
-            Area area = new Area(areaName, model);
+            bool relationshipOverride = bool.Parse(areaElement.Attribute("override")?.Value ?? "false");
+
+            Area area = new Area(areaName, model, relationshipOverride);
+
+            // Parse relationships
+            area.Hate = ParseRelationshipString(areaElement.Attribute("hates")?.Value);
+            area.Dislike = ParseRelationshipString(areaElement.Attribute("dislikes")?.Value);
+            area.Respect = ParseRelationshipString(areaElement.Attribute("respect")?.Value);
+            area.Like = ParseRelationshipString(areaElement.Attribute("like")?.Value);
 
             foreach (var spawnPointElement in areaElement.Elements("SpawnPoint"))
             {
@@ -37,10 +55,17 @@ public class XmlReader
                 float z = float.Parse(positionElement.Attribute("z")?.Value);
 
                 float heading = float.Parse(spawnPointElement.Element("Heading")?.Value);
-                string type = spawnPointElement.Attribute("type")?.Value ?? "ped";
+                string type = spawnPointElement.Attribute("type")?.Value?.ToLower() ?? "ped";
+
+                string scenario = spawnPointElement.Attribute("scenario")?.Value;
+
+                if (string.IsNullOrWhiteSpace(scenario))
+                {
+                    scenario = "none"; // Treat as no valid scenario
+                }
 
                 Vector3 position = new Vector3(x, y, z);
-                area.AddSpawnPoint(position, heading, type);
+                area.AddSpawnPoint(position, heading, type, scenario);
             }
 
             areas.Add(area);
@@ -57,18 +82,24 @@ public class XmlReader
         foreach (var guardElement in xml.Elements("Guard"))
         {
             string guardName = guardElement.Attribute("name")?.Value;
+
             var config = new GuardConfig
             {
                 Name = guardName,
                 PedModels = guardElement.Elements("PedModel")
-                                        .Select(x => x.Value)
-                                        .ToList(),
-                Weapons = guardElement.Elements("Weapon")
                                       .Select(x => x.Value)
                                       .ToList(),
+                Weapons = guardElement.Elements("Weapon")
+                                    .Select(x => x.Value)
+                                    .ToList(),
                 VehicleModels = guardElement.Elements("VehicleModel")
-                                            .Select(x => x.Value)
-                                            .ToList()
+                                          .Select(x => x.Value)
+                                          .ToList(),
+                // Add relationship properties
+                Hate = ParseRelationshipString(guardElement.Attribute("hates")?.Value),
+                Dislike = ParseRelationshipString(guardElement.Attribute("dislikes")?.Value),
+                Respect = ParseRelationshipString(guardElement.Attribute("respect")?.Value),
+                Like = ParseRelationshipString(guardElement.Attribute("like")?.Value)
             };
             guardConfigs[guardName] = config;
         }
@@ -77,10 +108,16 @@ public class XmlReader
     }
 }
 
+
 public class GuardConfig
 {
     public string Name { get; set; }
     public List<string> PedModels { get; set; }
     public List<string> Weapons { get; set; }
     public List<string> VehicleModels { get; set; }
+    public string ScenarioOverride { get; set; }
+    public List<string> Hate { get; set; } = new List<string>();
+    public List<string> Dislike { get; set; } = new List<string>();
+    public List<string> Respect { get; set; } = new List<string>();
+    public List<string> Like { get; set; } = new List<string>();
 }
