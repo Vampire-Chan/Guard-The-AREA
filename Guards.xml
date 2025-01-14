@@ -1,33 +1,65 @@
 <!-- Guards.xml -->
 <Guards>
-	<!-- Guard: Gruppe6 -->
-	<Guard name="gruppe6_guard">
+	<!-- Guard: Gruppe6 ... Respect Their Owns, Police Army and other Emergency People. Can fight with any threats.--> 
+	<Guard name="gruppe6_guard" hates="" respect="SECURITY_GUARD, COP, ARMY, FIREMAN, MEDIC, GUARD_DOG" dislikes="PLAYER_TREVOR" >
 		<!-- Ped Models -->
 		<PedModel>s_m_m_armoured_02</PedModel>
 		<PedModel>s_m_m_armoured_01</PedModel>
 		<!-- Weapons -->
-		<Weapon>WEAPON_PISTOL</Weapon>
-		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+		<Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
 		<Weapon>WEAPON_CARBINERIFLE</Weapon>
 		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+		<Weapon>WEAPON_BULLPUPRIFLE</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE_MK2</Weapon>
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+		<Weapon>WEAPON_HEAVYPISTOL</Weapon>
+
 		<!-- Vehicle Models -->
-		<VehicleModel>police</VehicleModel>
-		<VehicleModel>police2</VehicleModel>
+		<VehicleModel>STOCKADE</VehicleModel>
+		<VehicleModel>STOCKADE3</VehicleModel>
+		<VehicleModel>SPEEDO</VehicleModel>
+		<VehicleModel>SPEEDO4</VehicleModel>
+		<VehicleModel>GRANGER</VehicleModel>
+		<VehicleModel>GRANGER2</VehicleModel>
 	</Guard>
 
 	<Guard name="army1_guard">
-		<PedModel>s_m_y_marine_02</PedModel>
-		<PedModel>s_m_y_marine_03</PedModel>
+		<!-- Ped Models -->
+		<PedModel>S_M_Y_MARINE_01</PedModel>
+		<PedModel>S_M_Y_MARINE_02</PedModel>
+		<PedModel>S_M_Y_MARINE_03</PedModel>
+
 		<!-- Weapons -->
 		<Weapon>WEAPON_PISTOL</Weapon>
-		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_COMBATMG_MK2</Weapon>
+		<Weapon>WEAPON_HEAVYRIFLE</Weapon>
+		<Weapon>WEAPON_SNIPERRIFLE_MK2</Weapon>
+		<Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+		<Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
 		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE_MK2</Weapon>
 		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+		<Weapon>WEAPON_BULLPUPRIFLE</Weapon>
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+		<Weapon>WEAPON_COMBATMG</Weapon>
+
 		<!-- Vehicle Models -->
-		<VehicleModel>crusader</VehicleModel>
-		<VehicleModel>insurgent</VehicleModel>
+		<VehicleModel>CRUSADER</VehicleModel>
+		<VehicleModel>INSURGENT</VehicleModel>
+		<VehicleModel>BARRACKS</VehicleModel>
+		<VehicleModel>INSURGENT2</VehicleModel>
+		<VehicleModel>INSURGENT3</VehicleModel>
+		<VehicleModel>BARRAGE</VehicleModel>
+		<VehicleModel>RIOT</VehicleModel>
+		<VehicleModel>RHINO</VehicleModel>
+		<VehicleModel>HALFTRACK</VehicleModel>
+		<VehicleModel>APC</VehicleModel>
+		<VehicleModel>KURUMA</VehicleModel>
+		<VehicleModel>DUNE3</VehicleModel>
+		<VehicleModel>MENACER</VehicleModel>
 	</Guard>
 
 	<!-- Guard: Police LSPD -->
@@ -35,6 +67,30 @@
 		<!-- Ped Models -->
 		<PedModel>s_m_y_cop_01</PedModel>
 		<PedModel>s_f_y_cop_01</PedModel>
+		<PedModel>s_f_y_sheriff_01</PedModel>
+		<!-- Weapons -->
+		<Weapon>WEAPON_PISTOL</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+		<!-- Vehicle Models -->
+		<VehicleModel>police</VehicleModel>
+		<VehicleModel>police2</VehicleModel>
+		<VehicleModel>police3</VehicleModel>
+		<VehicleModel>police4</VehicleModel>
+		<VehicleModel>sheriff</VehicleModel>
+		<VehicleModel>policet</VehicleModel>
+		<VehicleModel>riot</VehicleModel>
+	</Guard>
+
+	<Guard name="noose_guard">
+		<!-- Ped Models -->
+		<PedModel>s_m_y_cop_01</PedModel>
+		<PedModel>s_f_y_cop_01</PedModel>
+		<PedModel>s_m_y_swat_01</PedModel>
+		<PedModel>s_m_m_security_01</PedModel>
 		<!-- Weapons -->
 		<Weapon>WEAPON_PISTOL</Weapon>
 		<Weapon>WEAPON_FLASHLIGHT</Weapon>
@@ -45,7 +101,12 @@
 		<!-- Vehicle Models -->
 		<VehicleModel>police</VehicleModel>
 		<VehicleModel>police2</VehicleModel>
+		<VehicleModel>police3</VehicleModel>
+		<VehicleModel>police4</VehicleModel>
+		<VehicleModel>policet</VehicleModel>
+		<VehicleModel>riot</VehicleModel>
 	</Guard>
+
 	<!-- Guard: Police Sheriff -->
 	<Guard name="lssd_guard">
 		<!-- Ped Models -->
@@ -91,7 +152,7 @@
 		<Weapon>WEAPON_SMG</Weapon>
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
 		<!-- Vehicle Models -->
-		<VehicleModel>security</VehicleModel>
+		<VehicleModel>stockade</VehicleModel>
 	</Guard>
 	<!-- Guard: Federal IAA -->
 	<Guard name="iaa_guard">
@@ -107,7 +168,7 @@
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
 		<!-- Vehicle Models -->
 		<VehicleModel>fbi</VehicleModel>
-		<VehicleModel>fbi2</VehicleModel>
+		<VehicleModel>police4</VehicleModel>
 	</Guard>
 	<!-- Guard: Federal FIB -->
 	<Guard name="fib_guard">
