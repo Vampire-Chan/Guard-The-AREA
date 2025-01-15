@@ -13,15 +13,15 @@ public class Area
     public bool RelationshipOverride { get; set; }
     public List<GuardSpawnPoint> SpawnPoints { get; set; }
 
-    public Area(string name, string model, bool relationshipOverride = false)
+    public Area(string name, string model, List<string> hate, List<string> dislike, List<string> respect, List<string>like,  bool relationshipOverride = false)
     {
         Name = name;
         Model = model;
         SpawnPoints = new List<GuardSpawnPoint>();
-        Hate = new List<string>();
-        Dislike = new List<string>();
-        Respect = new List<string>();
-        Like = new List<string>();
+        Hate = hate;
+        Dislike = dislike;
+        Respect = respect;
+        Like = like;
         RelationshipOverride = relationshipOverride;
     }
 
@@ -61,9 +61,9 @@ public class Area
         return maxDistance;
     }
 
-    public void AddSpawnPoint(Vector3 position, float heading, string type, string scenario)
+    public void AddSpawnPoint(Vector3 position, float heading, string type, string scenario, bool interior)
     {
-        SpawnPoints.Add(new GuardSpawnPoint(position, heading, type, scenario));
+        SpawnPoints.Add(new GuardSpawnPoint(position, heading, type, scenario, interior));
     }
 }
 
@@ -74,11 +74,14 @@ public class GuardSpawnPoint
     public string Type { get; set; }
     public string Scenario { get; set; }
 
-    public GuardSpawnPoint(Vector3 position, float heading, string type, string scenario)
+    public bool Interior { get; set; }
+
+    public GuardSpawnPoint(Vector3 position, float heading, string type, string scenario, bool interior)
     {
         Position = position;
         Heading = heading;
         Type = type;
         Scenario = scenario;
+        Interior = interior;
     }
 }

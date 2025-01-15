@@ -118,7 +118,7 @@ public class GuardSpawner
         {
             // Create guard with the config
             Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading,
-           area.Name, spawnPoint.Type, guardConfig, spawnPoint.Scenario, area);
+           area.Name, spawnPoint.Type, guardConfig, spawnPoint.Scenario, area, spawnPoint.Interior);
 
             // Check if the guard should be spawned
             if (!_removedones.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName) &&
@@ -161,24 +161,28 @@ public class GuardSpawner
 
     public void DespawnGuards(Area area)
     {
+        // Only remove guards that belong to the specified area
         var guardsToRemove = _guards.Where(g => g.AreaName == area.Name).ToList();
         foreach (var guard in guardsToRemove)
         {
             if (guard != null)
             {
                 guard.Despawn();
-                _guards.Remove(guard);
+                _guards.Remove(guard); // Remove from active guards list
             }
         }
 
+        // Ensure guards that have been removed once are also handled based on area
         var removedGuardsToRemove = _removedones.Where(g => g.AreaName == area.Name).ToList();
-        foreach(var guard in removedGuardsToRemove)
+        foreach (var guard in removedGuardsToRemove)
         {
             if (guard != null)
             {
-                _removedones.Remove(guard);
+                _removedones.Remove(guard); // Remove from the removed guards list
             }
         }
+
         Logger.Log($"All guards in area {area.Name} have been despawned.");
     }
+
 }

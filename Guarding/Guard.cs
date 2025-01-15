@@ -1,6 +1,7 @@
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
+using GTA.NaturalMotion;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -28,29 +29,38 @@ public class RelationshipManager
 
 public class Guard
 {
+
+    private readonly string _configuredScenario; // Store the original scenario from config
+    private string _activeScenario; // The currently active scenario
+    private bool _isGuardScenario; // Flag to track if using guard-specific behavior
+
+
     public Vector3 Position { get; set; }
     public float Heading { get; set; }
     public string AreaName { get; set; }
     public string Type { get; set; }
-    private readonly Area _area;
-    private readonly GuardConfig _guardConfig;
+
+    public bool Interior { get; set; }
+    private readonly Area Area;
     private readonly RelationshipManager _relationshipsArea;
     private readonly RelationshipManager _relationshipsGuard;
 
     public Ped guardPed;
     public Vehicle guardVehicle;
+    public RelationshipGroup GuardGroup { get; set; }
 
     // New fields for combat tracking
     private Vector3 _originalPosition;
     private readonly float _originalHeading;
-    private const float RETURN_THRESHOLD = 0.1f; // Distance threshold for considering ped "returned"
-    private const int COMBAT_CHECK_DELAY = 100; // Time to wait before checking if combat is truly over
+    private const float RETURN_THRESHOLD = 2f; // Distance threshold for considering ped "returned"
+    private const int COMBAT_CHECK_DELAY = 2000; // Time to wait before checking if combat is truly over
 
     private string VehicleModelName;
     private string PedModelName;
     private string WeaponName;
     private readonly GuardConfig GuardConfig;
     private string Scenario; //with value the original
+    private string randomScenario;
 
     // PLAYER_ZERO IS MICHAEL
     // PLAYER_ONE IS FRANKLIN
@@ -95,288 +105,80 @@ public class Guard
 
     //and if xml returns any relationship group named as above means we have to check that current player is zero,one or two and then the player.hash of relationship will be used to setup
 
-    public Guard(Vector3 position, float heading, string areaName, string type, GuardConfig guardConfig, string scenario, Area area)
+    private RelationshipGroup guardGroup;
+
+    public Guard(Vector3 position, float heading, string areaName, string type, GuardConfig guardConfig, string scenario, Area area, bool interior)
     {
         Position = position;
         Heading = heading;
         AreaName = areaName ?? throw new ArgumentNullException(nameof(areaName));
         Type = type ?? throw new ArgumentNullException(nameof(type));
-        _guardConfig = guardConfig;
-        _area = area;
-        Scenario = scenario;
+        GuardConfig = guardConfig;
+        Area = area;
+        _configuredScenario = scenario; // Store original scenario
+        Interior = interior;
 
         // Initialize combat-related fields
         _originalPosition = position;
         _originalHeading = heading;
 
         // Initialize relationships
-        _relationshipsArea = new RelationshipManager(_area.Hate, _area.Dislike, _area.Respect, _area.Like);
-        _relationshipsGuard= new RelationshipManager(_guardConfig.Hate, _guardConfig.Dislike,
-            _guardConfig.Respect, _guardConfig.Like);
+        _relationshipsArea = new RelationshipManager(Area.Hate, Area.Dislike, Area.Respect, Area.Like);
+        _relationshipsGuard = new RelationshipManager(GuardConfig.Hate, GuardConfig.Dislike,
+            GuardConfig.Respect, GuardConfig.Like);
+        GuardGroup = GuardConfig.RelationshipGroup;
 
         RandomizeLoadout();
+        InitializeScenario();
     }
 
-    public  Relationship GetRelationshipBetweenGroups(int group1, int group2)
+
+
+    private void InitializeScenario()
     {
-        return (Relationship)Function.Call<int>(Hash.GET_RELATIONSHIP_BETWEEN_GROUPS, group1, group2);
-    }
-    public void SetRelationshipBetweenGroups(Relationship relationship, int group1, int group2)
-    {
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group1, group2);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group2, group1);
-    }
-    //    private void ApplyRelationships()
-    //    {
-    //        if (guardPed == null || !guardPed.Exists())
-    //            return;
-    ////original guard respect each other
-    //        guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion, true);
-
-    //        //from here we grab the relationship lists and as per that 
-    //        if (_area.RelationshipOverride)
-    //        {
-    //            if (_relationshipsArea.Hate != null || _relationshipsArea.Hate.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Hate)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Hate, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //respect
-    //            if (_relationshipsArea.Respect != null || _relationshipsArea.Respect.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Respect)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Respect, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //like
-    //            if (_relationshipsArea.Like != null || _relationshipsArea.Like.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Like)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Like, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //dislike
-    //            if (_relationshipsArea.Dislike != null || _relationshipsArea.Dislike.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Dislike)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Dislike, true); //last param means bidirectonally
-    //                }
-
-    //            }
-
-
-    //            //
-
-    //        }
-    //        else
-
-    //        {
-    //            if (_relationshipsArea.Hate != null || _relationshipsArea.Hate.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Hate)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Hate, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //respect
-    //            if (_relationshipsArea.Respect != null || _relationshipsArea.Respect.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Respect)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Respect, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //like
-    //            if (_relationshipsArea.Like != null || _relationshipsArea.Like.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Like)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Like, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //dislike
-    //            if (_relationshipsArea.Dislike != null || _relationshipsArea.Dislike.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsArea.Dislike)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Dislike, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            if (_relationshipsGuard.Hate != null || _relationshipsGuard.Hate.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsGuard.Hate)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Hate, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //respect
-    //            if (_relationshipsGuard.Respect != null || _relationshipsGuard.Respect.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsGuard.Respect)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Respect, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //like
-    //            if (_relationshipsGuard.Like != null || _relationshipsGuard.Like.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsGuard.Like)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Like, true); //last param means bidirectonally
-    //                }
-
-    //            }
-    //            //dislike
-    //            if (_relationshipsGuard.Dislike != null || _relationshipsGuard.Dislike.Contains("null"))
-    //            {
-    //                foreach (var grp in _relationshipsGuard.Dislike)
-    //                {
-    //                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Dislike, true); //last param means bidirectonally
-    //                }
-
-    //            }
-
-    //        }
-
-
-
-
-    //        Logger.Log($"Applied relationships for guard in area {AreaName}. Override: {_area.RelationshipOverride}");
-    //    }
-
-    private void ApplyRelationships()
-    {
-        if (guardPed == null || !guardPed.Exists())
+        // If no scenario is defined in XML (null or empty), use random scenario
+        if (string.IsNullOrEmpty(_configuredScenario))
+        {
+            _isGuardScenario = false;
+            _activeScenario = GetRandomElement(MainScript.scenarios);
+            Logger.Log($"No scenario configured, using random scenario: {_activeScenario}");
             return;
-
-        // Apply relationships for guard
-        ApplyGroupRelationships(_relationshipsGuard);
-
-        // Apply relationships for area, if the override is false or relationships are defined
-        if (!_area.RelationshipOverride)
-        {
-            ApplyGroupRelationships(_relationshipsArea);
         }
 
-        Logger.Log($"Applied relationships for guard in area {AreaName}. Override: {_area.RelationshipOverride}");
-    }
+        // Convert to lowercase for comparison
+        string scenarioLower = _configuredScenario.ToLower();
 
-    private void ApplyGroupRelationships(RelationshipManager relationships)
-    {
-        // Check and apply 'Hate' relationships
-        if (relationships.Hate != null && !relationships.Hate.Contains("none"))
+        // Handle explicit guard behaviors
+        if (scenarioLower == "guard" ||
+            scenarioLower == "guardpatrol" ||
+            scenarioLower == "taskguard" ||
+            scenarioLower == "task_guard")
         {
-            foreach (var grp in relationships.Hate)
-            {
-                // Apply relationship to players based on specific conditions
-                if (grp == "PLAYER_ZERO")  // Michael
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Michael, Relationship.Hate, true);
-                }
-                else if (grp == "PLAYER_ONE")  // Franklin
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Franklin, Relationship.Hate, true);
-                }
-                else if (grp == "PLAYER_TWO")  // Trevor
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Trevor, Relationship.Hate, true);
-                }
-                else
-                {
-                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Hate, true);
-                }
-            }
+            _isGuardScenario = true;
+            _activeScenario = null;
+            Logger.Log("Using guard behavior as specified");
         }
-
-        // Check and apply 'Respect' relationships
-        if (relationships.Respect != null && !relationships.Respect.Contains("none"))
+        // Handle explicit none/false cases
+        else if (scenarioLower == "none" || scenarioLower == "false")
         {
-            foreach (var grp in relationships.Respect)
-            {
-                // Apply relationship to players based on specific conditions
-                if (grp == "PLAYER_ZERO")  // Michael
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Michael, Relationship.Respect, true);
-                }
-                else if (grp == "PLAYER_ONE")  // Franklin
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Franklin, Relationship.Respect, true);
-                }
-                else if (grp == "PLAYER_TWO")  // Trevor
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Trevor, Relationship.Respect, true);
-                }
-                else
-                {
-                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Respect, true);
-                }
-            }
+            _isGuardScenario = false;
+            _activeScenario = scenarioLower == "random" ?
+                GetRandomElement(MainScript.scenarios) :
+                _configuredScenario;
+            Logger.Log("Scenario disabled, using guard behavior");
         }
-
-        // Check and apply 'Like' relationships
-        if (relationships.Like != null && !relationships.Like.Contains("none"))
+        // For all other cases, including "random"
+        else
         {
-            foreach (var grp in relationships.Like)
-            {
-                // Apply relationship to players based on specific conditions
-                if (grp == "PLAYER_ZERO")  // Michael
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Michael, Relationship.Like, true);
-                }
-                else if (grp == "PLAYER_ONE")  // Franklin
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Franklin, Relationship.Like, true);
-                }
-                else if (grp == "PLAYER_TWO")  // Trevor
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Trevor, Relationship.Like, true);
-                }
-                else
-                {
-                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Like, true);
-                }
-            }
-        }
-
-        // Check and apply 'Dislike' relationships
-        if (relationships.Dislike != null && !relationships.Dislike.Contains("none"))
-        {
-            foreach (var grp in relationships.Dislike)
-            {
-                // Apply relationship to players based on specific conditions
-                if (grp == "PLAYER_ZERO")  // Michael
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Michael, Relationship.Dislike, true);
-                }
-                else if (grp == "PLAYER_ONE")  // Franklin
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Franklin, Relationship.Dislike, true);
-                }
-                else if (grp == "PLAYER_TWO")  // Trevor
-                {
-                    guardGroup.SetRelationshipBetweenGroups(Trevor, Relationship.Dislike, true);
-                }
-                else
-                {
-                    guardGroup.SetRelationshipBetweenGroups(grp, Relationship.Dislike, true);
-                }
-            }
+            _isGuardScenario = false;
+            _activeScenario = scenarioLower == "random" ?
+                GetRandomElement(MainScript.scenarios) :
+                _configuredScenario;
+            Logger.Log($"Using scenario: {_activeScenario}");
         }
     }
+
+
 
     private static readonly Random rand = new Random(); // Single Random instance
 
@@ -385,7 +187,8 @@ public class Guard
         PedModelName = GetRandomElement(GuardConfig.PedModels);
         WeaponName = GetRandomElement(GuardConfig.Weapons);
         VehicleModelName = GetRandomElement(GuardConfig.VehicleModels);
-        Scenario = GetRandomElement(MainScript.scenarios);
+        if (Scenario != null) randomScenario = GetRandomElement(MainScript.scenarios);
+        
     }
 
     private static T GetRandomElement<T>(List<T> list)
@@ -395,8 +198,7 @@ public class Guard
         return list[rand.Next(list.Count)];
     }
 
-    private static RelationshipGroup guardGroup = World.AddRelationshipGroup("SC_GUARD");
-
+    
     public void UpdateCombatState()
     {
         if (guardPed == null || !guardPed.Exists() || guardPed.IsDead)
@@ -414,7 +216,7 @@ public class Guard
         else if (!isCurrentlyInCombat)
         {
             Script.Wait(COMBAT_CHECK_DELAY); // Wait to ensure combat is truly over
-            if (!guardPed.IsInCombat && !guardPed.IsShooting)
+            if (guardPed.IsIdle && guardPed.IsAlive && !guardPed.IsRagdoll && !guardPed.IsInAir && !guardPed.IsClimbing && !guardPed.IsFalling && !guardPed.IsShooting && !guardPed.IsInCombat)
             {
                 ExitCombatMode();
             }
@@ -447,28 +249,27 @@ public class Guard
 
         Logger.Log($"Guard exiting combat mode, returning to position {_originalPosition}");
 
-        // Clear tasks and return to original position
-        guardPed.Task.ClearAllImmediately();
-
-        // First move back to original position
-
-        Script.Wait(1000); // Give time for movement to start
-
-        // Check periodically if guard has returned to position
         if (guardPed.Exists() && guardPed.Position.DistanceTo(_originalPosition) < RETURN_THRESHOLD)
         {
-
             // Reset heading
             if (guardPed.Heading != _originalHeading)
                 guardPed.Heading = _originalHeading;
 
-            // guardPed.Task.GuardCurrentPosition();
-            guardPed.Task.StartScenarioInPlace(Scenario);
-            Logger.Log("Guard resumed default guard position");
-
+            // Return to original behavior
+            if (_isGuardScenario)
+            {
+                guardPed.Task.GuardCurrentPosition();
+                Logger.Log("Guard resumed guard position");
+            }
+            else
+            {
+                guardPed.Task.StartScenarioInPlace(_activeScenario);
+                Logger.Log($"Guard resumed scenario: {_activeScenario}");
+            }
         }
-
-        else if (guardPed.IsIdle && guardPed.IsAlive && !guardPed.IsRagdoll && !guardPed.IsInAir && !guardPed.IsClimbing && !guardPed.IsFalling && !guardPed.IsShooting && !guardPed.IsInCombat)
+        else if (guardPed.IsIdle && guardPed.IsAlive && !guardPed.IsRagdoll &&
+                 !guardPed.IsInAir && !guardPed.IsClimbing && !guardPed.IsFalling &&
+                 !guardPed.IsShooting && !guardPed.IsInCombat && guardPed.IsOnFoot)
         {
             guardPed.Task.FollowNavMeshTo(_originalPosition);
         }
@@ -488,6 +289,7 @@ public class Guard
             }
             Logger.Log($"{PedModelName} spawned at position {Position} with heading {Heading}.");
             guardPed.Heading = Heading;
+
             guardPed.Weapons.Give(WeaponName, 400, true, true);
 
             Logger.Log($"Weapon {WeaponName} given to guard.");
@@ -497,12 +299,19 @@ public class Guard
             guardPed.MaxHealth = 400;
             guardPed.Health = 400;
 
-            guardPed.CombatAbility = CombatAbility.Professional;
-            guardPed.CombatMovement = CombatMovement.WillAdvance;
-            guardPed.CombatRange = CombatRange.Medium;
-            guardPed.FiringPattern = FiringPattern.FullAuto;
-            guardPed.Accuracy = 200;
-            guardPed.ShootRate = 1000;
+            //guardPed.CombatAbility = CombatAbility.Professional;
+            // guardPed.CombatMovement = CombatMovement.WillAdvance;
+            // guardPed.CombatRange = CombatRange.Medium;
+            // guardPed.FiringPattern = FiringPattern.FullAuto;
+            // guardPed.Accuracy = 200;
+            //  guardPed.ShootRate = 1000;
+
+            guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
+            guardPed.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
+            guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
 
             guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
@@ -513,27 +322,29 @@ public class Guard
             Function.Call(Hash.SET_PED_RANDOM_PROPS, guardPed);
             float groundZ = 0.0f;
 
-            Function.Call(Hash.GET_GROUND_Z_FOR_3D_COORD, Position.X, Position.Y, Position.Z + 30, groundZArg, false, false);
-            guardPed.IsCollisionEnabled = true;
+            if (Interior)
+            {
+                Function.Call(Hash.GET_GROUND_Z_FOR_3D_COORD, Position.X, Position.Y, Position.Z + 30, groundZArg, false, false);
+                guardPed.IsCollisionEnabled = true;
 
-            groundZ = groundZArg.GetResult<float>();
+                groundZ = groundZArg.GetResult<float>();
+                guardPed.Position = new Vector3(Position.X, Position.Y, groundZ);
+            }
+
+            else guardPed.Position = new Vector3(Position.X, Position.Y, Position.Z);
 
             // Determine the scenario to use
-          
-            if (Scenario.ToLower() == "none" && Scenario.ToLower() == "false")
+            if (_isGuardScenario)
             {
-                guardPed.Task.StartScenarioInPlace(Scenario);
-            }
-            else if (Scenario.ToLower() == "guard" || Scenario.ToLower() == "guardpatrol" || Scenario.ToLower() == "taskguard" || Scenario.ToLower() == "task_guard") 
-            {
+                Logger.Log($"Setting guard to use guard behavior at position {Position}");
+                //guardPed.Weapons.Select(;
                 guardPed.Task.GuardCurrentPosition();
             }
             else
             {
-                guardPed.Task.StartScenarioInPlace(Scenario);
+                Logger.Log($"Starting scenario {_activeScenario} for guard at position {Position}");
+                guardPed.Task.StartScenarioInPlace(_activeScenario);
             }
-
-            ApplyRelationships();
 
             if (guardPed.PedType == PedType.Cop || guardPed.PedType == PedType.Swat || guardPed.PedType == PedType.Army)
             {
@@ -541,14 +352,18 @@ public class Guard
                 guardPed.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
                 guardPed.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
             }
+
+            if (guardPed.RelationshipGroup == RelationshipGroupHash.Army) //same way for cop
+            {
+
+            }
             else
             {
-            //    guardPed.RelationshipGroup = guardGroup;
+                guardPed.RelationshipGroup = guardGroup;
+                guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion);
+                guardGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect);
 
-                //guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion);
-                //guardGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect);
-
-                //Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect);
+                Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect);
             }
         }
         else if (Type == "vehicle")
@@ -561,9 +376,9 @@ public class Guard
             }
 
             guardVehicle.Heading = Heading;
-            guardVehicle.IsPersistent = true;
+            //guardVehicle.IsPersistent = true;
             guardVehicle.LockStatus = VehicleLockStatus.CanBeBrokenInto;
-            guardVehicle.EngineHealth = 2000;
+            //guardVehicle.EngineHealth = 2000;
 
             Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
@@ -577,9 +392,9 @@ public class Guard
             }
             
             guardVehicle.Heading = Heading;
-            guardVehicle.IsPersistent = true;
+            //guardVehicle.IsPersistent = true;
             guardVehicle.LockStatus = VehicleLockStatus.CanBeBrokenInto;
-            guardVehicle.EngineHealth = 2000;
+          //  guardVehicle.EngineHealth = 2000;
 
             Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
@@ -593,9 +408,9 @@ public class Guard
             }
 
             guardVehicle.Heading = Heading;
-            guardVehicle.IsPersistent = true;
+            //guardVehicle.IsPersistent = true;
             guardVehicle.LockStatus = VehicleLockStatus.CanBeBrokenInto;
-            guardVehicle.EngineHealth = 2000;
+//guardVehicle.EngineHealth = 2000;
 
             Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
