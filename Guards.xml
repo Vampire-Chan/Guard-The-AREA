@@ -203,13 +203,12 @@
 		<VehicleModel>crusader</VehicleModel>
 	</Guard>
 	<!-- Guard: Franklin's Families Guard -->
-	<Guard name="families_guard">
+	<Guard name="families_guard" group="AMBIENT_GANG_FAMILY" respect="PLAYER_FRANKLIN, PLAYER_MICHEAL, AMBIENT_GANG_FAMILY">
 		<!-- Ped Models -->
 		<PedModel>G_F_Y_Families_01</PedModel>
 		<PedModel>G_M_Y_FamFor_01</PedModel>
 		<!-- Weapons -->
 		<Weapon>WEAPON_PISTOL</Weapon>
-		<Weapon>WEAPON_FLASHLIGHT</Weapon>
 		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
 		<Weapon>WEAPON_CARBINERIFLE</Weapon>
 		<Weapon>WEAPON_SMG</Weapon>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Areas>
 	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
-	<Area name="MichealHouse" model="gruppe6_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN" dislikes="PLAYER_TREVOR" override="true"> <!-- this true means the relationships in guards.xml and this are together. if was false then these relationship will override that ones. -->
-		<SpawnPoint type="ped" scenario="guard">
+	<Area name="MichealHouse" model="gruppe6_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN, SECURITY_GUARD" dislikes="PLAYER_TREVOR, COP, ARMY" override="true"> <!-- this true means the relationships in guards.xml and this are together. if was false then these relationship will override that ones. -->
+		<SpawnPoint type="ped" scenario="guard" interior="">
 			<Position x="-817.86" y="175.38" z="72.23" />
 			<Heading>93.34</Heading>
 		</SpawnPoint>
@@ -101,7 +101,7 @@
 
 	</Area>
 	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
-	<Area name="FrankHouse" model="families_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN, GANG_FAMILY" dislikes="PLAYER_TREVOR" override="true">
+	<Area name="FrankHouse" model="families_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN, AMBIENT_GANG_FAMILY" dislikes="PLAYER_TREVOR" override="false">
 		<SpawnPoint type="ped">
 			<Position x="3.65" y="531.43" z="175.34" />
 			<Heading>322.31</Heading>
@@ -124,7 +124,7 @@
 		</SpawnPoint>
 	</Area>
 
-	<Area name="ArmyGate1" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY" override="true">
+	<Area name="ArmyGate1" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" override="true">
 		<SpawnPoint type="ped">
 			<Position x="-1614.36" y="2806.01" z="17.73" />
 			<Heading>293.30</Heading>
@@ -139,7 +139,7 @@
 		</SpawnPoint>
 	</Area>
 
-	<Area name="Army_practiseground" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY" dislikes="" override="true">
+	<Area name="Army_practiseground" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" dislikes="" override="true">
 		<SpawnPoint type="ped">
 			<Position x="-2000.76" y="3315.89" z="37.36" />
 			<Heading>258.51</Heading>
@@ -194,7 +194,7 @@
 		</SpawnPoint>
 
 	</Area>
-	<Area name="ArmyGate2Parking_Gate" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY" dislikes="" override="true">
+	<Area name="ArmyGate2Parking_Gate" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" dislikes="" override="true">
 		<SpawnPoint type="vehicle">
 			<Position x="-2376.35" y="3391.59" z="32.75" />
 			<Heading>332.49</Heading>
