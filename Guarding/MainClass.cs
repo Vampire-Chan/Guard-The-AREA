@@ -78,12 +78,12 @@ public class GateManager : Script
             {
                 // Unlock the door and ensure a valid heading is set
                 float newHeading = heading == 0 ? 0 : heading; // Default to 0 if locked and closed
-                GTA.UI.Screen.ShowSubtitle($"Unlocking Door: {doorProp.Model.Hash}, Heading: {newHeading}, Locked: {isLocked}");
+               // GTA.UI.Screen.ShowSubtitle($"Unlocking Door: {doorProp.Model.Hash}, Heading: {newHeading}, Locked: {isLocked}");
                 Function.Call(Hash.SET_STATE_OF_CLOSEST_DOOR_OF_TYPE, doorProp.Model.Hash, doorProp.Position.X, doorProp.Position.Y, doorProp.Position.Z, false, newHeading, false);
             }
             else
             {
-                GTA.UI.Screen.ShowSubtitle($"Door already unlocked: {doorProp.Model.Hash}, Heading: {heading}, Locked: {isLocked}");
+               // GTA.UI.Screen.ShowSubtitle($"Door already unlocked: {doorProp.Model.Hash}, Heading: {heading}, Locked: {isLocked}");
             }
         }
     }
@@ -183,8 +183,35 @@ public class PlayerPositionLogger : Script
             // Get the player's character
             var player = Game.Player.Character;
 
-            // Determine spawn type based on whether player is in a vehicle
-            string spawnType = player.IsInVehicle() ? "vehicle" : "ped";
+            // Determine spawn type based on player's state
+            string spawnType;
+
+            if (player.IsInVehicle())
+            {
+                var vehicle = player.CurrentVehicle;
+
+                // Determine the type of the vehicle
+                if (vehicle.Model.IsCar || vehicle.Model.IsBike)
+                {
+                    spawnType = "vehicle";
+                }
+                else if (vehicle.Model.IsHelicopter || vehicle.Model.IsPlane)
+                {
+                    spawnType = "helicopter";
+                }
+                else if (vehicle.Model.IsBoat || vehicle.Model.IsSubmarine || vehicle.Model.IsAmphibiousCar || vehicle.Model.IsAmphibiousQuadBike || vehicle.Model.IsAmphibiousVehicle)
+                {
+                    spawnType = "boat";
+                }
+                else
+                {
+                    spawnType = "vehicle"; // Fallback for unclassified vehicles
+                }
+            }
+            else
+            {
+                spawnType = "ped";
+            }
 
             // Get the player's position and heading
             var position = player.Position;
@@ -192,9 +219,9 @@ public class PlayerPositionLogger : Script
 
             // Prepare the XML log entry with automatic spawn type
             string logEntry = $"  <SpawnPoint type=\"{spawnType}\">\n" +
-                             $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
-                             $"    <Heading>{heading:F2}</Heading>\n" +
-                             $"  </SpawnPoint>";
+                              $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
+                              $"    <Heading>{heading:F2}</Heading>\n" +
+                              $"  </SpawnPoint>";
 
             // Write to the log file
             File.AppendAllText(_logFilePath, logEntry + Environment.NewLine);
@@ -207,6 +234,7 @@ public class PlayerPositionLogger : Script
             Notification.PostTicker($"Error logging position: {ex.Message}", false);
         }
     }
+
 
     private void LoadSettings()
     {

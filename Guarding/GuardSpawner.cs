@@ -3,10 +3,12 @@ using GTA;
 using GTA.Math;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 public class GuardSpawner
 {
+    private List<Ped> AllPedsInWorld;
     private List<Area> _areas;
     private List<Guard> _guards;
     private List<Guard> _removedones;
@@ -27,8 +29,73 @@ public class GuardSpawner
 
     private Area temparea = null;
 
+    private void SetupWorldStuffs()
+    {
+        // Get all current peds in the world
+        AllPedsInWorld = World.GetAllPeds().ToList();
+
+        // Remove globally found peds that no longer exist or are null
+        AllPedsInWorld.RemoveAll(ped => ped == null || !_guards.Any(g => g.guardPed == ped) && !_removedones.Any(g => g.guardPed == ped));
+
+        // Filter out already added peds (in guards or removedOnes)
+        var newPeds = AllPedsInWorld
+            .Where(ped => ped != null &&
+                          !_guards.Any(g => g.guardPed == ped) &&
+                          !_removedones.Any(g => g.guardPed == ped))
+            .ToList();
+
+        // Process only the remaining peds
+        foreach (var ped in newPeds)
+        {
+            ProcessOtherPed(ped);
+        }
+    }
+
+    // Define how to process other peds not in guards or removed lists
+    private void ProcessOtherPed(Ped ped)
+    {
+        // Log the ped's ID or handle for debugging
+        Logger.Log($"Processing ped: {ped.Handle}");
+
+        ped.MaxHealth = 300;
+        ped.Health = 300;
+        ped.DiesOnLowHealth = false;
+        if (ped.Armor > 10 && ped.Armor < 35) ped.Armor = 150; //for cops
+        else if (ped.Armor > 35 && ped.Armor <100) ped.Armor = 200; //army/swat
+        // Set ped's configuration flags
+        ped.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
+        ped.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
+        ped.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
+        ped.SetCombatAttribute(CombatAttributes.CanUseCover, true);
+        ped.SetConfigFlag(PedConfigFlagToggles.AllowNearbyCoverUsage, true);
+        ped.SetConfigFlag(PedConfigFlagToggles.AIDriverAllowFriendlyPassengerSeatEntry, true);
+        ped.SetConfigFlag(PedConfigFlagToggles.IgnoreInteriorCheckForSprinting, true);
+       // ped.SetConfigFlag(PedConfigFlagToggles.HasBulletProofVest)
+        // Apply combat attributes if the ped is a guard or has combat capabilities
+        ped.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
+        ped.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
+        ped.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
+        ped.SetCombatAttribute(CombatAttributes.CanUseCover, true);
+        ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
+        ped.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
+        //ped.SetCombatAttribute(inj)
+
+        // Additional logic for law enforcement or military types
+        if (ped.PedType == PedType.Cop || ped.PedType == PedType.Swat || ped.PedType == PedType.Army)
+        {
+            ped.SetConfigFlag(PedConfigFlagToggles.CanPerformArrest, true);
+            //ped.SetConfigFlag(PedConfigFlagToggles.can)
+        }
+
+        // Additional processing logic can be added here as needed
+        Logger.Log($"Ped {ped.Handle} configuration and attributes updated.");
+    }
+
+
+
     public void CheckAllTime()
     {
+        SetupWorldStuffs();
         if (temparea != null)
         {
             foreach (var guard in _guards.ToList())

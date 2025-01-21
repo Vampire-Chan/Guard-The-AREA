@@ -105,7 +105,7 @@ public class Guard
 
     //and if xml returns any relationship group named as above means we have to check that current player is zero,one or two and then the player.hash of relationship will be used to setup
 
-    private RelationshipGroup guardGroup;
+    //private RelationshipGroup guardGroup;
 
     public Guard(Vector3 position, float heading, string areaName, string type, GuardConfig guardConfig, string scenario, Area area, bool interior)
     {
@@ -188,7 +188,7 @@ public class Guard
         WeaponName = GetRandomElement(GuardConfig.Weapons);
         VehicleModelName = GetRandomElement(GuardConfig.VehicleModels);
         if (Scenario != null) randomScenario = GetRandomElement(MainScript.scenarios);
-        
+
     }
 
     private static T GetRandomElement<T>(List<T> list)
@@ -198,7 +198,7 @@ public class Guard
         return list[rand.Next(list.Count)];
     }
 
-    
+
     public void UpdateCombatState()
     {
         if (guardPed == null || !guardPed.Exists() || guardPed.IsDead)
@@ -275,6 +275,7 @@ public class Guard
         }
     }
 
+    private RelationshipGroup RelationshipGroup = World.AddRelationshipGroup("SC_GUARD");
     public void Spawn()
     {
         Logger.Log($"Spawning guard at position {Position}, heading {Heading}, area {AreaName}, type {Type}");
@@ -296,8 +297,8 @@ public class Guard
 
             guardPed.Armor = 200;
             guardPed.DiesOnLowHealth = false;
-            guardPed.MaxHealth = 400;
-            guardPed.Health = 400;
+            guardPed.MaxHealth = 300;
+            guardPed.Health = 300;
 
             //guardPed.CombatAbility = CombatAbility.Professional;
             // guardPed.CombatMovement = CombatMovement.WillAdvance;
@@ -306,20 +307,17 @@ public class Guard
             // guardPed.Accuracy = 200;
             //  guardPed.ShootRate = 1000;
 
-            guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
-            guardPed.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
-            guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
-            guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
-            guardPed.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
-            guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
 
-            guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
-            guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
-            guardPed.SetConfigFlag(PedConfigFlagToggles.AllowNearbyCoverUsage, true);
-            guardPed.SetConfigFlag(PedConfigFlagToggles.AIDriverAllowFriendlyPassengerSeatEntry, true);
+            // PLAYER_ZERO IS MICHAEL PLAYER_MICHAEL
+            // PLAYER_ONE IS FRANKLIN PLAYER_FRANKLIN
+            // PLAYER_TWO IS TREVOR PLAYER_TREVOR 
+
+
+            // but their ped hash are used when the grp found is named as either of those three names. and then again check if the player relationship group to the group then apply and so on.
 
             OutputArgument groundZArg = new OutputArgument();
             Function.Call(Hash.SET_PED_RANDOM_PROPS, guardPed);
+
             float groundZ = 0.0f;
 
             if (Interior)
@@ -346,25 +344,111 @@ public class Guard
                 guardPed.Task.StartScenarioInPlace(_activeScenario);
             }
 
+
+            // Force cops/army/swat to ignore players unless wanted
             if (guardPed.PedType == PedType.Cop || guardPed.PedType == PedType.Swat || guardPed.PedType == PedType.Army)
             {
-                // Do nothing for law enforcement
+                // Law enforcement types: Only engage when the player is wanted
                 guardPed.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
-                guardPed.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
+
+                // Set positive relationships with law enforcement and private security groups
+                guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.SecurityGuard, Relationship.Like, true);
+                guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.PrivateSecurity, Relationship.Like, true);
+                guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.Army, Relationship.Like, true);
+            }
+            else
+            {
+                // Handle specific areas and their relationship logic
+
+                // Franklin's house logic
+                if (Area.Name == "FranklinHouse")
+                {
+                    guardPed.RelationshipGroup = RelationshipGroup;
+                    RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Companion);
+
+                    // AmbientGangFamily specific relationship
+                    if (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin)
+                    {
+                        // Franklin and Michael are respected by AmbientGangFamily
+                        RelationshipGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect);
+                        Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Respect);
+                        Logger.Log($"AmbientGangFamily respects {Game.Player.Character.Model}");
+                    }
+                    else if (Game.Player.Character.Model == PedHash.Trevor) {
+                        RelationshipGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Neutral);
+                        Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Neutral);
+                    }
+                }
+
+                // Michael's house logic
+                else if (AreaName == "MichaelHouse")
+                {
+                    guardPed.RelationshipGroup = RelationshipGroup;
+
+                    // Set the relationship to Companion
+                    RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Companion);
+                    //guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Companion);
+
+                    // Check player model and adjust relationship
+                    if (Game.Player.Character.Model == PedHash.Michael || Game.Player.Character.Model == PedHash.Franklin)
+                    {
+                        // Michael and Franklin are respected
+                        RelationshipGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect);
+                        Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Respect);
+                        Logger.Log($"MICHAEL_GUARD respects {Game.Player.Character.Model}");
+                    }
+                    else if (Game.Player.Character.Model == PedHash.Trevor)
+                    {
+                        // Trevor is disliked
+                        RelationshipGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Dislike);
+                        Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroup, Relationship.Dislike);
+                        Logger.Log("Trevor is disliked by the guard group.");
+                    }
+                }
+
+                // Private security group logic
+                else if (guardPed.RelationshipGroup == RelationshipGroupHash.PrivateSecurity)
+                {
+                    // Private security respects law enforcement groups
+                    guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.Cop, Relationship.Respect);
+                    guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.Army, Relationship.Respect);
+                    //guardPed.RelationshipGroup.SetRelationshipBetweenGroups(RelationshipGroupHash.Swat, Relationship.Respect, true);
+                }
+
+                // Default logic for unmatched cases
+                else
+                {
+                    // Neutral relationship with the player's group
+                    guardPed.RelationshipGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Neutral, true);
+                    Logger.Log($"Default relationship with {Game.Player.Character.Model}");
+                }
             }
 
-            if (guardPed.RelationshipGroup == RelationshipGroupHash.Army) //same way for cop
+
+            guardPed.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
+
+            guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
+            guardPed.SetCombatAttribute(CombatAttributes.WillDragInjuredPedsToSafety, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
+            guardPed.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
+            guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
+
+            guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
+            guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
+            guardPed.SetConfigFlag(PedConfigFlagToggles.AllowNearbyCoverUsage, true);
+            guardPed.SetConfigFlag(PedConfigFlagToggles.AIDriverAllowFriendlyPassengerSeatEntry, true);
+
+            if (guardPed.RelationshipGroup == RelationshipGroupHash.Army || guardPed.RelationshipGroup == RelationshipGroupHash.Cop)
             {
+                //dont assign anything to these relationships but
+                guardPed.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
+                guardPed.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
 
             }
             else
             {
-                guardPed.RelationshipGroup = guardGroup;
-                guardGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Companion);
-                guardGroup.SetRelationshipBetweenGroups(Game.Player.Character.RelationshipGroup, Relationship.Respect);
-
-                Game.Player.Character.RelationshipGroup.SetRelationshipBetweenGroups(guardGroup, Relationship.Respect);
-            }
+                            }
         }
         else if (Type == "vehicle")
         {
@@ -390,11 +474,11 @@ public class Guard
                 Logger.Log("Failed to create guard vehicle.");
                 return;
             }
-            
+
             guardVehicle.Heading = Heading;
             //guardVehicle.IsPersistent = true;
             guardVehicle.LockStatus = VehicleLockStatus.CanBeBrokenInto;
-          //  guardVehicle.EngineHealth = 2000;
+            //  guardVehicle.EngineHealth = 2000;
 
             Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
@@ -410,7 +494,7 @@ public class Guard
             guardVehicle.Heading = Heading;
             //guardVehicle.IsPersistent = true;
             guardVehicle.LockStatus = VehicleLockStatus.CanBeBrokenInto;
-//guardVehicle.EngineHealth = 2000;
+            //guardVehicle.EngineHealth = 2000;
 
             Logger.Log($"Vehicle spawned at position {Position} with model {VehicleModelName}.");
         }
@@ -423,7 +507,7 @@ public class Guard
             guardPed.Delete();
             Logger.Log($"Guard ped despawned at position {Position}.");
         }
-        else if (Type == "vehicle" && guardVehicle != null && guardVehicle.Exists())
+        else if (guardVehicle.IsAutomobile || guardVehicle.IsAircraft || guardVehicle.IsBoat && guardVehicle != null && guardVehicle.Exists())
         {
             guardVehicle.Delete();
             Logger.Log($"Guard vehicle despawned at position {Position}.");
