@@ -12,29 +12,30 @@ namespace Guarding.DispatchSystem
 
             var dispatchElement = doc.Root.Element("DispatchVehicleInfo").Element("Dispatch");
 
-            var vehicles = dispatchElement.Elements("VehicleModel")
+            var vehicles = dispatchElement.Elements("Vehicles")
+                .Elements("Vehicle")
                 .Select(v => v.Value)
-                .ToList();
+                .ToList() ?? new List<string>();
 
-            var pilots = dispatchElement.Element("Pilots")
+            var pilots = dispatchElement.Element("Pilots")?
                 .Elements("Pilot")
                 .Select(p => p.Value)
-                .ToList();
+                .ToList() ?? new List<string>();
 
-            var soldiers = dispatchElement.Element("Soldiers")
+            var soldiers = dispatchElement.Element("Soldiers")?
                 .Elements("Soldier")
                 .Select(s => s.Value)
-                .ToList();
+                .ToList() ?? new List<string>();
 
-            var primaryWeapons = dispatchElement.Element("Weapons").Element("PrimaryWeapons")
+            var primaryWeapons = dispatchElement.Element("Weapons")?.Element("PrimaryWeapons")?
                 .Elements("Weapon")
                 .Select(w => w.Value)
-                .ToList();
+                .ToList() ?? new List<string>();
 
-            var secondaryWeapons = dispatchElement.Element("Weapons").Element("SecondaryWeapons")
+            var secondaryWeapons = dispatchElement.Element("Weapons")?.Element("SecondaryWeapons")?
                 .Elements("Weapon")
                 .Select(w => w.Value)
-                .ToList();
+                .ToList() ?? new List<string>();
 
             return new VehicleInformation(
                 vehicles,

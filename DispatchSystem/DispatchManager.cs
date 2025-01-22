@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GTA;
+using GTA.Native;
 
 namespace Guarding.DispatchSystem
 {
@@ -26,6 +27,10 @@ namespace Guarding.DispatchSystem
             UpdateAirUnits();
             //UpdateGroundUnits();
             //UpdateSeaUnits();
+            Function.Call(Hash.ENABLE_DISPATCH_SERVICE, 1, false);
+            Function.Call(Hash.ENABLE_DISPATCH_SERVICE, 2, false);
+            Function.Call(Hash.ENABLE_DISPATCH_SERVICE, 4, false);
+            Function.Call(Hash.ENABLE_DISPATCH_SERVICE, 12, false); ;
         }
 
         private void UpdateAirUnits()

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Guarding.DispatchSystem
 {
@@ -15,8 +11,8 @@ namespace Guarding.DispatchSystem
 
         public VehicleInformation(List<string> vehicleModels, List<string> pilot, SoldierInformation soldiers)
         {
-            VehicleModels = vehicleModels;
-            Pilot = pilot;
+            VehicleModels = vehicleModels ?? new List<string>();
+            Pilot = pilot ?? new List<string>();
             Soldiers = soldiers;
         }
     }
@@ -29,8 +25,8 @@ namespace Guarding.DispatchSystem
 
         public SoldierInformation(List<string> soldiers, List<WeaponInformation> weapons)
         {
-            Soldiers = soldiers;
-            Weapons = weapons;
+            Soldiers = soldiers ?? new List<string>();
+            Weapons = weapons ?? new List<WeaponInformation>();
         }
     }
 
@@ -42,8 +38,8 @@ namespace Guarding.DispatchSystem
 
         public WeaponInformation(List<string> primaryWeapon, List<string> secondaryWeapon)
         {
-            PrimaryWeapon = primaryWeapon;
-            SecondaryWeapon = secondaryWeapon;
+            PrimaryWeapon = primaryWeapon ?? new List<string>();
+            SecondaryWeapon = secondaryWeapon ?? new List<string>();
         }
     }
 }

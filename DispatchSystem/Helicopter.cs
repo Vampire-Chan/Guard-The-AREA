@@ -130,6 +130,15 @@ public class Helicopter
     List<string> primaryWeapons = null,
     List<string> secondaryWeapons = null)
     {
+
+        // Ensure the lists are not empty
+        if (heliModel == null || heliModel.Count == 0)
+            throw new ArgumentException("Helicopter models list is empty");
+        if (pilotModel == null || pilotModel.Count == 0)
+            throw new ArgumentException("Pilot models list is empty");
+        if (crewModels == null || crewModels.Count == 0)
+            throw new ArgumentException("Crew models list is empty");
+
         // Create helicopter above the player's position
         helicopter = World.CreateVehicle(heliModel[rand.Next(0, heliModel.Count)], Game.Player.Character.Position.Around(300) + new Vector3(0, 0, 50f));
 
@@ -351,12 +360,20 @@ public class Helicopter
         crew.Clear();
     }
 
+    void CombatHatedTargets()
+    {
+        foreach(var crewMember in crew.ToList())
+        {
+            crewMember.Task.CombatHatedTargetsAroundPed(100);
+        }
+    }
 
     public void UpdateProcess()
     {
         if (!IsHelicopterValid())
             return;
 
+        CombatHatedTargets();
         CheckHealth();
 
         // Adjust firing pattern, shoot rate, and accuracy based on speed
@@ -791,7 +808,6 @@ public class Helicopter
                 Pursuit = true;
                 return;
             }
-            Print("Helicopter is not valid or rappelling is not enabled");
             return;
         }
 
@@ -867,6 +883,7 @@ public class Helicopter
         if (helicopter.Position.DistanceTo(PositionToReach) < 20)
         {
             bool allCrewOutside = true;
+            DateTime? rappelStartTime = null;
 
             // Start rappelling for all crew members still in the helicopter
             foreach (var crewMember in crew)
@@ -881,9 +898,11 @@ public class Helicopter
                 if (crewMember.IsInVehicle(helicopter))
                 {
                     crewMember.Task.RappelFromHelicopter();
+                    crewMember.CanRagdoll = false;
+                    rappelStartTime = DateTime.Now;
                     allCrewOutside = false;
                 }
-                else if(IsPedRappelingFromHelicopter())
+                else if (IsPedRappelingFromHelicopter())
                 {
                     allCrewOutside = false;
                 }
@@ -892,11 +911,19 @@ public class Helicopter
             // If helicopter is rappelling and all crew are out, mark as complete
             if (!IsPedRappelingFromHelicopter() && allCrewOutside)
             {
-                isRappelComplete = true;
-                Notification.PostTicker("All crew members have rappelled successfully", false);
+                if (rappelStartTime.HasValue && (DateTime.Now - rappelStartTime.Value).TotalSeconds >= 2)
+                {
+                    foreach (var crewMember in crew.ToList())
+                    {
+                        crewMember.CanRagdoll = true;
+                    }
 
-                LeaveTheScene(PositionToReach);
-                return;
+                    isRappelComplete = true;
+                    Notification.PostTicker("All crew members have rappelled successfully", false);
+
+                    LeaveTheScene(PositionToReach);
+                    return;
+                }
             }
 
             // If crew members are still rappelling, wait
@@ -906,7 +933,6 @@ public class Helicopter
                 return;
             }
         }
-
     }
 
     public enum CrewLeaveOption
