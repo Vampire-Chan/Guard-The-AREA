@@ -140,7 +140,7 @@ public class Guard
         if (string.IsNullOrEmpty(_configuredScenario))
         {
             _isGuardScenario = false;
-            _activeScenario = GetRandomElement(MainScript.scenarios);
+            _activeScenario = GetRandomElement(GuardManager.scenarios);
             Logger.Log($"No scenario configured, using random scenario: {_activeScenario}");
             return;
         }
@@ -163,7 +163,7 @@ public class Guard
         {
             _isGuardScenario = false;
             _activeScenario = scenarioLower == "random" ?
-                GetRandomElement(MainScript.scenarios) :
+                GetRandomElement(GuardManager.scenarios) :
                 _configuredScenario;
             Logger.Log("Scenario disabled, using guard behavior");
         }
@@ -172,7 +172,7 @@ public class Guard
         {
             _isGuardScenario = false;
             _activeScenario = scenarioLower == "random" ?
-                GetRandomElement(MainScript.scenarios) :
+                GetRandomElement(GuardManager.scenarios) :
                 _configuredScenario;
             Logger.Log($"Using scenario: {_activeScenario}");
         }
@@ -187,7 +187,7 @@ public class Guard
         PedModelName = GetRandomElement(GuardConfig.PedModels);
         WeaponName = GetRandomElement(GuardConfig.Weapons);
         VehicleModelName = GetRandomElement(GuardConfig.VehicleModels);
-        if (Scenario != null) randomScenario = GetRandomElement(MainScript.scenarios);
+        if (Scenario != null) randomScenario = GetRandomElement(GuardManager.scenarios);
 
     }
 
@@ -308,29 +308,24 @@ public class Guard
             //  guardPed.ShootRate = 1000;
 
 
-            // PLAYER_ZERO IS MICHAEL PLAYER_MICHAEL
-            // PLAYER_ONE IS FRANKLIN PLAYER_FRANKLIN
-            // PLAYER_TWO IS TREVOR PLAYER_TREVOR 
-
-
-            // but their ped hash are used when the grp found is named as either of those three names. and then again check if the player relationship group to the group then apply and so on.
-
+           
             OutputArgument groundZArg = new OutputArgument();
             Function.Call(Hash.SET_PED_RANDOM_PROPS, guardPed);
 
-            float groundZ = 0.0f;
-
-            if (Interior)
+            float groundZ = guardPed.Position.Z;
+            
+            Function.Call(Hash.GET_GROUND_Z_FOR_3D_COORD, Position.X, Position.Y, Position.Z + 5, groundZArg, false, false);
+            
+            if (!Interior)
             {
-                Function.Call(Hash.GET_GROUND_Z_FOR_3D_COORD, Position.X, Position.Y, Position.Z + 30, groundZArg, false, false);
-                guardPed.IsCollisionEnabled = true;
-
+                
                 groundZ = groundZArg.GetResult<float>();
                 guardPed.Position = new Vector3(Position.X, Position.Y, groundZ);
             }
 
             else guardPed.Position = new Vector3(Position.X, Position.Y, Position.Z);
 
+            guardPed.IsCollisionEnabled = true;
             // Determine the scenario to use
             if (_isGuardScenario)
             {
@@ -424,7 +419,6 @@ public class Guard
                 }
             }
 
-
             guardPed.SetConfigFlag(PedConfigFlagToggles.WillNotHotwireLawEnforcementVehicle, false);
 
             guardPed.SetCombatAttribute(CombatAttributes.CanUseVehicles, true);
@@ -432,8 +426,9 @@ public class Guard
             guardPed.SetCombatAttribute(CombatAttributes.CanCommandeerVehicles, true);
             guardPed.SetCombatAttribute(CombatAttributes.CanUseCover, true);
             guardPed.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
+            guardPed.SetConfigFlag(PedConfigFlagToggles.NoCriticalHits, true);
             guardPed.SetCombatAttribute(CombatAttributes.WillScanForDeadPeds, true);
-
+            guardPed.SetCombatAttribute(CombatAttributes.DisableBulletReactions, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.DisableGoToWritheWhenInjured, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.CanDiveAwayFromApproachingVehicles, true);
             guardPed.SetConfigFlag(PedConfigFlagToggles.AllowNearbyCoverUsage, true);
@@ -448,8 +443,10 @@ public class Guard
             }
             else
             {
-                            }
+                          
+            }
         }
+
         else if (Type == "vehicle")
         {
             guardVehicle = World.CreateVehicle(VehicleModelName, Position);
@@ -502,16 +499,19 @@ public class Guard
 
     public void Despawn()
     {
+        // Check if it's a pedestrian entity
         if (Type == "ped" && guardPed != null && guardPed.Exists())
         {
             guardPed.Delete();
             Logger.Log($"Guard ped despawned at position {Position}.");
         }
-        else if (guardVehicle.IsAutomobile || guardVehicle.IsAircraft || guardVehicle.IsBoat && guardVehicle != null && guardVehicle.Exists())
+        // Check if it's a vehicle entity
+        else if (guardVehicle != null && guardVehicle.Exists() && guardVehicle is Vehicle && guardVehicle.EntityType == EntityType.Vehicle)
         {
             guardVehicle.Delete();
             Logger.Log($"Guard vehicle despawned at position {Position}.");
         }
+        // Handle any unclassified or invalid entities
         else
         {
             Logger.Log($"Failed to despawn guard at position {Position}. Type: {Type}");

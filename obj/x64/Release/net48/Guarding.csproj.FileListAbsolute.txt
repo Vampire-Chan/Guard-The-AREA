@@ -1,0 +1,7 @@
+D:\Source-Codes\WorldOfImprovements\bin\x64\Release\net48\GuardTheArea.dll
+D:\Source-Codes\WorldOfImprovements\bin\x64\Release\net48\GuardTheArea.pdb
+D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\Guarding.csproj.AssemblyReference.cache
+D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\Guarding.GeneratedMSBuildEditorConfig.editorconfig
+D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\Guarding.csproj.CoreCompileInputs.cache
+D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\GuardTheArea.dll
+D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\GuardTheArea.pdb

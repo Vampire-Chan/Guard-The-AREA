@@ -8,7 +8,7 @@ using GTA.Native;
 using GTA.Math;
 using System.Collections.Generic;
 
-public class MainScript : Script
+public class GuardManager : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
 
@@ -33,7 +33,7 @@ public class MainScript : Script
         "WORLD_HUMAN_STAND_MOBILE"
     };
 
-    public MainScript()
+    public GuardManager()    
     {
         _guardSpawner = new GuardSpawner("./scripts/Areas.xml"); // Initialize guard spawner
         Tick += OnTick; // Bind the tick event
@@ -140,9 +140,6 @@ public class GateManager : Script
     }
 }
 
-
-
-
 public class PlayerPositionLogger : Script
 {
     private readonly string _logFilePath;
@@ -191,7 +188,7 @@ public class PlayerPositionLogger : Script
                 var vehicle = player.CurrentVehicle;
 
                 // Determine the type of the vehicle
-                if (vehicle.Model.IsCar || vehicle.Model.IsBike)
+                if (vehicle.Model.IsCar || vehicle.Model.IsBike ||vehicle.IsRegularAutomobile || vehicle.IsAutomobile)
                 {
                     spawnType = "vehicle";
                 }
@@ -213,28 +210,32 @@ public class PlayerPositionLogger : Script
                 spawnType = "ped";
             }
 
+            // Check if the player is in an interior
+            bool isInInterior = false;
+            //Function.Call(Hash.)
+
             // Get the player's position and heading
             var position = player.Position;
             var heading = player.Heading;
 
-            // Prepare the XML log entry with automatic spawn type
+            // Prepare the XML log entry with spawn type and interior status
             string logEntry = $"  <SpawnPoint type=\"{spawnType}\">\n" +
-                              $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
-                              $"    <Heading>{heading:F2}</Heading>\n" +
-                              $"  </SpawnPoint>";
+                          $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
+                          $"    <Heading>{heading:F2}</Heading>\n" +
+                          $"  </SpawnPoint>";
 
             // Write to the log file
             File.AppendAllText(_logFilePath, logEntry + Environment.NewLine);
 
             // Notify the user
-            Notification.PostTicker($"{char.ToUpper(spawnType[0]) + spawnType.Substring(1)} position logged in XML format!", false);
+            Notification.PostTicker($"{char.ToUpper(spawnType[0]) + spawnType.Substring(1)} position logged in XML format (Interior: {isInInterior})!", false);
         }
         catch (Exception ex)
         {
-            Notification.PostTicker($"Error logging position: {ex.Message}", false);
+            // Handle exceptions and notify the user
+            Notification.PostTicker($"Error logging position: {ex.Message}", true);
         }
     }
-
 
     private void LoadSettings()
     {

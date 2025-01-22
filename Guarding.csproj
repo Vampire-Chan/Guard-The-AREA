@@ -4,23 +4,35 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <UseWindowsForms>True</UseWindowsForms>
     <TargetFramework>net48</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platform>x64</Platform>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
+  
   <PropertyGroup>
     <LangVersion>11.0</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
   </PropertyGroup>
-  <PropertyGroup>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
+
+  <!-- Reference Includes -->
   <ItemGroup>
     <Reference Include="LemonUI.SHVDN3">
       <HintPath>..\..\Games\GTAV\scripts\LemonUI.SHVDN3.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ScriptHookVDotNet3">
       <HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.Core" />
   </ItemGroup>
 
+  <!-- Exclude Backup Folder -->
+  <ItemGroup>
+    <Compile Remove="Guarding_backup\**" />
+    <EmbeddedResource Remove="Guarding_backup\**" />
+    <None Remove="Guarding_backup\**" />
+  </ItemGroup>
 </Project>
