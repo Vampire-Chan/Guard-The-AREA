@@ -9,13 +9,13 @@ namespace Guarding.DispatchSystem
     // Details about helicopter model, driver, soldiers, and vehicle weapons (currently unused)
     public class VehicleInformation
     {
-        public List<string> Helicopters { get; set; }
+        public List<string> VehicleModels { get; set; }
         public List<string> Pilot { get; set; }
         public SoldierInformation Soldiers { get; set; }
 
-        public VehicleInformation(List<string> helicopters, List<string> pilot, SoldierInformation soldiers)
+        public VehicleInformation(List<string> vehicleModels, List<string> pilot, SoldierInformation soldiers)
         {
-            Helicopters = helicopters;
+            VehicleModels = vehicleModels;
             Pilot = pilot;
             Soldiers = soldiers;
         }

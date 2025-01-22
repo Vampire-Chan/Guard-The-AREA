@@ -21,10 +21,8 @@ public class Helicopter
     private bool isRappelComplete;
     private Vector3 PositionToReach;
     private bool hasLanded;
-
-    private const float HOVER_HEIGHT = 10f;
-    private const float DEPLOYMENT_HEIGHT = 150f;
-
+    private const int LOW_HEALTH_THRESHOLD = 300;
+    private const int CRITICAL_HEALTH_THRESHOLD = 100;
     // Add these constants at the top of the Helicopter class
     private const float PURSUIT_SPEED = 70f;
     private const float LANDING_SPEED = 30f;
@@ -90,7 +88,7 @@ public class Helicopter
         var primaryWeapons = info.Soldiers.Weapons.SelectMany(w => w.PrimaryWeapon).ToList();
         var secondaryWeapons = info.Soldiers.Weapons.SelectMany(w => w.SecondaryWeapon).ToList();
 
-        Initialize(info.Helicopters, info.Pilot, info.Soldiers.Soldiers,null, primaryWeapons, secondaryWeapons);
+        Initialize(info.VehicleModels, info.Pilot, info.Soldiers.Soldiers, null, primaryWeapons, secondaryWeapons);
     }
 
 
@@ -132,49 +130,47 @@ public class Helicopter
     List<string> primaryWeapons = null,
     List<string> secondaryWeapons = null)
     {
-
         // Create helicopter above the player's position
         helicopter = World.CreateVehicle(heliModel[rand.Next(0, heliModel.Count)], Game.Player.Character.Position.Around(300) + new Vector3(0, 0, 50f));
-       
-        CanRappel = helicopter.AllowRappel;
-        GTA.UI.Screen.ShowSubtitle("Helicopter Spwned!");
-        // Cleanup model
-        //heliModelInstance.MarkAsNoLongerNeeded();
 
+        CanRappel = helicopter.AllowRappel;
+        
         // Initialize crew list
         crew = new List<Ped>();
 
         // Create and assign pilot
         var pilot = CreateAndAssignPed(pilotModel[rand.Next(0, pilotModel.Count)], VehicleSeat.Driver);
-        crew.Add(pilot);
-        Ped crewPed = null;
-        Print("Pilot Spawned");
+       
+        // Assign a handgun (secondary weapon) to the pilot
+        AssignWeapons(pilot, null, secondaryWeapons);
+
         // Assign passengers (limit to available seats)
-        //var maxPassengers = Math.Min(crewModels.Count, helicopter.PassengerCapacity);
         for (int i = 0; i < helicopter.PassengerCapacity; i++)
         {
-            crewPed = CreateAndAssignPed(crewModels[rand.Next(0, crewModels.Count)], (VehicleSeat)(i));
+            var crewPed = CreateAndAssignPed(crewModels[rand.Next(0, crewModels.Count)], (VehicleSeat)(i));
             crew.Add(crewPed);
-            
+
+            // Assign both primary and secondary weapons to the crew members
+            AssignWeapons(crewPed, primaryWeapons, secondaryWeapons);
         }
 
         helicopter.IsEngineRunning = true;
         helicopter.HeliBladesSpeed = 1f;
+
         // Initialize vehicle weapons (specific to the helicopter)
+
         IsArmed = vehicleWeapons?.Count > 0;
-        weaponStates = new Dictionary<VehicleWeaponHash, bool>();
 
-        if (IsArmed)
-        {
-            foreach (var weapon in vehicleWeapons)
-            {
-                //weaponStates[weapon.Key] = true;
-               // EnableVehicleWeapon(weapon.Key, pilot);
-            }
-        }
+      //  weaponStates = new Dictionary<VehicleWeaponHash, bool>();
 
-        // Randomly assign weapons to the crew
-        AssignRandomWeapons(crewPed, primaryWeapons, secondaryWeapons);
+       // if (IsArmed)
+      //  {
+           // foreach (var weapon in vehicleWeapons)
+      //      {
+            //    weaponStates[weapon.Key] = true;
+            //    EnableVehicleWeapon(weapon.Key, pilot);
+           // }
+       // }
     }
 
     private Ped CreateAndAssignPed(string pedModelName, VehicleSeat seat)
@@ -190,37 +186,29 @@ public class Helicopter
         ped.SetConfigFlag(PedConfigFlagToggles.DontAttackPlayerWithoutWantedLevel, true);
         ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
         ped.SetConfigFlag(PedConfigFlagToggles.OnlyAttackLawIfPlayerIsWanted, true);
-
-       // ped.(vehicle, seat);
-        //pedModel.MarkAsNoLongerNeeded();
-
         return ped;
     }
 
-    private void AssignRandomWeapons(Ped crewMember, List<string> primaryWeapons, List<string> secondaryWeapons)
+    private void AssignWeapons(Ped ped, List<string> primaryWeapons, List<string> secondaryWeapons)
     {
         var random = new Random();
 
-        // Assign a random primary weapon
+        // Assign a random primary weapon if available
         if (primaryWeapons != null && primaryWeapons.Count > 0)
         {
             var primaryWeaponName = primaryWeapons[random.Next(primaryWeapons.Count)];
-
-            crewMember.Weapons.Give(primaryWeaponName, 900, true, true);
+            ped.Weapons.Give(primaryWeaponName, 900, true, true);
         }
 
-        // Assign a random secondary weapon
+        // Assign a random secondary weapon if available
         if (secondaryWeapons != null && secondaryWeapons.Count > 0)
         {
             var secondaryWeaponName = secondaryWeapons[random.Next(secondaryWeapons.Count)];
-
-            crewMember.Weapons.Give(secondaryWeaponName, 200, false, true);
+            ped.Weapons.Give(secondaryWeaponName, 200, false, true);
         }
     }
 
-
-
-    private bool IsHelicopterValid()
+    public bool IsHelicopterValid()
     {
         return helicopter != null                     // Ensure the helicopter object exists
             && helicopter.Exists()                    // Check if the helicopter exists in the game world
@@ -229,6 +217,139 @@ public class Helicopter
             && helicopter.Driver.Exists()             // Check if the driver exists in the game world
             && !helicopter.Driver.IsDead;             // Verify the driver is not dead
     }
+    private void CheckHealth()
+    {
+        if (helicopter == null || !helicopter.Exists() || helicopter.IsDead)
+        {
+            MarkAsNoLongerNeeded();
+            return;
+        }
+
+        if (helicopter.Health < CRITICAL_HEALTH_THRESHOLD)
+        {
+            HandleCriticalDamage();
+        }
+        else if (helicopter.Health < LOW_HEALTH_THRESHOLD)
+        {
+            HandleLowHealth();
+        }
+    }
+
+    private void HandleLowHealth()
+    {
+        // Low health, reduce aggression and prepare for retreat
+        SetFiringPattern(FiringPattern.SingleShot);
+        SetShootRate(2000); // Less frequent shooting
+        SetAccuracy(40); // Lower accuracy
+        LeaveTheScene(Game.Player.Character.Position.Around(500));
+    }
+
+    private void HandleCriticalDamage()
+    {
+        // Critical health, initiate emergency landing and make everyone leave
+        if (!hasLanded)
+        {
+            PositionToReach = World.GetNextPositionOnStreet(helicopter.Position);
+            helicopter.Driver.Task.StartHeliMission(helicopter, PositionToReach, VehicleMissionType.None, 10, 10, -1, 0);
+            foreach (var crewMember in crew.ToList())
+            {
+                crewMember.Task.LeaveVehicle();
+                crewMember.MarkAsNoLongerNeeded();
+                crew.Remove(crewMember);
+            }
+            hasLanded = true;
+        }
+        else
+        {
+            MarkAsNoLongerNeeded();
+        }
+    }
+
+    private void AdjustFiringPatternBasedOnSpeed()
+    {
+        if (helicopter == null || !helicopter.Exists())
+            return;
+
+        float speed = helicopter.Speed;
+        if (speed > 20 && speed <= 50)
+        {
+            SetFiringPattern(FiringPattern.BurstFire);
+            SetShootRate(1000);
+            SetAccuracy(80);
+        }
+        else if (speed > 50)
+        {
+            SetFiringPattern(FiringPattern.FullAuto);
+            SetShootRate(500);
+            SetAccuracy(60);
+        }
+        else
+        {
+            SetFiringPattern(FiringPattern.SingleShot);
+            SetShootRate(2000);
+            SetAccuracy(40);
+        }
+    }
+    FiringPattern Pattern;
+    int Accuracy;
+    int RoF;
+
+    private void SetFiringPattern(FiringPattern pattern)
+    {
+        foreach (var crewMember in crew)
+        {
+            crewMember.FiringPattern = pattern;
+        }
+    }
+
+    private void SetShootRate(int rate)
+    {
+        foreach (var crewMember in crew)
+        {
+            crewMember.Accuracy = rate;
+        }
+    }
+
+    private void SetAccuracy(int accuracy)
+    {
+        foreach (var crewMember in crew)
+        {
+            crewMember.Accuracy = accuracy;
+        }
+    }
+
+    private void HandleFarOrDeadStates()
+    {
+        Vector3 playerPosition = Game.Player.Character.Position;
+
+        if (helicopter != null && helicopter.Exists() && helicopter.Position.DistanceTo(playerPosition) > 500)
+        {
+            helicopter.MarkAsNoLongerNeeded();
+        }
+
+        if (helicopter.Driver != null && helicopter.Driver.Exists() && helicopter.Driver.Position.DistanceTo(playerPosition) > 500)
+        {
+            helicopter.Driver.MarkAsNoLongerNeeded();
+        }
+
+        foreach (var crewMember in crew.ToList())
+        {
+            if (crewMember == null || !crewMember.Exists() || crewMember.IsDead || crewMember.Position.DistanceTo(playerPosition) > 500)
+            {
+                crewMember?.MarkAsNoLongerNeeded();
+            }
+        }
+    }
+
+    public void MarkAsNoLongerNeeded()
+    {
+        helicopter?.MarkAsNoLongerNeeded();
+        foreach (var crewMember in crew)
+        {
+            crewMember?.MarkAsNoLongerNeeded();
+        }
+        crew.Clear();
+    }
 
 
     public void UpdateProcess()
@@ -236,6 +357,13 @@ public class Helicopter
         if (!IsHelicopterValid())
             return;
 
+        CheckHealth();
+
+        // Adjust firing pattern, shoot rate, and accuracy based on speed
+        AdjustFiringPatternBasedOnSpeed();
+
+        // Check if helicopter, pilot, or crew are far away or dead/not existing
+        HandleFarOrDeadStates();
         ParatrooperDeployment();
         RappelPeds();
         LandHelicopter();
@@ -304,6 +432,7 @@ public class Helicopter
     private DateTime? lastJumpTime = null;
     private List<Ped> deployedParatroopers = new List<Ped>();
     public bool AllowCoPilotJump { get; set; } = false; // New flag to control co-pilot jumping
+    List<Ped> parachuteStatePeds;
 
     private void ParatrooperDeployment()
     {
@@ -362,50 +491,32 @@ public class Helicopter
         }
 
         // Step 3: Check and manage rear seats
-        var rearOccupants = helicopter.Occupants.Where(p => IsRearSeat(p.SeatIndex)).ToList();
-        var nonRearOccupants = helicopter.Occupants.Where(p =>
-            p != helicopter.Driver &&
-            !IsRearSeat(p.SeatIndex) &&
-            !deployedParatroopers.Contains(p) &&
-            (AllowCoPilotJump || p.SeatIndex != VehicleSeat.RightFront)) // Only include co-pilot if allowed
-            .ToList();
-
-        // If rear seats are empty and we have more troops, move them to rear
-        if (rearOccupants.Count == 0 && nonRearOccupants.Any())
+        var rearSeats = new[] { VehicleSeat.LeftRear, VehicleSeat.RightRear };
+        foreach (var seat in rearSeats)
         {
-            foreach (var seat in new[] { VehicleSeat.LeftRear, VehicleSeat.RightRear })
+            if (!helicopter.IsSeatFree(seat))
             {
-                if (helicopter.IsSeatFree(seat) && nonRearOccupants.Any())
+                var paratrooper = helicopter.GetPedOnSeat(seat);
+                StartParachuting(paratrooper);
+            }
+        }
+
+        // Move remaining crew to rear seats and deploy them
+        foreach (var seat in rearSeats)
+        {
+            if (helicopter.IsSeatFree(seat))
+            {
+                var nextCrewMember = crew.FirstOrDefault(c => c != helicopter.Driver && c.SeatIndex != VehicleSeat.RightFront);
+                if (nextCrewMember != null)
                 {
-                    var pedToMove = nonRearOccupants.First();
-                    pedToMove.SetIntoVehicle(helicopter, seat);
-                    Print($"Moving trooper to {seat}");
-                    return;
+                    nextCrewMember.SetIntoVehicle(helicopter, seat);
+                    StartParachuting(nextCrewMember);
                 }
             }
         }
 
-        // Step 4: Deploy paratroopers from rear seats
-        if (!lastJumpTime.HasValue || (DateTime.Now - lastJumpTime.Value).TotalMilliseconds >= JUMP_DELAY)
-        {
-            foreach (var paratrooper in rearOccupants)
-            {
-                if (!deployedParatroopers.Contains(paratrooper))
-                {
-                    // Deploy paratrooper
-                    DeployParatrooper(paratrooper);
-                    deployedParatroopers.Add(paratrooper);
-                    lastJumpTime = DateTime.Now;
-
-                    // Set target landing zone
-                    Vector3 landingZone = Game.Player.Character.Position.Around(20);
-                    paratrooper.Task.ParachuteTo(landingZone);
-
-                    Print($"Paratrooper deployed - {GetRemainingTroopsCount()} remaining");
-                    return;
-                }
-            }
-        }
+        // Handle paratroopers in parachute state
+        HandleParachuteState();
 
         // Check if deployment is complete
         if (IsDeploymentComplete())
@@ -417,12 +528,43 @@ public class Helicopter
         }
     }
 
-    private int GetRemainingTroopsCount()
+    private void StartParachuting(Ped paratrooper)
     {
-        // Count remaining troops (excluding pilot and potentially co-pilot)
-        return helicopter.Occupants.Count() - 1 - (AllowCoPilotJump ? 0 : 1);
+        if (paratrooper != null && !parachuteStatePeds.Contains(paratrooper))
+        {
+            paratrooper.Task.LeaveVehicle(LeaveVehicleFlags.BailOut);
+            paratrooper.Weapons.Give(WeaponHash.Pistol, 100, true, true); // Give handgun
+            parachuteStatePeds.Add(paratrooper);
+        }
     }
 
+    private void HandleParachuteState()
+    {
+        foreach (var paratrooper in parachuteStatePeds.ToList())
+        {
+            if (paratrooper.IsDead)
+            {
+                // Remove dead paratroopers
+                parachuteStatePeds.Remove(paratrooper);
+                paratrooper.MarkAsNoLongerNeeded();
+                crew.Remove(paratrooper);
+            }
+            else if (paratrooper.IsInParachuteFreeFall)
+            {
+                // Handle paratroopers that are in free fall
+                paratrooper.Task.UseParachute();
+                paratrooper.OpenParachute();
+                paratrooper.Task.ParachuteTo(Game.Player.Character.Position.Around(20));
+            }
+            else if (paratrooper.IsOnFoot && !paratrooper.IsInParachuteFreeFall)
+            {
+                // Remove paratroopers that have landed
+                parachuteStatePeds.Remove(paratrooper);
+                crew.Remove(paratrooper);
+                paratrooper.MarkAsNoLongerNeeded();
+            }
+        }
+    }
     private bool IsDeploymentComplete()
     {
         if (AllowCoPilotJump)
@@ -454,7 +596,6 @@ public class Helicopter
             Print("Paratrooper beginning skydive");
         }
     }
-
     public bool ControlMountedWeapon(Ped ped)
     {
         return Function.Call<bool>(Hash.CONTROL_MOUNTED_WEAPON, ped);
