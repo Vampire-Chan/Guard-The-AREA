@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Guarding.DispatchSystem
-{
     public class GroundVehicle
     {
         private GTA.Vehicle vehicle;
         private List<Ped> crew;
+
         private Dictionary<VehicleWeaponHash, bool> weaponStates;
 
         public bool Pursuit { get; set; }
@@ -96,8 +95,7 @@ namespace Guarding.DispatchSystem
             if (Patrol)
             {
                 Vector3 patrolPoint = Game.Player.Character.Position.Around(400);
-                vehicle.Driver.Task.DriveTo(vehicle, patrolPoint, 10f, 20f, DrivingStyle.Normal);
+                vehicle.Driver.Task.DriveTo(vehicle, patrolPoint, 10f, VehicleDrivingFlags.PreferNavmeshRoute, 20f);
             }
         }
     }
-}

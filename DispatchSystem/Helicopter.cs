@@ -5,7 +5,6 @@ using GTA.Native;
 using System.Collections.Generic;
 using System.Linq;
 using GTA.UI;
-using Guarding.DispatchSystem;
 
 public class Helicopter
 {
@@ -166,20 +165,24 @@ public class Helicopter
         helicopter.IsEngineRunning = true;
         helicopter.HeliBladesSpeed = 1f;
 
+        helicopter.Mods.InstallModKit();
+        //helicopter.
+
+        
         // Initialize vehicle weapons (specific to the helicopter)
 
-        IsArmed = vehicleWeapons?.Count > 0;
+        //IsArmed = vehicleWeapons?.Count > 0;
 
-      //  weaponStates = new Dictionary<VehicleWeaponHash, bool>();
+        //weaponStates = new Dictionary<VehicleWeaponHash, bool>();
 
-       // if (IsArmed)
-      //  {
-           // foreach (var weapon in vehicleWeapons)
-      //      {
-            //    weaponStates[weapon.Key] = true;
-            //    EnableVehicleWeapon(weapon.Key, pilot);
-           // }
-       // }
+        //if (IsArmed)
+        //{
+        //    foreach (var weapon in vehicleWeapons)
+        //    {
+        //        weaponStates[weapon.Key] = true;
+        //        EnableVehicleWeapon(weapon.Key, pilot);
+        //    }
+        //}
     }
 
     private Ped CreateAndAssignPed(string pedModelName, VehicleSeat seat)
@@ -206,14 +209,34 @@ public class Helicopter
         if (primaryWeapons != null && primaryWeapons.Count > 0)
         {
             var primaryWeaponName = primaryWeapons[random.Next(primaryWeapons.Count)];
-            ped.Weapons.Give(primaryWeaponName, 900, true, true);
+            WeaponHash primaryWeaponHash;
+
+            if (Enum.TryParse(primaryWeaponName, out primaryWeaponHash))
+            {
+                ped.Weapons.Give(primaryWeaponHash, 900, true, true);
+                Print($"Assigned primary weapon {primaryWeaponName} to ped {ped.Handle}");
+            }
+            else
+            {
+                Print($"Invalid primary weapon name: {primaryWeaponName}");
+            }
         }
 
         // Assign a random secondary weapon if available
         if (secondaryWeapons != null && secondaryWeapons.Count > 0)
         {
             var secondaryWeaponName = secondaryWeapons[random.Next(secondaryWeapons.Count)];
-            ped.Weapons.Give(secondaryWeaponName, 200, false, true);
+            WeaponHash secondaryWeaponHash;
+
+            if (Enum.TryParse(secondaryWeaponName, out secondaryWeaponHash))
+            {
+                ped.Weapons.Give(secondaryWeaponHash, 200, false, true);
+                Print($"Assigned secondary weapon {secondaryWeaponName} to ped {ped.Handle}");
+            }
+            else
+            {
+                Print($"Invalid secondary weapon name: {secondaryWeaponName}");
+            }
         }
     }
 
@@ -449,7 +472,7 @@ public class Helicopter
     private DateTime? lastJumpTime = null;
     private List<Ped> deployedParatroopers = new List<Ped>();
     public bool AllowCoPilotJump { get; set; } = false; // New flag to control co-pilot jumping
-    List<Ped> parachuteStatePeds;
+    List<Ped> parachuteStatePeds = new List<Ped>();
 
     private void ParatrooperDeployment()
     {

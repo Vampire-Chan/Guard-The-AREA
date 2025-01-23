@@ -4,8 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Guarding.DispatchSystem
-{
+
     public class Boat
     {
         private GTA.Vehicle boat;
@@ -96,8 +95,7 @@ namespace Guarding.DispatchSystem
             if (Patrol)
             {
                 Vector3 patrolPoint = Game.Player.Character.Position.Around(400);
-                boat.Driver.Task.DriveTo(boat, patrolPoint, 10f, 20f, DrivingStyle.Normal);
+                boat.Driver.Task.DriveTo(boat, patrolPoint, 10f, VehicleDrivingFlags.PreferNavmeshRoute, 20f);
             }
         }
     }
-}

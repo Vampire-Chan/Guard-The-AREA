@@ -2,17 +2,22 @@
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 using System;
 
-namespace Guarding.DispatchSystem
-{
+
     public class DispatchSystemManager : Script
     {
         private DispatchManager dispatchManager;
-
         public DispatchSystemManager()
         {
             Tick += OnTick;
-            var vehicleInfo = XMLDataLoader.LoadVehicleInformation("./scripts/DispatchData.xml");
-            dispatchManager = new DispatchManager(vehicleInfo);
+            InitializeDispatchManager();
+             
+        }
+
+        public void InitializeDispatchManager()
+        {
+            string xmlFilePath = "./scripts/DispatchData.xml";
+            var wantedStarData = XMLDataLoader.LoadDispatchData(xmlFilePath);
+            dispatchManager = new(wantedStarData);
         }
 
         private void OnTick(object sender, EventArgs e)
@@ -20,4 +25,3 @@ namespace Guarding.DispatchSystem
             dispatchManager.UpdateDispatch();
         }
     }
-}
