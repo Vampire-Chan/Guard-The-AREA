@@ -13,4 +13,9 @@ use 2 for loss target resoponse
 
 set driveby combat flag attribute
 
-to switch ai vehicle weapons, you need to disable one of them, and enable other of them. so like if you are in air, and want to use miniguns then disable rocket ones and enable miniguns (example the hunter) let the copilot shoot you but disable the pilot rockets (both barage and locking)
+to switch ai vehicle weapons, you need to disable one of them, and enable other of them. so like if you are in air, and want to use miniguns then disable rocket ones and enable miniguns (example the hunter) let the copilot shoot you but disable the pilot rockets (both barrage and locking)
+
+
+next important is to enable driveby flag to make sure peds shoot when driving.
+
+switch to weapon is done by finding current weapon, disable it and enable the one to be used.
