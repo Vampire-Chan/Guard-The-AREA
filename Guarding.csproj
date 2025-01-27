@@ -1,38 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
-  <PropertyGroup>
-    <AssemblyName>GuardTheArea</AssemblyName>
-    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <UseWindowsForms>True</UseWindowsForms>
-    <TargetFramework>net48</TargetFramework>
-    <Platform>x64</Platform>
-    <Platforms>x64</Platforms>
-  </PropertyGroup>
-  
-  <PropertyGroup>
-    <LangVersion>11.0</LangVersion>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
+	<PropertyGroup>
+		<AssemblyName>GuardTheArea</AssemblyName>
+		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+		<UseWindowsForms>True</UseWindowsForms>
+		<TargetFramework>net48</TargetFramework>
+		<Platform>x64</Platform>
+		<Platforms>x64</Platforms>
+	</PropertyGroup>
 
-  <!-- Reference Includes -->
-  <ItemGroup>
-    <Reference Include="LemonUI.SHVDN3">
-      <HintPath>..\..\Games\GTAV\scripts\LemonUI.SHVDN3.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ScriptHookVDotNet3">
-      <HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Core" />
-  </ItemGroup>
+	<PropertyGroup>
+		<LangVersion>11.0</LangVersion>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<PlatformTarget>x64</PlatformTarget>
+		<Optimize>true</Optimize>
+		<DebugType>pdbonly</DebugType>
+	</PropertyGroup>
 
-  <!-- Exclude Backup Folder -->
-  <ItemGroup>
-    <Compile Remove="Guarding_backup\**" />
-    <EmbeddedResource Remove="Guarding_backup\**" />
-    <None Remove="Guarding_backup\**" />
-  </ItemGroup>
+	<!-- Reference Includes -->
+	<ItemGroup>
+		<Reference Include="LemonUI.SHVDN3">
+			<HintPath>..\..\Games\GTAV\scripts\LemonUI.SHVDN3.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="ScriptHookVDotNet3">
+			<HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="System.Core" />
+	</ItemGroup>
+
+	<!-- Exclude Backup Folder -->
+	<ItemGroup>
+		<Compile Remove="Guarding_backup\**" />
+		<EmbeddedResource Remove="Guarding_backup\**" />
+		<None Remove="Guarding_backup\**" />
+	</ItemGroup>
+	
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;D:\Games\GTAV\scripts\&quot; /Y" />
+	</Target>
+
 </Project>

@@ -5,3 +5,5 @@ D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\Guarding.GeneratedMSBu
 D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\Guarding.csproj.CoreCompileInputs.cache
 D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\GuardTheArea.dll
 D:\Source-Codes\WorldOfImprovements\obj\x64\Release\net48\GuardTheArea.pdb
+D:\Games\GTAV\scripts\net48\GuardTheArea.dll
+D:\Games\GTAV\scripts\net48\GuardTheArea.pdb

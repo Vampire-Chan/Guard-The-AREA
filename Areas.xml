@@ -1,107 +1,90 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Areas>
-	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
-	<Area name="MichealHouse" model="gruppe6_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN, SECURITY_GUARD" dislikes="PLAYER_TREVOR, COP, ARMY" override="true"> <!-- this true means the relationships in guards.xml and this are together. if was false then these relationship will override that ones. -->
-		<SpawnPoint type="ped" scenario="guard" interior="">
-			<Position x="-817.86" y="175.38" z="72.23" />
-			<Heading>93.34</Heading>
+	<!-- Guard Model names can be modified in guards.xml -->
+	<Area name="MichaelHouse" model="gruppe6_guard">  <!-- try not to change this value for michael house, hardcoded to respect micheal and attack anything hostile against him or them-->
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-819.19" y="179.33" z="72.22" />
+			<Heading>121.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-817.70" y="175.70" z="72.22" />
+			<Heading>108.44</Heading>
+		</SpawnPoint>
+	</Area>
+	<Area name="MerryweatherDock" model ="mw_guard">
+		<SpawnPoint type="ped">
+			<Position x="-1070.31" y="-250.48" z="57.95" />
+			<Heading>268.34</Heading>
 		</SpawnPoint>
 		<SpawnPoint type="ped">
-			<Position x="-819.22" y="179.18" z="72.23" />
-			<Heading>107.00</Heading>
+			<Position x="-1073.79" y="-243.37" z="57.91" />
+			<Heading>20.83</Heading>
 		</SpawnPoint>
 		<SpawnPoint type="ped">
-			<Position x="-818.06" y="177.89" z="76.71" />
-			<Heading>110.15</Heading>
+			<Position x="-1070.55" y="-242.69" z="54.00" />
+			<Heading>32.17</Heading>
 		</SpawnPoint>
 		<SpawnPoint type="ped">
-			<Position x="-810.48" y="167.38" z="72.23" />
-			<Heading>100.46</Heading>
+			<Position x="-1064.87" y="-245.49" z="54.01" />
+			<Heading>212.56</Heading>
 		</SpawnPoint>
 		<SpawnPoint type="ped">
-			<Position x="-804.99" y="165.72" z="71.56" />
-			<Heading>120.01</Heading>
+			<Position x="509.34" y="-3355.27" z="6.07" />
+			<Heading>93.97</Heading>
 		</SpawnPoint>
 		<SpawnPoint type="ped">
-			<Position x="-799.27" y="161.98" z="71.49" />
-			<Heading>15.95</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-790.36" y="153.83" z="70.67" />
-			<Heading>39.01</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-797.73" y="148.40" z="69.67" />
-			<Heading>271.91</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-781.07" y="167.67" z="67.47" />
-			<Heading>209.29</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-764.14" y="158.80" z="67.47" />
-			<Heading>99.85</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-762.67" y="139.89" z="67.47" />
-			<Heading>42.96</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-780.27" y="138.33" z="67.47" />
-			<Heading>320.69</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-781.71" y="150.67" z="67.47" />
-			<Heading>278.05</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-781.97" y="176.90" z="73.44" />
-			<Heading>2.92</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-769.42" y="185.03" z="73.15" />
-			<Heading>87.96</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-789.58" y="191.33" z="72.95" />
-			<Heading>194.21</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-812.26" y="177.59" z="72.15" />
-			<Heading>22.35</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-816.63" y="181.41" z="72.15" />
-			<Heading>214.63</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-842.44" y="162.61" z="67.16" />
-			<Heading>177.03</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-842.38" y="155.38" z="66.99" />
-			<Heading>358.23</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-820.97" y="153.16" z="70.18" />
-			<Heading>7.21</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="-844.58" y="181.10" z="70.56" />
-			<Heading>194.70</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="-851.99" y="171.52" z="67.42" />
-			<Heading>357.31</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="-853.32" y="148.53" z="62.60" />
-			<Heading>357.29</Heading>
+			<Position x="478.50" y="-3370.31" z="6.07" />
+			<Heading>195.96</Heading>
 		</SpawnPoint>
 
 	</Area>
-	<!-- Guard Model names are - gruppe6_guard, police_guard, military_guard. more configs soon -->
-	<Area name="FrankHouse" model="families_guard" respect="PLAYER_MICHEAL, PLAYER_FRANKLIN, AMBIENT_GANG_FAMILY" dislikes="PLAYER_TREVOR" override="false">
+	<Area name="PacificBank" model ="gruppe6_guard">
+		<SpawnPoint type="ped">
+			<Position x="231.47" y="211.58" z="105.46" />
+			<Heading>118.47</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="228.68" y="217.47" z="105.55" />
+			<Heading>123.45</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="242.71" y="210.64" z="106.29" />
+			<Heading>9.79</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="238.56" y="221.14" z="106.29" />
+			<Heading>314.65</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="234.21" y="224.60" z="110.28" />
+			<Heading>254.16</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="236.84" y="212.37" z="110.28" />
+			<Heading>331.68</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="252.45" y="207.24" z="110.28" />
+			<Heading>338.84</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="267.42" y="219.39" z="110.28" />
+			<Heading>57.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="256.61" y="224.10" z="101.88" />
+			<Heading>348.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="252.10" y="225.41" z="101.68" />
+			<Heading>352.06</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped">
+			<Position x="248.78" y="230.34" z="106.29" />
+			<Heading>172.77</Heading>
+		</SpawnPoint>
+	</Area>
+	<Area name="FranklinHouse" model="families_guard" > <!-- hard coded to respect franklin and michael-->
 		<SpawnPoint type="ped">
 			<Position x="3.65" y="531.43" z="175.34" />
 			<Heading>322.31</Heading>
@@ -124,7 +107,7 @@
 		</SpawnPoint>
 	</Area>
 
-	<Area name="ArmyGate1" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" override="true">
+	<Area name="ArmyGate1" model="army1_guard">
 		<SpawnPoint type="ped">
 			<Position x="-1614.36" y="2806.01" z="17.73" />
 			<Heading>293.30</Heading>
@@ -139,7 +122,7 @@
 		</SpawnPoint>
 	</Area>
 
-	<Area name="Army_practiseground" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" dislikes="" override="true">
+	<Area name="Army_practiseground" model="army1_guard" >
 		<SpawnPoint type="ped">
 			<Position x="-2000.76" y="3315.89" z="37.36" />
 			<Heading>258.51</Heading>
@@ -194,7 +177,7 @@
 		</SpawnPoint>
 
 	</Area>
-	<Area name="ArmyGate2Parking_Gate" model="army1_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY, ARMY, COP" dislikes="" override="true">
+	<Area name="ArmyGate2Parking_Gate" model="army1_guard">
 		<SpawnPoint type="vehicle">
 			<Position x="-2376.35" y="3391.59" z="32.75" />
 			<Heading>332.49</Heading>
@@ -383,139 +366,164 @@
 	</Area>
 	<!-- Police Station with that Helipad -->
 	<Area name="PoliceHQ" model="lspd_guard">
-		<SpawnPoint type="ped">
-			<Position x="449.39" y="-987.68" z="30.69" />
-			<Heading>61.31</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="448.49" y="-982.32" z="30.69" />
-			<Heading>90.15</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="451.45" y="-980.46" z="30.69" />
-			<Heading>56.25</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="453.33" y="-986.49" z="30.69" />
-			<Heading>263.60</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="468.66" y="-986.83" z="33.93" />
-			<Heading>281.99</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="468.34" y="-984.92" z="37.70" />
-			<Heading>282.68</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="459.97" y="-1014.10" z="32.99" />
-			<Heading>86.01</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="462.78" y="-1021.14" z="32.98" />
-			<Heading>191.50</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="467.76" y="-1025.55" z="28.26" />
-			<Heading>277.13</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="476.23" y="-1023.77" z="27.75" />
-			<Heading>95.53</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="464.51" y="-985.16" z="39.89" />
-			<Heading>164.92</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="470.17" y="-983.51" z="41.89" />
-			<Heading>300.46</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="458.52" y="-972.11" z="43.69" />
-			<Heading>17.88</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="460.15" y="-992.97" z="43.69" />
-			<Heading>196.56</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="444.43" y="-992.58" z="43.69" />
-			<Heading>86.40</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="449.22" y="-981.15" z="43.39" />
-			<Heading>271.67</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="456.42" y="-1024.12" z="28.02" />
-			<Heading>4.66</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="463.20" y="-1019.80" z="27.70" />
-			<Heading>266.18</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="447.20" y="-997.38" z="25.37" />
-			<Heading>181.01</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="452.64" y="-997.72" z="25.36" />
-			<Heading>177.26</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="407.78" y="-983.94" z="28.87" />
-			<Heading>53.98</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="407.76" y="-979.68" z="28.88" />
-			<Heading>235.41</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="407.81" y="-993.15" z="28.87" />
-			<Heading>52.27</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="413.68" y="-1029.36" z="28.95" />
-			<Heading>184.95</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="vehicle">
-			<Position x="419.87" y="-1028.56" z="28.73" />
-			<Heading>181.70</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="439.80" y="-1013.50" z="28.63" />
-			<Heading>71.80</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="443.69" y="-1013.60" z="28.59" />
-			<Heading>270.79</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="444.20" y="-1003.26" z="30.72" />
-			<Heading>175.61</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="423.40" y="-1001.77" z="30.71" />
-			<Heading>80.11</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="426.47" y="-985.97" z="30.71" />
-			<Heading>357.96</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="435.34" y="-973.42" z="30.72" />
-			<Heading>72.74</Heading>
-		</SpawnPoint>
-		<SpawnPoint type="ped">
-			<Position x="435.56" y="-975.88" z="30.72" />
-			<Heading>75.29</Heading>
-		</SpawnPoint>
+		
 
 	</Area>
 	
+	
+	<Area name="VinewoodHillsPalace" model ="gruppe6_police_guard">
+		  <SpawnPoint type="vehicle">
+    <Position x="-417.34" y="1215.44" z="325.17" />
+    <Heading>227.56</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-414.44" y="1223.15" z="325.17" />
+    <Heading>48.16</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-413.04" y="1226.70" z="325.17" />
+    <Heading>58.33</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-421.18" y="1197.49" z="325.17" />
+    <Heading>44.09</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-408.77" y="1199.47" z="325.17" />
+    <Heading>344.48</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-407.01" y="1205.78" z="325.17" />
+    <Heading>344.40</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-405.36" y="1211.69" z="325.17" />
+    <Heading>344.41</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-403.65" y="1217.88" z="325.17" />
+    <Heading>344.45</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-394.76" y="1216.01" z="325.17" />
+    <Heading>161.66</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-396.23" y="1209.44" z="325.16" />
+    <Heading>171.48</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-398.28" y="1203.51" z="325.17" />
+    <Heading>164.76</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-399.86" y="1197.63" z="325.17" />
+    <Heading>164.98</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-468.23" y="1131.35" z="325.86" />
+    <Heading>344.28</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-440.72" y="1116.33" z="325.92" />
+    <Heading>336.98</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-433.34" y="1115.56" z="326.77" />
+    <Heading>344.13</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-432.60" y="1112.24" z="327.68" />
+    <Heading>343.01</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-425.70" y="1109.80" z="327.68" />
+    <Heading>334.72</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-423.07" y="1112.86" z="326.77" />
+    <Heading>342.39</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-417.22" y="1110.03" z="325.88" />
+    <Heading>339.38</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-403.71" y="1073.71" z="323.85" />
+    <Heading>259.82</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-401.66" y="1055.15" z="323.84" />
+    <Heading>127.84</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-419.93" y="1059.52" z="323.85" />
+    <Heading>12.14</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-406.88" y="1071.83" z="327.68" />
+    <Heading>74.65</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-413.17" y="1086.38" z="327.68" />
+    <Heading>210.29</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-400.73" y="1100.72" z="332.53" />
+    <Heading>342.63</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-418.12" y="1104.55" z="332.53" />
+    <Heading>345.68</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-422.82" y="1110.03" z="332.53" />
+    <Heading>21.95</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-438.12" y="1113.04" z="332.54" />
+    <Heading>340.62</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-442.16" y="1110.68" z="332.53" />
+    <Heading>346.96</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-458.01" y="1115.39" z="332.55" />
+    <Heading>344.39</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-454.36" y="1097.80" z="327.68" />
+    <Heading>90.72</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-466.23" y="1089.07" z="327.68" />
+    <Heading>326.80</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-491.36" y="1096.60" z="320.10" />
+    <Heading>327.02</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-471.07" y="1146.39" z="325.86" />
+    <Heading>278.53</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-421.69" y="1156.62" z="325.86" />
+    <Heading>323.79</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped" scenario="WORLD_HUMAN_LEANING">
+    <Position x="-316.04" y="1208.11" z="321.18" />
+    <Heading>32.77</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-315.64" y="1206.93" z="320.43" />
+    <Heading>297.38</Heading>
+  </SpawnPoint>
+		
+	</Area>
 	<!--Noose Headquaters-->
-	<Area name="NooseHeadQ" model="noose_guard" respect="SECURITY_GUARD, PRIVATE_SECURITY" dislikes="" override="true">
+	<Area name="NooseHeadQ" model="noose_guard">
 		<SpawnPoint type="ped">
 			<Position x="2553.67" y="-324.91" z="92.99" />
 			<Heading>192.73</Heading>

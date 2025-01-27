@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DispatchInfo>
+  <DispatchVehicleInfo>
+    <!-- LSPD Dispatch -->
+    <Dispatch name="LSPD_Helicopters">
+      <Vehicles>
+        <Vehicle model="polmav">
+          <Mods random="false">
+            <Mod type="livery" index="0"/>
+            <Mod type="roof" index="1"/>
+            <Mod type="wheel" index="2"/>
+          </Mods>
+          <VehicleWeapons>
+            <Weapon>WEAPON_SEARCHLIGHT</Weapon>
+            <Weapon>WEAPON_MG</Weapon>
+          </VehicleWeapons>
+        </Vehicle>
+        <Vehicle model="maverick"/>
+      </Vehicles>
+      <Pilots>
+        <Pilot>s_m_y_cop_01</Pilot>
+        <Pilot>s_f_y_cop_01</Pilot>
+      </Pilots>
+      <Soldiers>
+        <Soldier>s_m_y_cop_01</Soldier>
+        <Soldier>s_f_y_cop_01</Soldier>
+        <Soldier>s_m_y_hwaycop_01</Soldier>
+      </Soldiers>
+      <Weapons>
+        <PrimaryWeapons>
+          <Weapon>WEAPON_CARBINERIFLE</Weapon>
+          <Weapon>WEAPON_SMG</Weapon>
+        </PrimaryWeapons>
+        <SecondaryWeapons>
+          <Weapon>WEAPON_PISTOL</Weapon>
+          <Weapon>WEAPON_HEAVYPISTOL</Weapon>
+        </SecondaryWeapons>
+      </Weapons>
+    </Dispatch>
+
+    <!-- LSSD Dispatch -->
+    <Dispatch name="LSSD_Helicopters">
+      <Vehicles>
+        <Vehicle model="polmav">
+          <Mods>
+            <Mod type="livery" index="1"/>
+            <Mod type="wheel" index="3"/>
+          </Mods>
+          <VehicleWeapons>
+            <Weapon>WEAPON_SEARCHLIGHT</Weapon>
+            <Weapon>WEAPON_MG</Weapon>
+          </VehicleWeapons>
+        </Vehicle>
+        <Vehicle model="maverick"/>
+      </Vehicles>
+      <Pilots>
+        <Pilot>s_m_y_sheriff_01</Pilot>
+        <Pilot>s_f_y_sheriff_01</Pilot>
+      </Pilots>
+      <Soldiers>
+        <Soldier>s_m_y_sheriff_01</Soldier>
+        <Soldier>s_f_y_sheriff_01</Soldier>
+      </Soldiers>
+      <Weapons>
+        <PrimaryWeapons>
+          <Weapon>WEAPON_CARBINERIFLE</Weapon>
+          <Weapon>WEAPON_SMG</Weapon>
+        </PrimaryWeapons>
+        <SecondaryWeapons>
+          <Weapon>WEAPON_PISTOL</Weapon>
+          <Weapon>WEAPON_HEAVYPISTOL</Weapon>
+        </SecondaryWeapons>
+      </Weapons>
+    </Dispatch>
+
+    <!-- SWAT Dispatch -->
+    <Dispatch name="SWAT_Helicopters">
+      <Vehicles>
+        <Vehicle model="annihilator">
+          <Mods>
+            <Mod type="livery" index="2"/>
+            <Mod type="roof" index="0"/>
+            <Mod type="wheel" index="4"/>
+          </Mods>
+          <VehicleWeapons>
+            <Weapon>WEAPON_TURRET</Weapon>
+            <Weapon>WEAPON_ROCKET</Weapon>
+            <Weapon>WEAPON_MG</Weapon>
+          </VehicleWeapons>
+        </Vehicle>
+		  <Vehicle model="buzzard">
+			  <Mods>
+				  <Mod type="livery" index="2"/>
+				  <Mod type="roof" index="0"/>
+				  <Mod type="wheel" index="4"/>
+			  </Mods>
+			  <VehicleWeapons>
+				  <Weapon>WEAPON_TURRET</Weapon>
+				  <Weapon>WEAPON_ROCKET</Weapon>
+				  <Weapon>WEAPON_MG</Weapon>
+			  </VehicleWeapons>
+		  </Vehicle>
+        <Vehicle model="annihilator2">
+			
+          <Mods>
+            <Mod type="livery" index="3"/>
+            <Mod type="roof" index="0"/>
+            <Mod type="wheel" index="4"/>
+          </Mods>
+          <VehicleWeapons>
+            <Weapon>WEAPON_TURRET</Weapon>
+            <Weapon>WEAPON_ROCKET</Weapon>
+            <Weapon>WEAPON_MG</Weapon>
+          </VehicleWeapons>
+        </Vehicle>
+      </Vehicles>
+      <Pilots>
+        <Pilot>s_m_y_swat_01</Pilot>
+      </Pilots>
+      <Soldiers>
+        <Soldier>s_m_y_swat_01</Soldier>
+      </Soldiers>
+      <Weapons>
+        <PrimaryWeapons>
+          <Weapon>WEAPON_CARBINERIFLE</Weapon>
+          <Weapon>WEAPON_SMG</Weapon>
+        </PrimaryWeapons>
+        <SecondaryWeapons>
+          <Weapon>WEAPON_PISTOL</Weapon>
+          <Weapon>WEAPON_HEAVYPISTOL</Weapon>
+        </SecondaryWeapons>
+      </Weapons>
+    </Dispatch>
+  </DispatchVehicleInfo>
+
+  <WantedLevels>
+    <WantedLevel star="One">
+      <DispatchType type="Air">
+        <DispatchSet>LSPD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Ground">
+        <DispatchSet>LSSD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Sea">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+    </WantedLevel>
+    <WantedLevel star="Two">
+      <DispatchType type="Air">
+        <DispatchSet>LSPD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Ground">
+        <DispatchSet>LSSD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Sea">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+    </WantedLevel>
+    <WantedLevel star="Three">
+      <DispatchType type="Air">
+        <DispatchSet>LSPD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Ground">
+        <DispatchSet>LSSD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Sea">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+    </WantedLevel>
+    <WantedLevel star="Four">
+      <DispatchType type="Air">
+        <DispatchSet>LSPD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Ground">
+        <DispatchSet>LSSD_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Sea">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+    </WantedLevel>
+    <WantedLevel star="Five">
+      <DispatchType type="Air">
+        <DispatchSet>LSPD_Helicopters</DispatchSet>
+	    <DispatchSet>LSSD_Helicopters</DispatchSet>
+	    <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Ground">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+      <DispatchType type="Sea">
+        <DispatchSet>SWAT_Helicopters</DispatchSet>
+      </DispatchType>
+    </WantedLevel>
+  </WantedLevels>
+</DispatchInfo>
