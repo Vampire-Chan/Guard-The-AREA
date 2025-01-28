@@ -19,3 +19,6 @@ to switch ai vehicle weapons, you need to disable one of them, and enable other 
 next important is to enable driveby flag to make sure peds shoot when driving.
 
 switch to weapon is done by finding current weapon, disable it and enable the one to be used.
+
+- need to find some predefined positions for police-lspd, lssd, bcso and hwaycops and park ranger.
+- for noose they will use the same cop offices but when near noose headquarters then you will get noose on foot and policr from other places. for army they are mostly spawned from air and later on vehicles ground.
