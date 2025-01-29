@@ -34,7 +34,7 @@ Guard The AREA is a sophisticated mod that enhances the security and guard prese
   - Private Security
   - Federal Agents (IAA/FIB)
   - Merryweather Security
-  - Gang Security (e.g., Families)
+  - Gang Security (e.g., Families but only for Franklin House)
 - **Area-Specific Security**: Customized security setups for various locations.
 - **Guard Behavior & AI**: Intelligent guard positioning, patrols, and dynamic combat responses.
 - **Vehicle Integration**: Security vehicles, vehicle patrols, and checkpoints.
@@ -58,7 +58,7 @@ Defines guarded locations and spawn points:
 </Areas>
 ```
 #### Area Attributes
-- `name`: Unique identifier for the area (e.g., "MichealHouse", "NooseHeadQ")
+- `name`: Unique identifier for the area (e.g., "MichaelHouse", "NooseHQ")
 - `model`: Guard type to spawn (must match Guards.xml entries)
 
 #### SpawnPoint Attributes
@@ -80,11 +80,12 @@ Defines guarded locations and spawn points:
 
 ### Guards.xml Configuration
 
-Defines guard types and their equipment:
+Defines guard types and their equipment.
+Use COP, ARMY, GUARD, BLACKOPS only; otherwise, leave it empty.
 
 ```xml
 <Guards>
-    <Guard name="guard_type">
+    <Guard name="guard_type" group="group">
         <PedModel>model_name</PedModel>
         <Weapon>weapon_name</Weapon>
         <VehicleModel>vehicle_name</VehicleModel>
@@ -131,19 +132,9 @@ WORLD_HUMAN_STAND_MOBILE
 ```
 
 #### Additional Scenarios
-A complete list of available scenarios can be found in the GTA V scenario metadata files. You can use any valid GTA V scenario name in your configuration. The scenarios listed above are just commonly used examples that work well with guard behaviors.
+A complete list of available scenarios can be found in the GTA V scenario metadata files. You can use any valid GTA V scenario name in your configuration.
 
-To use additional scenarios:
-1. Find the scenario name from GTA V's scenario metadata.
-2. Add it to your Area configuration:
-```xml
-<SpawnPoint type="ped" scenario="SCENARIO_NAME">
-    <Position x="0.0" y="0.0" z="0.0" />
-    <Heading>0.0</Heading>
-</SpawnPoint>
-```
-
-> **Note**: Not all GTA V scenarios will work appropriately with guard behaviors. Test scenarios in-game to ensure they provide the desired behavior.
+> **Note**: Not all scenarios will work appropriately with guard behaviors. Test scenarios in-game to ensure they provide the desired behavior.
 
 ## Examples
 
@@ -154,7 +145,6 @@ To use additional scenarios:
         <Position x="-1614.36" y="2806.01" z="17.73" />
         <Heading>293.30</Heading>
     </SpawnPoint>
-    <!-- Additional spawn points -->
 </Area>
 ```
 
@@ -165,58 +155,15 @@ To use additional scenarios:
         <Position x="0.0" y="0.0" z="0.0" />
         <Heading>90.0</Heading>
     </SpawnPoint>
-    <SpawnPoint type="vehicle">
-        <Position x="5.0" y="0.0" z="0.0" />
-        <Heading>90.0</Heading>
-    </SpawnPoint>
 </Area>
 ```
-
-### Example 3: Interior Guard Configuration
-```xml
-<Area name="BuildingSecurity" model="security_guard">
-    <SpawnPoint type="ped" scenario="WORLD_HUMAN_GUARD_STAND" interior="true">
-        <Position x="100.0" y="100.0" z="30.0" />
-        <Heading>180.0</Heading>
-    </SpawnPoint>
-</Area>
-```
-
-## Custom Usage
-
-This mod can be used for a variety of custom setups beyond standard guard patrols, including:
-- **Roadblocks**: Set up custom roadblocks with guards and vehicles.
-- **Sniper Spots**: Position guards at strategic sniper spots.
-- **Checkpoints**: Create security checkpoints with guards and vehicles.
-- **Interior Security**: Secure inside buildings with interior spawn points.
-
-> **Important**: Avoid using guards and law enforcement types in the same location as they have conflicting relationships. Modify `relationships.dat` if necessary to adjust behaviors before setting up mixed security types.
 
 ## Important Notes
 
-1. **Coordinate System**
-   - Use in-game position logging (Press 'L' key) to get accurate coordinates.
-   - Heading: 0° = North, 90° = East, 180° = South, 270° = West.
-
-2. **Performance Considerations**
-   - Limit spawn points in high-traffic areas.
-   - Consider using `interior="true"` for proper indoor spawning.
-   - Use scenarios appropriately for more realistic behaviors.
-
-3. **Position Logging**
-   - Enable position logging in `Guarding.ini`.
-   - Use the 'L' key (configurable) to log coordinates.
-   - Logged positions are saved in XML format for easy copying.
-
-4. **Scenario Usage**
-   - When no scenario is specified, guards will use default patrol behavior.
-   - Some scenarios work better in specific locations (e.g., WORLD_HUMAN_GUARD_STAND for checkpoints).
-   - Not all scenarios work with all guard types.
-
-5. **Vehicle Spawns**
-   - Ensure adequate space for vehicle spawns.
-   - Vehicle types must match those defined in `Guards.xml`.
-   - Consider terrain and road access for vehicle spawn points.
+1. **Coordinate System**: Use in-game position logging (Press 'L' key) to get accurate coordinates.
+2. **Performance Considerations**: Limit spawn points in high-traffic areas.
+3. **Scenario Usage**: Some scenarios work better in specific locations (e.g., WORLD_HUMAN_GUARD_STAND for checkpoints).
+4. **Vehicle Spawns**: Ensure adequate space for vehicle spawns.
 
 ## Installation
 
@@ -228,7 +175,7 @@ This mod can be used for a variety of custom setups beyond standard guard patrol
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
+Contributions are welcome! Please submit pull requests or create issues for bugs and feature requests.
 
 ## Credits
 
@@ -238,4 +185,3 @@ Created by Vampire-Chan.
 
 This project is licensed under standard open-source terms. See LICENSE file for details.
 
-This README.md file provides an in-depth guide on configuring and using the Guard The AREA mod, ensuring users can fully utilize the mod's features and customize their game experience effectively.
