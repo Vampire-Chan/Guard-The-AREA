@@ -105,10 +105,10 @@ public class DispatchManager
             int wantedLevel = Game.Player.WantedLevel;
             int helicoptersToDispatch = wantedLevel switch
             {
-                3 => 1,
-                4 => 2,
-                >= 5 => 4,
-                _ => 0
+                3 => 1, //we force 1 heli for 3 stars
+                4 => 2, //we force 2 helis for 4 stars
+                >= 5 => 4, //we force 4 helis for 5 stars
+                _ => 0 //all other cases, we don't dispatch any heli
             };
 
             while (airUnits.Count < helicoptersToDispatch && helicoptersToDispatch!=0)
@@ -132,6 +132,9 @@ public class DispatchManager
                     heli.Land = true;
                     break;
                 case 2:
+                    heli.Pursuit = true;
+                    break; 
+                default:
                     heli.Pursuit = true;
                     break;
             }

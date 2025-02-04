@@ -43,7 +43,7 @@ public class XmlReader
             // Parse relationships
             var hate = ParseRelationshipString(areaElement.Attribute("hates")?.Value);
             var dislike = ParseRelationshipString(areaElement.Attribute("dislikes")?.Value);
-            var respect = ParseRelationshipString(areaElement.Attribute("respects")?.Value);
+            var respect = areaElement.Attribute("respects")?.Value;
             var like = ParseRelationshipString(areaElement.Attribute("likes")?.Value);
 
             Area area = new Area(areaName, model, hate, dislike, respect, like, relationshipOverride);
@@ -86,6 +86,15 @@ public class XmlReader
         {
             string guardName = guardElement.Attribute("name")?.Value;
             string guardGroup = guardElement.Attribute("group")?.Value;
+
+            var mountedVehicle = guardElement.Element("MountedVehicleModel");
+            int seatIndex = 0; // Default value if not found
+
+            if (mountedVehicle != null && mountedVehicle.Attribute("seatindex") != null)
+            {
+                int.TryParse(mountedVehicle.Attribute("seatindex")?.Value, out seatIndex);
+            }
+
             var config = new GuardConfig
             {
                 Name = guardName,
@@ -99,30 +108,36 @@ public class XmlReader
                 VehicleModels = guardElement.Elements("VehicleModel")
                                           .Select(x => x.Value)
                                           .ToList(),
+                MVehicleModels = guardElement.Elements("MountedVehicleModel")
+                                          .Select(x => x.Value)
+                                          .ToList(),
                 RelationshipGroup = guardGroup,
-                // Add relationship properties
+                SeatIndex = seatIndex, // Properly loaded seat index
                 Hate = ParseRelationshipString(guardElement.Attribute("hates")?.Value),
                 Dislike = ParseRelationshipString(guardElement.Attribute("dislikes")?.Value),
-                Respect = ParseRelationshipString(guardElement.Attribute("respects")?.Value),
+                Respect = guardElement.Attribute("respects")?.Value,
                 Like = ParseRelationshipString(guardElement.Attribute("likes")?.Value)
             };
+
             guardConfigs[guardName] = config;
         }
 
         return guardConfigs;
     }
+
 }
 
 public class GuardConfig
 {
     public string Name { get; set; }
-    public List<string> PedModels { get; set; }
-    public List<string> Weapons { get; set; }
-    public List<string> VehicleModels { get; set; }
+    public List<string> PedModels { get; set; } = new List<string>();
+    public List<string> Weapons { get; set; } = new List<string>();
+    public List<string> VehicleModels { get; set; } = new List<string>();
+    public List<string> MVehicleModels { get; set; } = new List<string>();
     public List<string> Hate { get; set; } = new List<string>();
     public List<string> Dislike { get; set; } = new List<string>();
-    public List<string> Respect { get; set; } = new List<string>();
+    public string Respect { get; set; }
+    public int SeatIndex { get; set; }
     public List<string> Like { get; set; } = new List<string>();
-
     public string RelationshipGroup { get; set; }
 }

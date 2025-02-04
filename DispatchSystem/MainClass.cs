@@ -12,7 +12,7 @@ public class DispatchSystemManager : Script
         {
             Tick += OnTick;
             InitializeDispatchManager();
-        KeyDown += OnKeyDown;   
+         // KeyDown += OnKeyDown;   
 
     }
 
@@ -25,6 +25,7 @@ public class DispatchSystemManager : Script
 
         private void OnTick(object sender, EventArgs e)
         {
+        if(PlayerPositionLogger._isNewHeliDispatchEnabled)
             dispatchManager.UpdateDispatch();
         }
 

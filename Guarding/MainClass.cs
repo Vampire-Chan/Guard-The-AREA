@@ -7,6 +7,8 @@ using GTA.UI;
 using GTA.Native;
 using GTA.Math;
 using System.Collections.Generic;
+using System.Linq;
+using Guarding.DispatchSystem;
 
 public class GuardManager : Script
 {
@@ -86,13 +88,32 @@ public class GateManager : Script
                // GTA.UI.Screen.ShowSubtitle($"Door already unlocked: {doorProp.Model.Hash}, Heading: {heading}, Locked: {isLocked}");
             }
         }
+     //   HelperClass.Subtitle("Gate Manager Active");
+        string copHash = "Not Found";
+        string armouredHash = "Not Found";
+
+        foreach (var mwops in World.GetAllPeds().ToList())
+        {
+            if (mwops.Model == "G_F_Y_Families_01")
+            {
+                copHash = $"{mwops.RelationshipGroup.Hash}";
+            }
+            else if (mwops.Model == PedHash.Michael)
+            {
+                armouredHash = $"{mwops.RelationshipGroup.Hash}";
+            }
+        }
+
+        // Display both in a single subtitle
+       // HelperClass.Subtitle($"Fam Hash: {copHash} | Ply Hash: {armouredHash} | Type: {new RelationshipGroup(StringHash.AtStringHash(copHash)).GetRelationshipBetweenGroups(armouredHash)}. {new RelationshipGroup(StringHash.AtStringHash(armouredHash)).GetRelationshipBetweenGroups(copHash)}");
+
     }
 
     private bool TryGetDoorInFront(out Prop doorProp, out float heading, out bool isLocked)
     {
         Vector3 position = Game.Player.Character.Position;
         Vector3 position2 = position + Game.Player.Character.ForwardVector * 1f;
-        float radius = 3f;
+        float radius = 100f;
 
         Prop[] nearbyProps = World.GetNearbyProps(position2, radius);
         foreach (Prop prop in nearbyProps)
@@ -147,6 +168,7 @@ public class PlayerPositionLogger : Script
     private Keys _logKey;
     internal static bool _isLoggingEnabled;
     private bool _isPositionLoggingEnabled;
+    internal static bool _isNewHeliDispatchEnabled;
 
     public PlayerPositionLogger()
     {
@@ -217,12 +239,22 @@ public class PlayerPositionLogger : Script
             // Get the player's position and heading
             var position = player.Position;
             var heading = player.Heading;
+            var seat = (int)player.SeatIndex;
 
             // Prepare the XML log entry with spawn type and interior status
             string logEntry = $"  <SpawnPoint type=\"{spawnType}\">\n" +
-                          $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
-                          $"    <Heading>{heading:F2}</Heading>\n" +
-                          $"  </SpawnPoint>";
+                              $"    <Position x=\"{position.X:F2}\" y=\"{position.Y:F2}\" z=\"{position.Z:F2}\" />\n" +
+                              $"    <Heading>{heading:F2}</Heading>\n" +
+                              $"  </SpawnPoint>";
+
+            // Append seat index comment only if player is in a vehicle
+            if (player.IsInVehicle())
+            {
+                logEntry += $" <!-- MountedVehicleModel seat={seat} (Place this in Guards.xml) -->";
+            }
+
+            // Output log entry
+            Console.WriteLine(logEntry);
 
             // Write to the log file
             File.AppendAllText(_logFilePath, logEntry + Environment.NewLine);
@@ -243,7 +275,7 @@ public class PlayerPositionLogger : Script
         _logKey = Keys.L;
         _isLoggingEnabled = true;
         _isPositionLoggingEnabled = true;
-
+        _isNewHeliDispatchEnabled = true;
         try
         {
             if (File.Exists(_iniFilePath))
@@ -260,6 +292,7 @@ public class PlayerPositionLogger : Script
                 // Read the LoggingEnabled setting
                 _isLoggingEnabled = settings.GetValue("Settings", "Logging", true);
                 _isPositionLoggingEnabled = settings.GetValue("Settings", "Position Logging", true);
+                _isNewHeliDispatchEnabled = settings.GetValue("Settings", "New Dispatch Heli System (BETA)", false);
             }
             else
             {
@@ -288,6 +321,7 @@ public class PlayerPositionLogger : Script
             settings.SetValue("Settings", "Position Log Key", _logKey.ToString());
             settings.SetValue("Settings", "Position Logging", _isPositionLoggingEnabled);
             settings.SetValue("Settings", "Logging", _isLoggingEnabled);
+            settings.SetValue("Settings", "New Dispatch Heli System (BETA)", _isNewHeliDispatchEnabled);
 
             settings.Save();
 

@@ -2,21 +2,22 @@
 using GTA;
 using GTA.Math;
 using GTA.Native;
+using Guarding.DispatchSystem;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 
 public class GuardSpawner
 {
-    private List<Ped> AllPedsInWorld;
-    private List<Area> _areas;
+private List<Area> _areas;
     private List<Guard> _guards;
     private List<Guard> _removedones;
     private Dictionary<string, GuardConfig> _guardConfigs;
 
-    private const float SPAWN_DISTANCE = 150f;
-    private const float DESPAWN_DISTANCE = 170f;
+    private const float SPAWN_DISTANCE = 220;
+    private const float DESPAWN_DISTANCE = 250f;
 
     public GuardSpawner(string xmlFilePath)
     {
@@ -26,52 +27,30 @@ public class GuardSpawner
         _guards = new List<Guard>();
         _removedones = new List<Guard>();
         Logger.Log($"Loaded {_areas.Count} areas from XML.");
+}
 
-        // One-time setup for Guards
+    private void SetupWorldStuffs()
+    {
+        List<Ped> AllPedsInWorld = World.GetAllPeds().ToList();
+
+        // Convert all relationship group names to hashes
         var PrivateGuardHash = StringHash.AtStringHash("PRIVATE_SECURITY");
         var GuardHash = StringHash.AtStringHash("SECURITY_GUARD");
         var ArmyHash = StringHash.AtStringHash("ARMY");
         var CopHash = StringHash.AtStringHash("COP");
         var GuardDogHash = StringHash.AtStringHash("GUARD_DOG");
+        var MerryW = StringHash.AtStringHash("MERRYWEATHER");
+        var PlayerGroupHash = Game.Player.Character.RelationshipGroup;
 
-        // Set relationships within groups
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 0, PrivateGuardHash, PrivateGuardHash); // Private guards are companions to themselves
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 0, GuardHash, GuardHash);             // Guards are companions to themselves
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 0, ArmyHash, ArmyHash);               // Army is companion to itself
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 0, CopHash, CopHash);                 // Cops are companions to themselves
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 0, GuardDogHash, GuardDogHash);       // Guard dogs are companions to themselves
-
-        // Set mutual respect relationships
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, PrivateGuardHash, GuardHash);      // Private guards respect guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, GuardHash, PrivateGuardHash);      // Guards respect private guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, PrivateGuardHash, ArmyHash);       // Private guards respect the army
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, ArmyHash, PrivateGuardHash);       // Army respects private guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, GuardHash, ArmyHash);              // Guards respect the army
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, ArmyHash, GuardHash);              // Army respects guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, CopHash, ArmyHash);                // Cops respect the army
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, ArmyHash, CopHash);                // Army respects cops
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, CopHash, PrivateGuardHash);        // Cops respect private guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, PrivateGuardHash, CopHash);        // Private guards respect cops
-
-        // Set guard dogs to respect other groups (optional)
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, GuardDogHash, PrivateGuardHash);   // Guard dogs respect private guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, PrivateGuardHash, GuardDogHash);   // Private guards respect guard dogs
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, GuardDogHash, GuardHash);          // Guard dogs respect guards
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, GuardHash, GuardDogHash);          // Guards respect guard dogs
-
-    }
-
-    private Area temparea = null;
-
-    private void SetupWorldStuffs()
-    {
-        // Get all current peds in the world
-        AllPedsInWorld = World.GetAllPeds().ToList();
+        if (Game.Player.WantedLevel > 0)
+        
 
         // Remove globally found peds that no longer exist or are null
-        AllPedsInWorld.RemoveAll(ped => ped == null || !_guards.Any(g => g.guardPed == ped) && !_removedones.Any(g => g.guardPed == ped));
+        AllPedsInWorld.RemoveAll(ped => ped == null ||
+                                        !_guards.Any(g => g.guardPed == ped) &&
+                                        !_removedones.Any(g => g.guardPed == ped));
 
-        // Filter out already added peds (in guards or removedOnes)
+        // Filter out already added peds
         var newPeds = AllPedsInWorld
             .Where(ped => ped != null &&
                           !_guards.Any(g => g.guardPed == ped) &&
@@ -84,6 +63,8 @@ public class GuardSpawner
             ProcessOtherPed(ped);
         }
     }
+
+
 
     // Define how to process other peds not in guards or removed lists
     private void ProcessOtherPed(Ped ped)
@@ -98,13 +79,8 @@ public class GuardSpawner
         else if (ped.Armor > 50 && ped.Armor < 125) ped.Armor = 250; //army/swat
         // Set ped's configuration flags
       
-
         // Additional logic for law enforcement or military types
-        if (ped.PedType == PedType.Cop || ped.PedType == PedType.Swat || ped.PedType == PedType.Army)
-        {
-            ped.SetConfigFlag(PedConfigFlagToggles.CanPerformArrest, true);
-            //ped.SetConfigFlag(PedConfigFlagToggles.can)
-        }
+        
 
         // Additional processing logic can be added here as needed
         Logger.Log($"Ped {ped.Handle} configuration and attributes updated.");
@@ -113,8 +89,7 @@ public class GuardSpawner
     public void CheckAllTime()
     {
         SetupWorldStuffs();
-        if (temparea != null)
-        {
+       
             foreach (var guard in _guards.ToList())
             {
                 if (guard?.guardPed != null)
@@ -151,7 +126,7 @@ public class GuardSpawner
                 }
             }
         }
-    }
+    
 
     public void CheckPlayerProximityAndSpawn(Player player)
     {
@@ -165,16 +140,14 @@ public class GuardSpawner
 
         foreach (var area in _areas)
         {
-            temparea = area;
             Vector3 areaCentroid = area.GetCentroid();
-            float areaRadius = area.GetRadius();
 
             float distanceToCentroid = player.Character.Position.DistanceTo(areaCentroid);
             Logger.Log($"Checking area {area.Name}, distance to centroid: {distanceToCentroid}");
 
             // Adjust spawn/despawn distances based on area radius
-            float adjustedSpawnDistance = SPAWN_DISTANCE + areaRadius;
-            float adjustedDespawnDistance = DESPAWN_DISTANCE + areaRadius;
+            float adjustedSpawnDistance = SPAWN_DISTANCE;
+            float adjustedDespawnDistance = DESPAWN_DISTANCE;
 
             if (distanceToCentroid < adjustedSpawnDistance)
             {

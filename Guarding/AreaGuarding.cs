@@ -8,12 +8,12 @@ public class Area
     public string Model { get; set; }
     public List<string> Hate { get; set; }
     public List<string> Dislike { get; set; }
-    public List<string> Respect { get; set; }
+    public string Respect { get; set; }
     public List<string> Like { get; set; }
     public bool RelationshipOverride { get; set; }
     public List<GuardSpawnPoint> SpawnPoints { get; set; }
 
-    public Area(string name, string model, List<string> hate, List<string> dislike, List<string> respect, List<string>like,  bool relationshipOverride = false)
+    public Area(string name, string model, List<string> hate, List<string> dislike, string respect, List<string>like,  bool relationshipOverride = false)
     {
         Name = name;
         Model = model;
@@ -45,21 +45,6 @@ public class Area
         );
     }
 
-    // Add method to get radius from centroid to farthest spawn point
-    public float GetRadius()
-    {
-        Vector3 centroid = GetCentroid();
-        float maxDistance = 0;
-
-        foreach (var point in SpawnPoints)
-        {
-            float distance = point.Position.DistanceTo(centroid);
-            if (distance > maxDistance)
-                maxDistance = distance;
-        }
-
-        return maxDistance;
-    }
 
     public void AddSpawnPoint(Vector3 position, float heading, string type, string scenario, bool interior)
     {

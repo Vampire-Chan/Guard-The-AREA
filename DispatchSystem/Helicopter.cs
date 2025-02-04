@@ -5,6 +5,8 @@ using GTA.Native;
 using System.Collections.Generic;
 using System.Linq;
 using GTA.UI;
+using Guarding.DispatchSystem;
+using GTA.NaturalMotion;
 
 public class Helicopter
 {
@@ -20,20 +22,19 @@ public class Helicopter
     private bool isRappelComplete;
     private Vector3 PositionToReach;
     private bool hasLanded;
-    private const int LOW_HEALTH_THRESHOLD = 800;
-    private const int CRITICAL_HEALTH_THRESHOLD = 500;
+
+    private const int LOW_HEALTH_THRESHOLD = 50;
+    private const int CRITICAL_HEALTH_THRESHOLD = 30;
 
     private const float PURSUIT_SPEED = 100f;
     private const float RAPPEL_SPEED = 5f;
     private const int FLEE_SPEED = 120;
 
-    private const int PURSUIT_RADIUS = 50;
     private const float RAPPEL_RADIUS = 15f;
 
     private const int PURSUIT_HEIGHT = 80;
-    private const float RAPPEL_HEIGHT = 10f;
+    private const float RAPPEL_HEIGHT = 20;
     private const float FLEE_HEIGHT = 50f;
-
 
     public GTA.Vehicle Vehicle
     {
@@ -84,7 +85,7 @@ public class Helicopter
         var primaryWeapons = info.Soldiers.Weapons.SelectMany(w => w.PrimaryWeapon).ToList();
         var secondaryWeapons = info.Soldiers.Weapons.SelectMany(w => w.SecondaryWeapon).ToList();
 
-        Initialize(info.VehicleModels, info.Pilot, info.Soldiers.Soldiers, null, primaryWeapons, secondaryWeapons);
+        Initialize(info.VehicleModels, info.Pilot, info.Soldiers.Soldiers, null, primaryWeapons, secondaryWeapons, true);
     }
 
 
@@ -111,11 +112,6 @@ public class Helicopter
         //AssignWeapons(crew, primaryWeapons, secondaryWeapons);
     }
 
-    public void Print(string msg)
-    {
-        GTA.UI.Screen.ShowSubtitle(msg);
-    }
-
     Random rand = new Random();
 
     private void Initialize(
@@ -124,7 +120,8 @@ public class Helicopter
     List<string> crewModels,
     Dictionary<VehicleWeaponHash, string> vehicleWeapons = null,
     List<string> primaryWeapons = null,
-    List<string> secondaryWeapons = null)
+    List<string> secondaryWeapons = null, 
+    bool isDispatch = false)
     {
 
         // Ensure the lists are not empty
@@ -141,8 +138,9 @@ public class Helicopter
 
         // Create helicopter above the player's position
         helicopter = World.CreateVehicle(heliModel[rand.Next(0, heliModel.Count)], Game.Player.Character.Position.Around(300) + new Vector3(0, 0, 50f));
-
+        IsDispatchHelicopter = isDispatch;
         helicopter.Model.MarkAsNoLongerNeeded();
+        helicopter.MarkAsNoLongerNeeded();
         helicopter.IsEngineRunning = true;
         helicopter.HeliBladesSpeed = 1f;
 
@@ -154,20 +152,20 @@ public class Helicopter
         crew = new List<Ped>();
 
         // Create and assign pilot
-        var pilot = CreateAndAssignPed(pilotModel[rand.Next(0, pilotModel.Count)], VehicleSeat.Driver);
-
+        var pilot = HelperClass.CreateAndAssignPedPassenger(helicopter, pilotModel[rand.Next(0, pilotModel.Count)], VehicleSeat.Driver, true);
+        
         pilot.BlockPermanentEvents = true;
         // Assign a handgun (secondary weapon) to the pilot
-        AssignWeapons(pilot, null, secondaryWeapons);
+        HelperClass.AssignWeapons( pilot, null, secondaryWeapons);
 
         // Assign passengers (limit to available seats) excluding driver/pilot
         for (int i = 0; i < helicopter.PassengerCapacity; i++)
         {
-            var crewPed = CreateAndAssignPedPassenger(crewModels[rand.Next(0, crewModels.Count)], (VehicleSeat)(i));
+            var crewPed = HelperClass.CreateAndAssignPedPassenger(helicopter, crewModels[rand.Next(0, crewModels.Count)], (VehicleSeat)(i), true);
             crew.Add(crewPed);
             //Function.Call(Hash.CLEAR_DEFAULT_PRIMARY_TASK, crewPed);
             // Assign both primary and secondary weapons to the crew members
-            AssignWeapons(crewPed, primaryWeapons, secondaryWeapons);
+            HelperClass.AssignWeapons(crewPed, primaryWeapons, secondaryWeapons);
         }
 
         //helicopter.
@@ -191,150 +189,7 @@ public class Helicopter
         //}
     }
 
-    private Ped CreateAndAssignPedPassenger(string pedModelName, VehicleSeat seat)
-    {
-        var pedModel = new Model(pedModelName);
-        pedModel.Request(1000);
-
-        if (!pedModel.IsValid || !pedModel.IsInCdImage)
-            throw new ArgumentException($"Invalid ped model: {pedModelName}");
-
-        var ped = Function.Call<Ped>(Hash.CREATE_PED_INSIDE_VEHICLE, helicopter, 7, pedModel, seat, 1, 1);
-        //   var ped = World.CreatePed(pedModel, Game.Player.Character.Position.Around(300));
-        //ped.Task.WarpIntoVehicle(helicopter, seat);
-        //ped.Task.ShootAt(Game.Player.Character);
-        ped.Model.MarkAsNoLongerNeeded();
-        //if (ped.SeatIndex != VehicleSeat.Driver)
-        //
-        // ped.MarkAsNoLongerNeeded();
-        ped.SetAsCop(true);
-        //ped.SetCombatAttribute(CombatAttributes.AlwaysFight, true);
-        ped.SetCombatAttribute(CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
-        ped.SetCombatAttribute(CombatAttributes.AlwaysFlee, false);
-        ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
-        ped.SetCombatAttribute(CombatAttributes.RequiresLosToShoot, true);
-        ////ped.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, true);
-        ped.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-        ped.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-
-        Function.Call(Hash.SET_DEPLOY_FOLDING_WINGS, helicopter, 1, 1);
-
-        ped.SeeingRange = 70;
-        ped.HearingRange = 100;
-
-        ped.FiringPattern = FiringPattern.FullAuto;
-        ped.CombatAbility = CombatAbility.Average;
-
-        ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
-        // ped.Task.Combat(Game.Player.Character, TaskCombatFlags.None, TaskThreatResponseFlags.CanFightArmedPedsWhenNotArmed);
-        ped.SetConfigFlag(PedConfigFlagToggles.CreatedByFactory, true);
-        //// ped.SetConfigFlag(PedConfigFlagToggles.OnlyAttackLawIfPlayerIsWanted, true);
-        ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
-        // ped.Task.CombatHatedTargetsAroundPed(100);
-
-        //        ENUM RELATIONSHIP_TYPE
-        //    ACQUAINTANCE_TYPE_PED_NONE = 255,
-        //    ACQUAINTANCE_TYPE_PED_RESPECT = 0,              
-        //    ACQUAINTANCE_TYPE_PED_LIKE,         //  1
-        //    ACQUAINTANCE_TYPE_PED_IGNORE,       //  2
-        //    ACQUAINTANCE_TYPE_PED_DISLIKE,      //  3
-        //    ACQUAINTANCE_TYPE_PED_WANTED,       //  4       
-        //    ACQUAINTANCE_TYPE_PED_HATE,         //  5
-        //    ACQUAINTANCE_TYPE_PED_DEAD          //  6   
-        //ENDENUM
-
-        var grp = StringHash.AtStringHash("COP");
-        RelationshipGroup relationshipGroup = grp;
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, grp, grp);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 5, grp, 1862763509);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 5, 1862763509, grp);
-        //    ped.Task.ClearAllImmediately();
-
-        return ped;
-    }
-
-    private Ped CreateAndAssignPed(string pedModelName, VehicleSeat seat)
-    {
-        var pedModel = new Model(pedModelName);
-        pedModel.Request(1000);
-
-        if (!pedModel.IsValid || !pedModel.IsInCdImage)
-            throw new ArgumentException($"Invalid ped model: {pedModelName}");
-
-        var ped = helicopter.CreatePedOnSeat(seat, pedModel);
-        //ped.Task.ShootAt(Game.Player.Character);
-        ped.Model.MarkAsNoLongerNeeded();
-        //if (ped.SeatIndex != VehicleSeat.Driver)
-        //
-        ped.SetAsCop(true);
-        //ped.SetCombatAttribute(CombatAttributes.AlwaysFight, true);
-        ped.SetCombatAttribute(CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
-        ped.SetCombatAttribute(CombatAttributes.AlwaysFlee, false);
-        ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
-        //ped.SetCombatAttribute(CombatAttributes.RequiresLosToShoot, true);
-        ped.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, true);
-        ped.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-        ped.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-
-        ped.SeeingRange = 70;
-        ped.HearingRange = 100;
-
-        ped.FiringPattern = FiringPattern.FullAuto;
-        ped.CombatAbility = CombatAbility.Average;
-
-        ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
-        // ped.Task.Combat(Game.Player.Character, TaskCombatFlags.None, TaskThreatResponseFlags.CanFightArmedPedsWhenNotArmed);
-        ped.SetConfigFlag(PedConfigFlagToggles.CreatedByFactory, true);
-        // ped.SetConfigFlag(PedConfigFlagToggles.OnlyAttackLawIfPlayerIsWanted, true);
-        ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
-        ped.SetCombatAttribute(CombatAttributes.UseProximityFiringRate, true);
-        ped.SetCombatAttribute(CombatAttributes.PerfectAccuracy, false);
-        // ped.Task.CombatHatedTargetsAroundPed(100);
-
-        //        ENUM RELATIONSHIP_TYPE
-        //    ACQUAINTANCE_TYPE_PED_NONE = 255,
-        //    ACQUAINTANCE_TYPE_PED_RESPECT = 0,              
-        //    ACQUAINTANCE_TYPE_PED_LIKE,         //  1
-        //    ACQUAINTANCE_TYPE_PED_IGNORE,       //  2
-        //    ACQUAINTANCE_TYPE_PED_DISLIKE,      //  3
-        //    ACQUAINTANCE_TYPE_PED_WANTED,       //  4       
-        //    ACQUAINTANCE_TYPE_PED_HATE,         //  5
-        //    ACQUAINTANCE_TYPE_PED_DEAD          //  6   
-        //ENDENUM
-
-        var grp = StringHash.AtStringHash("COP");
-        RelationshipGroup relationshipGroup = grp;
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 1, grp, grp);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 5, grp, 1862763509);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, 5, 1862763509, grp);
-        return ped;
-    }
-
-    private void AssignWeapons(Ped ped, List<string> primaryWeapons, List<string> secondaryWeapons)
-    {
-        var random = new Random();
-
-        // Assign a random primary weapon if available
-        if (primaryWeapons != null && primaryWeapons.Count > 0)
-        {
-            var primaryWeaponName = primaryWeapons[random.Next(primaryWeapons.Count)];
-
-            ped.Weapons.Give(primaryWeaponName, 900, true, true);
-            Print($"Assigned primary weapon {primaryWeaponName} to ped {ped.Handle}");
-
-        }
-
-        // Assign a random secondary weapon if available
-        if (secondaryWeapons != null && secondaryWeapons.Count > 0)
-        {
-            var secondaryWeaponName = secondaryWeapons[random.Next(secondaryWeapons.Count)];
-
-
-            ped.Weapons.Give(secondaryWeaponName, 200, false, true);
-            Print($"Assigned secondary weapon {secondaryWeaponName} to ped {ped.Handle}");
-
-        }
-    }
+  
 
     bool critical = false;
     bool low = false;
@@ -348,63 +203,56 @@ public class Helicopter
             && helicopter.Driver.Exists()             // Check if the driver exists in the game world
             && !helicopter.Driver.IsDead;             // Verify the driver is not dead
     }
-    private void CheckHealth()
-    {
-        if (helicopter == null || !helicopter.Exists() || helicopter.IsDead)
-        {
 
-            return;
-        }
+    private List<bool> crewStatus; // To track each crew member's alive state
+    private bool ForceFlee = false;
 
-        HandleLowHealth();
-        HandleCriticalDamage();
-        CrewManagement();
-
-        if (helicopter.Health < CRITICAL_HEALTH_THRESHOLD)
-        {
-            critical = true;
-            low = false;
-        }
-        else if (helicopter.Health < LOW_HEALTH_THRESHOLD)
-        {
-            low = true;
-            critical = false;
-        }
-
-    }
-
-    bool ForceFlee = true;
+    
 
     private void CrewManagement()
     {
         // If forced flee is not enabled, proceed with crew checks
         if (!ForceFlee)
         {
-            // Check if all passengers (excluding the copilot) are dead
+            // Update crewStatus list
+            crewStatus = new List<bool>();
+
+            foreach (var crewMember in crew)
+            {
+                if (crewMember != null && crewMember.Exists())
+                {
+                    crewStatus.Add(!crewMember.IsDead); // Add true if alive, false if dead
+                }
+            }
+
+            // Check if all passengers except the copilot are dead
             bool allPassengersDead = true;
 
             foreach (var crewMember in crew)
             {
                 if (crewMember != null && crewMember.Exists() && !crewMember.IsDead)
                 {
-                    // Skip the copilot (e.g., index 0 or use a specific condition to identify the copilot)
+                    // Skip the copilot (e.g., index 0 or based on seat condition)
                     if (crewMember.SeatIndex == VehicleSeat.RightFront)
                         continue;
 
-                    // If any passenger is alive, set flag to false
+                    // If any passenger is alive, update flag and stop the check
                     allPassengersDead = false;
                     break;
                 }
             }
 
-            // Trigger LeaveTheScene if all passengers are dead
+            // If all passengers (excluding the copilot) are dead, trigger flee behavior
             if (allPassengersDead)
             {
                 LeaveTheScene(helicopter.Position);
+               
             }
-            else if(IsArmed)
+
+            // If not all passengers are dead, continue armed behavior if applicable
+            else if (IsArmed)
             {
-                EnableAttack();
+                HelperClass.EnableAttack(helicopter);
                 Pursuit = true;
                 EnableHeliAttacks = true;
             }
@@ -412,43 +260,72 @@ public class Helicopter
     }
 
 
-    private void HandleLowHealth()
-    {
-        if (!low)
-        {
-            low = false;
-            critical = false;
-            // Low health, reduce aggression and prepare for retreat
-            LeaveTheScene(Game.Player.Character.Position.Around(500));
-        }
-    }
-
     public bool IsDispatchHelicopter = false;
+    public bool Cleared = false;
+
     public void HandleLawBehavior()
     {
-        if (IsDispatchHelicopter)
-        { 
-        //to be done once, like if wanted level is 0 we set a flag that nomorewanted=true and based on that we check.
-        if (Game.Player.WantedLevel == 0)
-        {
-            LeaveTheScene(Game.Player.Character.Position);
-                
-            //mark crew as no longer needed and mark them to clear their tasks.
-            //mark heli as well as driver too
-        }
-    } }
+        if (!IsDispatchHelicopter || helicopter == null || !helicopter.Exists())
+            return;
 
-    private void HandleCriticalDamage()
-    {
-        if (critical)
+        // If wanted level is zero
+        if (Game.Player.WantedLevel == 0 && !Cleared)
         {
-            // Critical health, initiate emergency landing and make everyone leave
-            Land = true;
-            critical = false;
-            if (low) low = false;
-            LandHelicopter(CrewLeaveOption.All);
+            // Check if the helicopter is not landing or rappelling
+            if (!HelperClass.IsPedRappelingFromHelicopter(helicopter) || helicopter.GetActiveMissionType() != VehicleMissionType.Land)
+            {
+                
+                // Initiate helicopter fleeing
+                LeaveTheScene(Game.Player.Character.Position);
+                Cleared = true;
+                // Handle crew behavior
+                foreach (var crewMember in crew)
+                {
+                    if (crewMember != null && crewMember.Exists() && !crewMember.IsDead)
+                    {
+                        // Clear the current task without removing from the helicopter or dismissing
+                        crewMember.Task.ClearSecondary();
+
+                        // Optionally, reset the ped's behavior to idle if on foot
+                        if (crewMember.IsOnFoot)
+                        {
+                            // Create a new task sequence
+                            var taskSequence = new TaskSequence();
+
+                            // Step 1: Investigate - Start searching for the player
+                            taskSequence.AddTask.LookAt(Game.Player.Character);
+
+                            // Step 2: Go to a nearby place (around 100 units from the player) and move to the target
+                            Vector3 targetPosition = Game.Player.Character.Position.Around(20);
+                            taskSequence.AddTask.FollowNavMeshTo(targetPosition, PedMoveBlendRatio.Walk, -1, 0.25f, FollowNavMeshFlags.Default); // Walk speed
+
+                            // Step 3: Optionally, perform binoculars scenario if near the target position
+                            taskSequence.AddTask.Pause(500); // Wait for 500ms to simulate arrival
+                            taskSequence.AddTask.StartScenarioInPlace("WORLD_HUMAN_BINOCULARS"); // Replace with actual scenario name
+
+                            // Step 4: Simulate a phone call when near the target
+                            taskSequence.AddTask.Pause(6000); // Wait for 1 second before phone call
+                            taskSequence.AddTask.UseMobilePhone(5000); // Phone call animation
+
+                            // Step 5: Move to a final position (50 units around the player)
+                            Vector3 finalPosition = Game.Player.Character.Position.Around(50);
+                            taskSequence.AddTask.FollowNavMeshTo(finalPosition, PedMoveBlendRatio.Walk, -1, 0.25f, FollowNavMeshFlags.Default); // Move to final position at walk speed
+
+                            // Execute the task sequence
+                            crewMember.Task.PerformSequence(taskSequence);
+                            taskSequence.Close(false);
+                        }
+                    }
+                }
+            }
+        }
+        else if (Game.Player.WantedLevel >0)
+        {
+            Cleared = false;
         }
     }
+
+   
 
 
     private void HandleFarOrDeadStates()
@@ -480,8 +357,8 @@ public class Helicopter
         if (!IsHelicopterValid())
             return;
 
-        CheckHealth();
-       
+        CrewManagement();
+
         // Check if helicopter, pilot, or crew are far away or dead/not existing
         HandleFarOrDeadStates();
         ParatrooperDeployment();
@@ -491,6 +368,7 @@ public class Helicopter
     }
 
     bool EnableHeliAttacks=false;
+
     private void HandlePursuit()
     {
         if (Pursuit)
@@ -506,7 +384,9 @@ public class Helicopter
                 // If the helicopter's current mission is not "Attack"
                 if (helicopter.Position.DistanceTo(Game.Player.Character.Position.Around(20)) > 50)
                 {
-                    EnableAttack();
+                    if (helicopter.Driver.BlockPermanentEvents == false) Pilot.BlockPermanentEvents = true;
+
+                    HelperClass.EnableAttack(helicopter);
                     // Assign the helicopter to attack the player's vehicle
                     helicopter.Driver.Task.StartHeliMission(
                         helicopter,                  // The helicopter
@@ -515,20 +395,23 @@ public class Helicopter
                         PURSUIT_SPEED,                      // Mission radius (keep at a distance of 20 meters)
                         80,                                // Flight altitude
                         -1,                                // Speed (optional)
-                        70                           
+                        70
                     );
                 }
             }
-            else if(Game.Player.Character.IsOnFoot && Game.Player.Character.Position.DistanceTo(helicopter.Position) > 20)
+
+            else if (Game.Player.Character.IsOnFoot && Game.Player.Character.Position.DistanceTo(helicopter.Position) > 50)
             {
+                if (helicopter.Driver.BlockPermanentEvents == true) Pilot.BlockPermanentEvents = false;
+
                 if (Game.Player.Character.Weapons.Current.Group != WeaponGroup.Heavy)
-                    DisableAttack();
+                    HelperClass.DisableAttack(helicopter);
                 else
-                    EnableAttack();
+                    HelperClass.EnableAttack(helicopter);
 
                 helicopter.Driver.Task.StartHeliMission(
                        helicopter,                  // The helicopter
-                       Game.Player.Character.Position.Around(30), // Target: player's position
+                       Game.Player.Character, // Target: player's position
                        VehicleMissionType.PoliceBehaviour,          // Mission type: attack
                        PURSUIT_SPEED,                      // Mission radius (keep at a distance of 20 meters)
                        80,                                // Flight altitude
@@ -539,9 +422,10 @@ public class Helicopter
             else
             {
                 // If the player is not in an aircraft
-                if (helicopter.Position.DistanceTo(Game.Player.Character.Position.Around(20)) > 50)
+                if (helicopter.Position.DistanceTo(Game.Player.Character.Position) > 50)
                 {
-                    DisableAttack();
+                    if(helicopter.Driver.BlockPermanentEvents == false) Pilot.BlockPermanentEvents = true;
+                    HelperClass.DisableAttack(helicopter);
                     // Assign the helicopter to follow the player
                     helicopter.Driver.Task.StartHeliMission(
                         helicopter,                  // The helicopter
@@ -561,7 +445,6 @@ public class Helicopter
     private const float PARA_HOVER_SPEED = 20f;
     private const float PARA_DESIRED_HEIGHT = 150f;
     private const float STABILITY_THRESHOLD = 1.0f;
-    private const int JUMP_DELAY = 2000; // milliseconds between jumps
 
     private bool isAtDeploymentHeight = false;
     private bool isStabilized = false;
@@ -591,13 +474,10 @@ public class Helicopter
                     (int)PARA_DESIRED_HEIGHT
                 );
 
-                Print($"Ascending to deployment height: {helicopter.HeightAboveGround:F0}/{PARA_DESIRED_HEIGHT:F0}m");
-                return;
+                 return;
             }
 
             isAtDeploymentHeight = true;
-            Print("Reached deployment altitude");
-            return;
         }
 
         // Step 2: Stabilize helicopter
@@ -614,14 +494,12 @@ public class Helicopter
                     (int)PARA_DESIRED_HEIGHT,
                     (int)PARA_DESIRED_HEIGHT
                 );
-                TaskNoLongerNeeded();
-                Print("Stabilizing helicopter for deployment");
-                return;
+
+                  return;
             }
 
             isStabilized = true;
-            Print("Helicopter stabilized - beginning deployment");
-            return;
+            
         }
 
         // Step 3: Check and manage rear seats
@@ -655,7 +533,6 @@ public class Helicopter
         // Check if deployment is complete
         if (IsDeploymentComplete())
         {
-            Print("All paratroopers deployed - mission complete");
             LeaveTheScene(Game.Player.Character.Position.Around(500));
             Paratroop = false;
             return;
@@ -711,26 +588,7 @@ public class Helicopter
         }
     }
 
-    public bool ControlMountedWeapon(Ped ped)
-    {
-        return Function.Call<bool>(Hash.CONTROL_MOUNTED_WEAPON, ped);
-    }
-
-    public bool SetVehicleWeaponHash(Ped ped, VehicleWeaponHash WeapHash)
-    {
-        bool nat = Function.Call<bool>(GTA.Native.Hash.SET_CURRENT_PED_VEHICLE_WEAPON, ped, WeapHash);
-        return nat;
-    }
-
-    public void DisableVehicleWeapon(VehicleWeaponHash weaponHash, Ped ped)
-    {
-        Function.Call(Hash.DISABLE_VEHICLE_WEAPON, true, weaponHash, helicopter, ped);
-    }
-
-    public void EnableVehicleWeapon(VehicleWeaponHash weaponHash, Ped ped)
-    {
-        Function.Call(Hash.DISABLE_VEHICLE_WEAPON, false, weaponHash, helicopter, ped);
-    }
+    
 
     Vector3 potentialLandingPosition;
 
@@ -738,23 +596,8 @@ public class Helicopter
 
     private bool isHoverPositionReached = false; // Flag to check if hover position is reached
 
-    private void TaskNoLongerNeeded()
-    {
-        if(!helicopter.Exists())
-        {
-            return;
-        }
-        if (helicopter.Position.DistanceTo(Game.Player.Character.Position) < 50)
-        {
-            helicopter.MarkAsNoLongerNeeded();
-            helicopter.Driver.MarkAsNoLongerNeeded();
-            foreach (var crewMember in crew)
-            {
-                crewMember.Task.ClearAllImmediately();
-                crewMember.MarkAsNoLongerNeeded();
-            }
-        }
-    }
+   
+
     public void LeaveLandedHelicopter(CrewLeaveOption leaveOption)
     {
         foreach (var crewMember in crew)
@@ -766,12 +609,6 @@ public class Helicopter
                     if (crewMember.SeatIndex != VehicleSeat.Driver && crewMember.SeatIndex != VehicleSeat.RightFront)
                     {
                         crewMember.Task.LeaveVehicle();
-                    }
-                    else
-                    {
-                        // Pilot or co-pilot stays in the vehicle, block their events
-                        //crewMember.BlockPermanentEvents = true;
-                        //crewMember.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
                     }
                     break;
 
@@ -820,12 +657,10 @@ public class Helicopter
             // Find landing position once
             if (!isLandingPositionFound)
             {
-                Notification.PostTicker("Finding suitable landing position...", true);
                 potentialLandingPosition = World.GetNextPositionOnStreet(Game.Player.Character.Position.Around(20));
 
                 if (potentialLandingPosition.DistanceTo(Game.Player.Character.Position) > 60)
                 {
-                    Print("Street position too far - using open area");
                     Rappel = true;
                     Land = false;
                     return;
@@ -836,7 +671,6 @@ public class Helicopter
 
                 // Set hover position above landing position
                 PositionToReach = potentialLandingPosition + Vector3.WorldUp * 40;
-                Notification.PostTicker($"Moving to hover position at height: {PositionToReach.Z}", false);
                 helicopter.Driver.Task.StartHeliMission(helicopter, PositionToReach, VehicleMissionType.GoTo, 70, 10, 100, 0);
                 return;
             }
@@ -846,18 +680,15 @@ public class Helicopter
             {
                 if (helicopter.Position.DistanceTo(PositionToReach) >= 20)
                 {
-                    Print($"Moving to hover position. Distance remaining: {helicopter.Position.DistanceTo(PositionToReach):F2}");
                     return;
                 }
 
                 isHoverPositionReached = true;
-                Print($"Reached hover position. Current height: {helicopter.HeightAboveGround}");
-            }
+                }
 
             // Start landing sequence
             if (helicopter.GetActiveMissionType() != VehicleMissionType.Land)
             {
-                Notification.PostTicker("Initiating landing sequence", true);
                 helicopter.Driver.Task.StartHeliMission(
                     helicopter,
                     potentialLandingPosition,
@@ -876,15 +707,13 @@ public class Helicopter
 
             if (heliHeight - groundHeight < 1.5f) // Close enough to the ground
             {
-                Notification.PostTicker("Landing successful - crew disembarking", true);
-                LeaveLandedHelicopter(option);
+                 LeaveLandedHelicopter(option);
 
                 // Cooldown-based approach
                 if (!hasCooldownStarted)
                 {
                     hasCooldownStarted = true;
                     cooldownStartTime = DateTime.Now;
-                    Notification.PostTicker("Crew disembarking... waiting 2 seconds", false);
                     return; // Exit to wait for cooldown
                 }
 
@@ -895,17 +724,15 @@ public class Helicopter
                 hasLanded = true;
 
                 // Helicopter departs the scene
-                Notification.PostTicker("Helicopter departing the scene", true);
                 isDeparting = true;
-             if(option == CrewLeaveOption.OnlyCrew || option == CrewLeaveOption.CoPilotAndCrew)   LeaveTheScene(Game.Player.Character.Position.Around(500));
+                if(option == CrewLeaveOption.OnlyCrew || option == CrewLeaveOption.CoPilotAndCrew) LeaveTheScene(Game.Player.Character.Position.Around(500));
+                if (helicopter.Driver.IsDead) LeaveLandedHelicopter(CrewLeaveOption.All);
                 return;
             }
 
-            Print($"Helicopter altitude: {heliHeight}, Ground height: {groundHeight}. Waiting to land...");
-        }
+             }
         else if (isDeparting)
         {
-            Print("Helicopter is departing. Mission complete.");
             return;
         }
     }
@@ -920,7 +747,6 @@ public class Helicopter
         {
             if (!CanRappel)
             {
-                Print("Helicopter doesn't support rappelling - switching to pursuit mode");
                 Rappel = false;
                 Pursuit = true;
                 return;
@@ -929,8 +755,6 @@ public class Helicopter
         }
 
         
-        //helicopter.Driver.BlockPermanentEvents = true;
-
         // If rappelling is already complete, no need to continue
         if (isRappelComplete)
         {
@@ -952,7 +776,6 @@ public class Helicopter
                 -1,
                 (int)RAPPEL_HEIGHT // Maintain consistent height
             );
-            Notification.PostTicker("Moving to rappel position - approaching slowly", false);
             return;
         }
 
@@ -973,7 +796,6 @@ public class Helicopter
                (int)RAPPEL_HEIGHT,
                (int)RAPPEL_HEIGHT
            );
-                Print($"Adjusting approach speed: {adjustedSpeed:F1}");
                 return;
             }
             isRappelPosition = true;
@@ -989,7 +811,7 @@ public class Helicopter
                     PositionToReach,
                     VehicleMissionType.GoTo,
                     5f,               // Very slow speed for stable hover
-                    5f,              // Tight radius for minimal drift
+                    10f,              // Tight radius for minimal drift
                     (int)RAPPEL_HEIGHT,
                     (int)RAPPEL_HEIGHT
                 );
@@ -1018,24 +840,19 @@ public class Helicopter
                     
                     allCrewOutside = false;
                 }
-                else if (IsPedRappelingFromHelicopter())
+                else if (HelperClass.IsPedRappelingFromHelicopter(helicopter))
                 {
                     allCrewOutside = false;
                 }
             }
 
             // If helicopter is rappelling and all crew are out, mark as complete
-            if (!IsPedRappelingFromHelicopter() && allCrewOutside)
+            if (!HelperClass.IsPedRappelingFromHelicopter(helicopter) && allCrewOutside)
             {
-               
-                    foreach (var crewMember in crew.ToList())
-                    {
-                        crewMember.CanRagdoll = true;
-                    }
 
-                    isRappelComplete = true;
-                    Notification.PostTicker("All crew members have rappelled successfully", false);
-
+                //i was wonderwing why peds ragdoll when rappel hahhaa i forgot that it was true
+                isRappelComplete = true;
+                 
                     LeaveTheScene(PositionToReach);
                     return;
                 
@@ -1044,7 +861,6 @@ public class Helicopter
             // If crew members are still rappelling, wait
             if (!allCrewOutside)
             {
-                Notification.PostTicker("Crew members are rappelling...", false);
                 return;
             }
         }
@@ -1066,65 +882,11 @@ public class Helicopter
         Pursuit = false;
         low = false;
         critical = false;
-        DisableAttack();
+       HelperClass.DisableAttack(helicopter);
         helicopter.Driver.Task.StartHeliMission(helicopter, fleepos + Vector3.WorldUp*FLEE_HEIGHT, VehicleMissionType.Flee, FLEE_SPEED, 10, -1, (int)FLEE_HEIGHT);
     }
 
-    public void EnableHeliWeapons()
-    {
-        // we give and then allow to use them.
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true); //this flag is set when player is in aircraft
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, true);
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseRocketsAgainstVehiclesOnly, true);
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-    }
-
-    public void DisableHeliWeapons()
-    {
-        //remove their ability to use them
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, false); //this flag is set when player is in aircraft
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, false);
-      //  helicopter.Driver.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, false);
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseRocketsAgainstVehiclesOnly, false);
-      //  helicopter.Driver.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, false);
-        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttack, false);
 
     }
 
-    public bool GetVehicleWeaponHash(Ped ped, out VehicleWeaponHash WeapHash)
-    {
-        OutputArgument arg = new();
-        bool nat = Function.Call<bool>(GTA.Native.Hash.GET_CURRENT_PED_VEHICLE_WEAPON, ped, arg);
-        WeapHash = arg.GetResult<VehicleWeaponHash>();
-        return nat;
-    }
-
-    public void EnableAttack()
-    {
-        helicopter.Driver.BlockPermanentEvents = false;
-        EnableHeliWeapons();
-        helicopter.Driver.Task.StartHeliMission(helicopter, Game.Player.Character, VehicleMissionType.Attack, (int)FLEE_SPEED, (int)PURSUIT_RADIUS, -1, (int)PURSUIT_HEIGHT);
-    }
-
-    public void DisableAttack()
-    {
-        DisableHeliWeapons();
-        //TaskHeliMission(helicopter.Driver, VehicleMissionType.PoliceBehaviour); //use Helicopter.Driver.Task.StartHeliMission();
-    }
-
-    public bool IsPedRappelingFromHelicopter()
-    {
-        return Function.Call<bool>(Hash.IS_ANY_PED_RAPPELLING_FROM_HELI, helicopter);  //is used to check if rappel is happening by ped or not.
-    }
-
-
-    public void LeaveCargobob(Ped ped, VehicleSeat seat)
-    {
-        if (ped.SeatIndex == seat)
-        {
-            ped.Task.LeaveVehicle(LeaveVehicleFlags.BailOut);
-        }
-    }
-}
 
