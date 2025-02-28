@@ -18,10 +18,6 @@
 
 	<!-- Reference Includes -->
 	<ItemGroup>
-		<Reference Include="LemonUI.SHVDN3">
-			<HintPath>..\..\Games\GTAV\scripts\LemonUI.SHVDN3.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
 		<Reference Include="ScriptHookVDotNet3">
 			<HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
 			<Private>False</Private>
@@ -29,12 +25,6 @@
 		<Reference Include="System.Core" />
 	</ItemGroup>
 
-	<!-- Exclude Backup Folder -->
-	<ItemGroup>
-		<Compile Remove="Guarding_backup\**" />
-		<EmbeddedResource Remove="Guarding_backup\**" />
-		<None Remove="Guarding_backup\**" />
-	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;D:\Games\GTAV\scripts\&quot; /Y" />

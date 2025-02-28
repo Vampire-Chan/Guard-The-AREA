@@ -8,13 +8,12 @@ using GTA.Native;
 using GTA.Math;
 using System.Collections.Generic;
 using System.Linq;
-using Guarding.DispatchSystem;
 
 public class GuardManager : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
 
-    public static List<string> scenarios = new()
+    public static List<string> scenarios = new() //i need a new list for this, if anyone knows about it, let me know!
     {
         "WORLD_HUMAN_AA_COFFEE",
         "WORLD_HUMAN_AA_SMOKE",
@@ -78,6 +77,7 @@ public class GateManager : Script
         {
             if (isLocked)
             {
+                
                 // Unlock the door and ensure a valid heading is set
                 float newHeading = heading == 0 ? 0 : heading; // Default to 0 if locked and closed
                // GTA.UI.Screen.ShowSubtitle($"Unlocking Door: {doorProp.Model.Hash}, Heading: {newHeading}, Locked: {isLocked}");
@@ -118,6 +118,7 @@ public class GateManager : Script
         Prop[] nearbyProps = World.GetNearbyProps(position2, radius);
         foreach (Prop prop in nearbyProps)
         {
+            if(prop.IsPositionFrozen) prop.IsPositionFrozen = false;
             if (IsDoor(prop, out heading, out isLocked))
             {
                 doorProp = prop;
@@ -210,20 +211,24 @@ public class PlayerPositionLogger : Script
                 var vehicle = player.CurrentVehicle;
 
                 // Determine the type of the vehicle
-                if (vehicle.Model.IsCar || vehicle.Model.IsBike ||vehicle.IsRegularAutomobile || vehicle.IsAutomobile)
+                if (vehicle.Model.IsCar || vehicle.Model.IsBike || vehicle.IsRegularAutomobile || vehicle.IsAutomobile)
                 {
                     spawnType = "vehicle";
                 }
-                else if (vehicle.Model.IsHelicopter || vehicle.Model.IsPlane)
+                else if (vehicle.Model.IsHelicopter)
                 {
                     spawnType = "helicopter";
                 }
+                else if (vehicle.Model.IsPlane) spawnType = "plane";
                 else if (vehicle.Model.IsBoat || vehicle.Model.IsSubmarine || vehicle.Model.IsAmphibiousCar || vehicle.Model.IsAmphibiousQuadBike || vehicle.Model.IsAmphibiousVehicle)
                 {
                     spawnType = "boat";
                 }
+                else if (vehicle.Model.IsBigVehicle)
+                    spawnType = "largevehicle";
                 else
                 {
+
                     spawnType = "vehicle"; // Fallback for unclassified vehicles
                 }
             }
@@ -247,11 +252,7 @@ public class PlayerPositionLogger : Script
                               $"    <Heading>{heading:F2}</Heading>\n" +
                               $"  </SpawnPoint>";
 
-            // Append seat index comment only if player is in a vehicle
-            if (player.IsInVehicle())
-            {
-                logEntry += $" <!-- MountedVehicleModel seat={seat} (Place this in Guards.xml) -->";
-            }
+            
 
             // Output log entry
             Console.WriteLine(logEntry);

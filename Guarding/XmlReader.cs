@@ -59,7 +59,7 @@ public class XmlReader
 
                 string scenario = spawnPointElement.Attribute("scenario")?.Value;
 
-                bool interior = false;
+                bool interior = true;
                 bool.TryParse(spawnPointElement.Attribute("interior")?.Value, out interior);
 
                 if (string.IsNullOrWhiteSpace(scenario))
@@ -67,7 +67,7 @@ public class XmlReader
                     scenario = null; // Treat as no valid scenario
                 }
 
-                Vector3 position = new Vector3(x, y, z);
+                Vector3 position = new(x, y, z);
                 area.AddSpawnPoint(position, heading, type, scenario, interior);
             }
 
@@ -87,14 +87,6 @@ public class XmlReader
             string guardName = guardElement.Attribute("name")?.Value;
             string guardGroup = guardElement.Attribute("group")?.Value;
 
-            var mountedVehicle = guardElement.Element("MountedVehicleModel");
-            int seatIndex = 0; // Default value if not found
-
-            if (mountedVehicle != null && mountedVehicle.Attribute("seatindex") != null)
-            {
-                int.TryParse(mountedVehicle.Attribute("seatindex")?.Value, out seatIndex);
-            }
-
             var config = new GuardConfig
             {
                 Name = guardName,
@@ -111,8 +103,19 @@ public class XmlReader
                 MVehicleModels = guardElement.Elements("MountedVehicleModel")
                                           .Select(x => x.Value)
                                           .ToList(),
+                BVehicleModels = guardElement.Elements("BoatModel")
+                                          .Select(x => x.Value)
+                                          .ToList(),
+                PVehicleModels = guardElement.Elements("PlaneModel")
+                                          .Select(x => x.Value)
+                                          .ToList(),
+                HVehicleModels = guardElement.Elements("HelicopterModel")
+                                          .Select(x => x.Value)
+                                          .ToList(),
+                LVehicleModels = guardElement.Elements("LargeVehicleModel")
+                                          .Select(x => x.Value)
+                                          .ToList(),
                 RelationshipGroup = guardGroup,
-                SeatIndex = seatIndex, // Properly loaded seat index
                 Hate = ParseRelationshipString(guardElement.Attribute("hates")?.Value),
                 Dislike = ParseRelationshipString(guardElement.Attribute("dislikes")?.Value),
                 Respect = guardElement.Attribute("respects")?.Value,
@@ -134,10 +137,13 @@ public class GuardConfig
     public List<string> Weapons { get; set; } = new List<string>();
     public List<string> VehicleModels { get; set; } = new List<string>();
     public List<string> MVehicleModels { get; set; } = new List<string>();
+    public List<string> HVehicleModels { get; set; } = new List<string>();
+    public List<string> PVehicleModels { get; set; } = new List<string>();
+    public List<string> BVehicleModels { get; set; } = new List<string>();
+    public List<string> LVehicleModels { get; set; } = new List<string>();
     public List<string> Hate { get; set; } = new List<string>();
     public List<string> Dislike { get; set; } = new List<string>();
     public string Respect { get; set; }
-    public int SeatIndex { get; set; }
     public List<string> Like { get; set; } = new List<string>();
     public string RelationshipGroup { get; set; }
 }
