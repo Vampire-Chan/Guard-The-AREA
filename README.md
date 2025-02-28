@@ -52,8 +52,8 @@ This file defines guarded locations and their associated spawn points.
 
 ```xml
 <Areas>
-    <Area name="AreaName" model="guard_type">
-        <SpawnPoint type="ped|vehicle|helicopter|boat|largevehicle|mounted" scenario="scenario_name" interior="true|false">
+    <Area name="AreaName" model="guard_type" respects="player_name|any">
+        <SpawnPoint type="ped|vehicle|plane|helicopter|boat|largevehicle|mounted" scenario="scenario_name" interior="true|false">
             <Position x="0.0" y="0.0" z="0.0" />
             <Heading>0.0</Heading>
         </SpawnPoint>
@@ -65,6 +65,7 @@ This file defines guarded locations and their associated spawn points.
 
   - `name`:  A unique identifier for the area. Example: "MichaelHouse", "NooseHQ".
   - `model`:  Specifies the guard type to be spawned in this area. This must correspond to an entry defined in `Guards.xml`.
+  - `respects`: Specifies if to respect the Player - Franklin, Michael or Trevor or all. ANY is for Player of any kind, and their names explicitly respects them only.
 
 #### SpawnPoint Attributes
 
