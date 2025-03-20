@@ -13,27 +13,6 @@ public class GuardManager : Script
 {
     public static GuardSpawner _guardSpawner; // GuardSpawner instance
 
-    public static List<string> scenarios = new() //i need a new list for this, if anyone knows about it, let me know!
-    {
-        "WORLD_HUMAN_AA_COFFEE",
-        "WORLD_HUMAN_AA_SMOKE",
-        "WORLD_HUMAN_BINOCULARS",
-        "WORLD_HUMAN_CLIPBOARD",
-        "WORLD_HUMAN_COP_IDLES",
-        "WORLD_HUMAN_DRINKING",
-        "WORLD_HUMAN_GUARD_PATROL",
-        "WORLD_HUMAN_GUARD_STAND",
-        "WORLD_HUMAN_GUARD_STAND_ARMY",
-        //"WORLD_HUMAN_LEANING",
-        //"WORLD_HUMAN_SEAT_STEPS",
-        //"WORLD_HUMAN_SEAT_WALL",
-        //"WORLD_HUMAN_SEAT_WALL_EATING",
-        //"WORLD_HUMAN_SEAT_WALL_TABLET",
-        "WORLD_HUMAN_SECURITY_SHINE_TORCH",
-        "WORLD_HUMAN_SMOKING",
-        "WORLD_HUMAN_STAND_MOBILE"
-    };
-
     public GuardManager()    
     {
         _guardSpawner = new GuardSpawner("./scripts/Areas.xml"); // Initialize guard spawner

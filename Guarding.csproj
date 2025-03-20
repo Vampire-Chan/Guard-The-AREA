@@ -5,7 +5,7 @@
 		<UseWindowsForms>True</UseWindowsForms>
 		<TargetFramework>net48</TargetFramework>
 		<Platform>x64</Platform>
-		<Platforms>x64</Platforms>
+		<Platforms>x64;x86</Platforms>
 	</PropertyGroup>
 
 	<PropertyGroup>

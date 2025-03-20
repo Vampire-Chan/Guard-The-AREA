@@ -13,6 +13,9 @@ public class GuardSpawner
     private List<Area> areas;
     private List<Guard> guards;
     private List<Guard> removedGuards;
+    
+        public static Dictionary<string, Scenarios> scans = new Dictionary<string, Scenarios>();
+    
     private List<Ped> processedPeds; // Renamed from Processed to processedPeds (camelCase) and to reflect actively managed peds
     private List<Ped> writheProcessedPeds; // New list for peds in writhe state (camelCase, PascalCase consistency)
     private Dictionary<string, GuardConfig> guardConfigs;
@@ -25,6 +28,7 @@ public class GuardSpawner
         XmlReader xml = new XmlReader(xmlFilePath); // PascalCase for class name
         areas = xml.LoadAreasFromXml(); // camelCase
         guardConfigs = xml.LoadGuardConfigs(); // camelCase
+        scans = xml.LoadScenarios();
         guards = new List<Guard>(); // camelCase
         removedGuards = new List<Guard>(); // Renamed to removedGuards (PascalCase for clarity)
         processedPeds = new List<Ped>(); // Initialize processedPeds list
@@ -228,8 +232,7 @@ public class GuardSpawner
         foreach (var spawnPoint in area.SpawnPoints) // camelCase
         {
             // Create guard with the config (unchanged)
-            Guard guard = new Guard(spawnPoint.Position, spawnPoint.Heading, // camelCase
-           area.Name, spawnPoint.Type, guardConfig, spawnPoint.Scenario, area, spawnPoint.Interior); // camelCase
+            Guard guard = new Guard(spawnPoint, guardConfig, area); // camelCase
 
             // Check if the guard should be spawned (unchanged)
             if (!removedGuards.Any(g => g.Position == guard.Position && g.AreaName == guard.AreaName) &&

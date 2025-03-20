@@ -14,7 +14,14 @@ public static class HelperClass
     {
         return Function.Call<int>(Hash.GET_WEAPON_COMPONENT_VARIANT_EXTRA_COUNT, weapon);
     }
-
+    public static bool IsTaskActive(this Ped ped, PedTask taskId)
+    {
+        return Function.Call<bool>(Hash.GET_IS_TASK_ACTIVE, new InputArgument[2]
+        {
+            ped.Handle,
+            (int)taskId
+        });
+    }
     public static void SetPedCycleVehicleWeapon(this Ped ped)
     {
         Function.Call(Hash.SET_PED_CYCLE_VEHICLE_WEAPONS_ONLY, ped);
@@ -65,11 +72,17 @@ public static class HelperClass
     }
     public static void GuardCurrentPosition(this Ped ped, bool defensive)
     {
-        Function.Call(Hash.TASK_GUARD_CURRENT_POSITION, ped, 40f, 30f, defensive);
+        Function.Call(Hash.TASK_GUARD_CURRENT_POSITION, ped, 40f, 35f, defensive);
     }
 
-
-
+    public static void SetDriverAbility(this Ped p, float value)
+    {
+        Function.Call(Hash.SET_DRIVER_ABILITY, p, value);
+    }
+    public static void AssignDefaultTask(this Ped ped)
+    {
+        Function.Call(Hash.CLEAR_DEFAULT_PRIMARY_TASK, ped.Handle);
+    }
     // Functions - 3. Functions
     public static void Subtitle(string msg)
     {
@@ -144,45 +157,13 @@ public static class HelperClass
                 //    //Game.Console.output("[INFO] Vehicle Weapons configuration is not yet implemented in CreateVehicle function.");
                 //}
 
-                // Add vehicle to AIManager lists based on type (Conceptual - AIManager not provided)
-                if (v.IsHelicopter)
-                {
-                    if (info.VehicleDetails.VehicleTasks.Contains("RAPPEL") || info.VehicleDetails.VehicleTasks.Contains("LAND"))
-                    {
-                        //go for dropoffhelicopter
-                    }
-                    else if (info.VehicleDetails.VehicleTasks.Contains("ATTACK")) //or pursue
-                    {
-                        //go for attackhelicopter
-                    }
-                    //AIManager.AttackHelicopters.Add(v); // Example - Add to AttackHelicopters list if needed in AIManager
-                    //AIManager.DropOffHelicopters.Add(v); // Example - Add to DropOffHelicopters if needed in AIManager
-                    //Game.Console.output("[INFO] Vehicle Added to Helicopter lists in AIManager (Conceptual).");
-                }
-                else if (v.IsPlane)
-                {
-                    //AIManager.Planes.Add(v); // Example - Add to Planes list if needed in AIManager - Currently not implemented but is future oriented.
-                    //Game.Console.output("[INFO] Vehicle Added to Plane lists in AIManager (Conceptual).");
-                }
-                else if (v.IsBoat)
-                {
-                    //AIManager.Boats.Add(v); // Example - Add to Boats list if needed in AIManager
-                    //AIManager.AmphibiousVehicles.Add(v); // Example - Add to AmphibiousVehicles if needed
-                    //AIManager.SeaBikes.Add(v); // Example - Add to SeaBikes if needed
-                    //Game.Console.output("[INFO] Vehicle Added to Boat lists in AIManager (Conceptual).");
-                }
-                else
-                {
-                    //AIManager.GroundVehicles.Add(v); // Example - Add to GroundVehicles list if needed in AIManager
-                    //Game.Console.output("[INFO] Vehicle Added to GroundVehicles lists in AIManager (Conceptual).");
-                }
                 var p = v.CreatePed(info.PilotInfo.PilotModelList[new Random().Next(0, info.SoldierInfo.SoldierModels.Count)], info.SoldierInfo.WeaponInfoList[new Random().Next(0, info.SoldierInfo.WeaponInfoList.Count)], VehicleSeat.Driver, PedType.Cop);
 
-                AIManager.Cops.Add(p); // Add driver to Cops list in AIManager
-                for (int i = 0; i < v.PassengerCapacity; i++)
+                //AIManager.Cops.Add(p); // Add driver to Cops list in AIManager
+                for (int i = 0; i < v.PassengerCapacity-1; i++)
                 {
                     var ped = v.CreatePed(info.SoldierInfo.SoldierModels[new Random().Next(0, info.SoldierInfo.SoldierModels.Count)], info.SoldierInfo.WeaponInfoList[new Random().Next(0, info.SoldierInfo.WeaponInfoList.Count)], (VehicleSeat)i, PedType.Cop);
-                    AIManager.Cops.Add(ped);
+                    //AIManager.Cops.Add(ped);
                 }
             }
             return v;
@@ -207,40 +188,38 @@ public static class HelperClass
 
             var ped = Function.Call<Ped>(Hash.CREATE_PED_INSIDE_VEHICLE, veh, (int)type, pedModel, seat, 1, 1);
             ped.Model.MarkAsNoLongerNeeded();
-            //if (ascop) ped.SetAsCop(true);
+            
+            ped.SetAsCop(true);
 
-            ped.SetCombatAttribute(CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
-            ped.SetCombatAttribute(CombatAttributes.AlwaysFlee, false);
+            //ped.SetCombatAttribute(CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
+            //ped.SetCombatAttribute(CombatAttributes.AlwaysFlee, false);
+            //ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, true);
+            ////ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);  //use this true for heli/plane
+            //if (veh.ClassType == VehicleClass.Helicopters || veh.ClassType == VehicleClass.Planes)
+            //{
+            //    ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
+            //    ped.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
+            //    ped.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true);
+            //}
+            //ped.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
+            //ped.SetCombatAttribute(CombatAttributes.RequiresLosToShoot, true);
 
-            //ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);  //use this true for heli/plane
-            if (veh.ClassType == VehicleClass.Helicopters || veh.ClassType == VehicleClass.Planes)
-            {
-                ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
-                ped.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-                ped.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true);
-            }
-            ped.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-            ped.SetCombatAttribute(CombatAttributes.RequiresLosToShoot, true);
+            //if (ped.PedType == PedType.Swat || ped.PedType == PedType.Army) ped.SetCombatAttribute(CombatAttributes.CanThrowSmokeGrenade, true); //use for swat/army type ped only
 
+            //if (veh.ClassType == VehicleClass.Boats)
+            //{
+            //    ped.SetCombatAttribute(CombatAttributes.CanSeeUnderwaterPeds, true);
+            //}
 
+            //ped.SetCombatAttribute(CombatAttributes.MoveToLocationBeforeCoverSearch, true);
 
-            if (ped.PedType == PedType.Swat || ped.PedType == PedType.Army) ped.SetCombatAttribute(CombatAttributes.CanThrowSmokeGrenade, true); //use for swat/army type ped only
+            //ped.SetCombatAttribute(CombatAttributes.PreferNonAircraftTargets, true); //for ground ones, non air peds.
 
-            if (veh.ClassType == VehicleClass.Boats)
-            {
-                ped.SetCombatAttribute(CombatAttributes.CanSeeUnderwaterPeds, true);
-            }
-
-            ped.SetCombatAttribute(CombatAttributes.MoveToLocationBeforeCoverSearch, true);
-
-
-            ped.SetCombatAttribute(CombatAttributes.PreferNonAircraftTargets, true); //for ground ones, non air peds.
-
-            ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
-            ped.SetConfigFlag(PedConfigFlagToggles.CreatedByDispatch, true);
-            ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
-            ped.SetConfigFlag(PedConfigFlagToggles.KeepRelationshipGroupAfterCleanUp, true);
-
+            //ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
+            //ped.SetConfigFlag(PedConfigFlagToggles.CreatedByDispatch, true);
+            //ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
+            //ped.SetConfigFlag(PedConfigFlagToggles.KeepRelationshipGroupAfterCleanUp, true);
+            //ped.PopulationType = EntityPopulationType.RandomAmbient;
 
             if (seat != VehicleSeat.Driver)
             {
@@ -248,7 +227,7 @@ public static class HelperClass
                 {
                     foreach (var gun in info.SecondaryWeaponList)
                     {
-                        ped.Weapons.Give(gun.Name, gun.Ammo.Value, true, true);
+                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
                         //component setups here.
                     }
                 }
@@ -256,7 +235,7 @@ public static class HelperClass
                 {
                     foreach (var gun in info.PrimaryWeaponList)
                     {
-                        ped.Weapons.Give(gun.Name, gun.Ammo.Value, true, true);
+                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
                         
                         //component setups here.
                     }
@@ -268,7 +247,7 @@ public static class HelperClass
                 {
                     foreach (var gun in info.PrimaryWeaponList)
                     {
-                        ped.Weapons.Give(gun.Name, gun.Ammo.Value, true, true);
+                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
                         //component setups here.
                     }
                 }
@@ -279,7 +258,7 @@ public static class HelperClass
         }
         catch (Exception ex)
         {
-            Notification($"{ex.Message}");
+            Notification($"{ex.Message}, {ex.InnerException}, {ex.StackTrace}");
             return null;
         }
     }
