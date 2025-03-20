@@ -1,10 +1,34 @@
 <!-- Guards.xml -->
 <Guards>
-	<!-- Guard: Gruppe6 ... Michael house has custom ones so they hate anything except themselves, michael and franklin--> 
-	<Guard name="gruppe6_guard" >
+	<Guard name="stripper" group="PRIVATE_SECURITY">
+		<PedModel>s_f_y_hooker_01</PedModel>
+		<PedModel>s_f_y_hooker_02</PedModel>
+		<PedModel>s_f_y_hooker_03</PedModel>
+		<PedModel>s_f_y_stripperlite</PedModel>
+		<PedModel>s_f_y_stripper_01</PedModel>
+		<PedModel>s_f_y_stripper_02</PedModel>
+		<PedModel>s_f_y_hooker_01</PedModel>
+		<PedModel>s_f_y_hooker_02</PedModel>
+		<PedModel>s_f_y_hooker_03</PedModel>
+		<PedModel>s_f_y_stripperlite</PedModel>
+		<PedModel>s_f_y_stripper_01</PedModel>
+		<PedModel>s_f_y_stripper_02</PedModel>
+		<Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+		<Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE</Weapon>
+		<Weapon>WEAPON_SMG</Weapon>
+		<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+		<Weapon>WEAPON_BULLPUPRIFLE</Weapon>
+		<Weapon>WEAPON_CARBINERIFLE_MK2</Weapon>
+		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+		<Weapon>WEAPON_HEAVYPISTOL</Weapon>
+	</Guard>
+	<Guard name="gruppe6_guard" group="MICHAEL_GUARDS"  >
 		<!-- Ped Models -->
 		<PedModel>s_m_m_armoured_02</PedModel>
 		<PedModel>s_m_m_armoured_01</PedModel>
+		<PedModel>s_m_m_security_01</PedModel>
+		
 		<!-- Weapons -->
 		<Weapon>WEAPON_ASSAULTRIFLE</Weapon>
 		<Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
@@ -20,12 +44,18 @@
 		<VehicleModel>STOCKADE</VehicleModel>
 		<VehicleModel>STOCKADE3</VehicleModel>
 		<VehicleModel>SPEEDO</VehicleModel>
-		<VehicleModel>SPEEDO4</VehicleModel>
-		<VehicleModel>GRANGER</VehicleModel>
-		<VehicleModel>GRANGER2</VehicleModel>
+		<VehicleModel>police4</VehicleModel>
+		<VehicleModel>sheriff</VehicleModel>
+		<VehicleModel>policet</VehicleModel>
+		<VehicleModel>riot</VehicleModel>
+		<HelicopterModel></HelicopterModel>
+		<BoatModel></BoatModel>
+		<PlaneModel></PlaneModel>
+		<LargeVehicleModel></LargeVehicleModel>
+		<MountedVehicleModel>insurgent</MountedVehicleModel>
 	</Guard>
 
-	<Guard name="gruppe6_police_guard" group="COP" >
+	<Guard name="gruppe6_police_guard" group="SECURITY_GUARD" >
 		<!-- Ped Models -->
 		<PedModel>s_m_m_armoured_02</PedModel>
 		<PedModel>s_m_y_cop_01</PedModel>
@@ -62,12 +92,13 @@
 		<VehicleModel>police</VehicleModel>
 		<VehicleModel>police2</VehicleModel>
 		<VehicleModel>police3</VehicleModel>
+		<MountedVehicleModel>insurgent</MountedVehicleModel>
 		<VehicleModel>police4</VehicleModel>
 		<VehicleModel>turismo</VehicleModel>
 		<VehicleModel>cheetah</VehicleModel>
 	</Guard>
 	
-	<Guard name="army1_guard">
+	<Guard name="army1_guard" group="ARMY">
 		<!-- Ped Models -->
 		<PedModel>S_M_Y_MARINE_01</PedModel>
 		<PedModel>S_M_Y_MARINE_02</PedModel>
@@ -102,6 +133,9 @@
 		<VehicleModel>KURUMA</VehicleModel>
 		<VehicleModel>DUNE3</VehicleModel>
 		<VehicleModel>MENACER</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent3</MountedVehicleModel>
+		<MountedVehicleModel seatindex="1">technical</MountedVehicleModel>
 	</Guard>
 
 	<!-- Guard: Police LSPD -->
@@ -125,6 +159,11 @@
 		<VehicleModel>sheriff</VehicleModel>
 		<VehicleModel>policet</VehicleModel>
 		<VehicleModel>riot</VehicleModel>
+		<HelicopterModel></HelicopterModel>
+		<BoatModel></BoatModel>
+		<PlaneModel></PlaneModel>
+		<LargeVehicleModel></LargeVehicleModel>
+		<MountedVehicleModel>insurgent</MountedVehicleModel>
 	</Guard>
 
 	<Guard name="noose_guard">
@@ -146,6 +185,7 @@
 		<VehicleModel>police3</VehicleModel>
 		<VehicleModel>police4</VehicleModel>
 		<VehicleModel>policet</VehicleModel>
+		<MountedVehicleModel>insurgent</MountedVehicleModel>
 		<VehicleModel>riot</VehicleModel>
 	</Guard>
 
@@ -164,6 +204,7 @@
 		<!-- Vehicle Models -->
 		<VehicleModel>sheriff</VehicleModel>
 		<VehicleModel>sheriff2</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 	</Guard>
 	<!-- Guard: Park Ranger Guard -->
 	<Guard name="park_ranger_guard">
@@ -179,6 +220,7 @@
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
 		<!-- Vehicle Models -->
 		<VehicleModel>pranger</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 		<VehicleModel>ranger</VehicleModel>
 	</Guard>
 	<!-- Guard: Security Guard -->
@@ -193,6 +235,7 @@
 		<Weapon>WEAPON_CARBINERIFLE</Weapon>
 		<Weapon>WEAPON_SMG</Weapon>
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 		<!-- Vehicle Models -->
 		<VehicleModel>stockade</VehicleModel>
 	</Guard>
@@ -210,6 +253,7 @@
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
 		<!-- Vehicle Models -->
 		<VehicleModel>fbi</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 		<VehicleModel>police4</VehicleModel>
 	</Guard>
 	<!-- Guard: Federal FIB -->
@@ -228,9 +272,10 @@
 		<!-- Vehicle Models -->
 		<VehicleModel>fbi</VehicleModel>
 		<VehicleModel>fbi2</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 	</Guard>
 	<!-- Guard: Merryweather -->
-	<Guard name="mw_guard" group="PRIVATE_SECURITY">
+	<Guard name="mw_guard" group="BLACKOPS">
 		<!-- Ped Models -->
 		<PedModel>s_m_y_blackops_01</PedModel>
 		<PedModel>s_m_y_blackops_02</PedModel>
@@ -242,21 +287,125 @@
 		<Weapon>WEAPON_COMBATPISTOL</Weapon>
 		<!-- Vehicle Models -->
 		<VehicleModel>mesa3</VehicleModel>
+		<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
 		<VehicleModel>crusader</VehicleModel>
 	</Guard>
-	<!-- Guard: Franklin's Families Guard -->
-	<Guard name="families_guard" >
-		<!-- Ped Models -->
-		<PedModel>G_F_Y_Families_01</PedModel>
-		<PedModel>G_M_Y_FamFor_01</PedModel>
-		<!-- Weapons -->
-		<Weapon>WEAPON_PISTOL</Weapon>
-		<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
-		<Weapon>WEAPON_CARBINERIFLE</Weapon>
-		<Weapon>WEAPON_SMG</Weapon>
-		<Weapon>WEAPON_COMBATPISTOL</Weapon>
-		<!-- Vehicle Models -->
-		<VehicleModel>bison</VehicleModel>
-		<VehicleModel>baller</VehicleModel>
-	</Guard>
+
+<!-- Guard: Franklin's Families Guard -->
+<Guard name="frank_guard" group="FRANK_GUARD">
+<!-- Ped Models -->
+<PedModel>G_F_Y_Families_01</PedModel>
+<PedModel>G_M_Y_FamFor_01</PedModel>
+<PedModel>g_m_y_famdnf_01</PedModel>
+<PedModel>g_m_y_famca_01</PedModel>
+<PedModel>mp_m_famdd_01</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_PISTOL</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>bison</VehicleModel>
+<VehicleModel>baller</VehicleModel>
+<MountedVehicleModel seatindex="1">technical</MountedVehicleModel>
+<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+</Guard>
+	
+<Guard name="families_guard" group="AMBIENT_GANG_FAMILY">
+<!-- Ped Models -->
+<PedModel>G_F_Y_Families_01</PedModel>
+<PedModel>G_M_Y_FamFor_01</PedModel>
+<PedModel>g_m_y_famdnf_01</PedModel>
+<PedModel>g_m_y_famca_01</PedModel>
+<PedModel>mp_m_famdd_01</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_PISTOL</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>bison</VehicleModel>
+<VehicleModel>baller</VehicleModel>
+<VehicleModel>technical</VehicleModel>
+<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+</Guard>
+<Guard name="Vagos_guard" group="AMBIENT_GANG_FAMILY">
+<!-- Ped Models -->
+<PedModel>IG_VagSpeak</PedModel>
+<PedModel>G_F_Y_Vagos_01</PedModel>
+<PedModel>IG_Vagos_Leader</PedModel>
+<PedModel>G_M_Y_SalvaBoss_01</PedModel>
+<PedModel>G_M_Y_SalvaGoon_01</PedModel>
+<PedModel>G_M_Y_SalvaGoon_03</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_WEAPON_ASSAULTRIFLE</Weapon>
+<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>technical</VehicleModel>
+<VehicleModel>technical</VehicleModel>
+<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+</Guard>
+<Guard name="Mex_guard" group="AMBIENT_GANG_FAMILY">
+<!-- Ped Models -->
+<PedModel>G_M_M_MexBoss_01</PedModel>
+<PedModel>g_m_y_mexgang_01</PedModel>
+<PedModel>g_m_y_mexgoon_01</PedModel>
+<PedModel>g_m_y_mexgoon_02</PedModel>
+<PedModel>g_m_y_mexgoon_03</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_WEAPON_ASSAULTRIFLE</Weapon>
+<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>technical</VehicleModel>
+<VehicleModel>technical</VehicleModel>
+	<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+</Guard>
+<Guard name="korean_guard" group="AMBIENT_GANG_FAMILY">
+<!-- Ped Models -->
+<PedModel>g_m_m_korboss_01</PedModel>
+<PedModel>g_m_y_korean_01</PedModel>
+<PedModel>g_m_y_korean_02</PedModel>
+<PedModel>g_m_y_korlieut_01</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_WEAPON_ASSAULTRIFLE</Weapon>
+<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>technical</VehicleModel>
+<VehicleModel>technical</VehicleModel>
+	<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+</Guard>
+<Guard name="ballas_guard" group="AMBIENT_GANG_FAMILY">
+<!-- Ped Models -->
+<PedModel>CSB_Ballas_Leader</PedModel>
+<PedModel>CSB_BallasOG</PedModel>
+<PedModel>g_m_y_ballaeast_01</PedModel>
+<PedModel>g_m_y_ballaorig_01</PedModel>
+<PedModel>g_m_y_ballasout_01</PedModel>
+<!-- Weapons -->
+<Weapon>WEAPON_WEAPON_ASSAULTRIFLE</Weapon>
+<Weapon>WEAPON_MILITARYRIFLE</Weapon>
+<Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+<Weapon>WEAPON_CARBINERIFLE</Weapon>
+<Weapon>WEAPON_SMG</Weapon>
+<Weapon>WEAPON_COMBATPISTOL</Weapon>
+<!-- Vehicle Models -->
+<VehicleModel>technical</VehicleModel>
+	<MountedVehicleModel seatindex="7">insurgent</MountedVehicleModel>
+<VehicleModel>technical</VehicleModel>
+</Guard>
+
 </Guards>
