@@ -1,271 +1,549 @@
-
 # Guard The AREA
 
-A Grand Theft Auto V mod that adds dynamic guard spawning and security systems to various locations in Los Santos.
+An advanced security guard simulation mod for GTA V that brings realistic private security forces into the game. Guards patrol defined areas, respond to threats, work in shifts, and coordinate with vehicles and backup units.
 
 ## Table of Contents
-1. [Description](#description)
-2. [Features](#features)
-3. [Configuration](#configuration)
-    - [Areas.xml Configuration](#areasxml-configuration)
-    - [Guards.xml Configuration](#guardsxml-configuration)
-    - [Guards.xml Example and Explanation](#guardsxml-example-and-explanation)
-    - [Scenarios](#scenarios)
-4. [Examples](#examples)
-5. [Custom Usage](#custom-usage)
-6. [Important Notes](#important-notes)
-7. [Installation](#installation)
-8. [Contributing](#contributing)
-9. [Credits](#credits)
-10. [License](#license)
-11. [Version History](#version-history)
+- [Overview](#guard-the-area)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [XML Configuration Guide](#xml-configuration-guide)
+- [Contributing](#contributing)
+- [License](#license)
 
-## Description
+## What You'll Experience
 
-Guard The AREA is a mod designed to enhance the security and guard presence in GTA V. It allows users to add customizable guard patrols, security checkpoints, and dynamic guard behaviors to various locations throughout Los Santos. The mod aims to create more realistic and interactive security systems, while remaining consistent with the game's environment.
+### Dynamic Security Areas
+- **Multiple Protected Zones**: Guards can protect mansions, businesses, military bases, or any custom location you define
+- **Overlapping Coverage**: Areas can overlap (e.g., main gates + rooftop snipers) with independent guard management
+- **Automatic Spawn/Despawn**: Guards spawn when you enter an area and despawn when you leave to optimize performance
 
-## Features
+### Intelligent Guard Behavior
+- **Realistic Patrols**: Guards walk designated routes, stand at posts, or patrol in vehicles
+- **Combat Response**: Guards engage threats, take cover, and call for backup when under attack
+- **Shift System**: Guards arrive and depart at scheduled times using vehicles
+- **Return to Duty**: After dealing with threats, guards return to their assigned posts
+- **Death Tracking**: Dead guards won't respawn at their position until you leave and re-enter the area
 
-- **Dynamic Guard System**: Allows for configurable guard spawning based on player proximity.
-- **Multiple Guard Types**: Supports different guard types with varying behaviors and equipment:
-    - Gruppe6 Security Guards
-    - Military Personnel
-    - LSPD Officers
-    - NOOSE Units
-    - Sheriff Deputies
-    - Park Rangers
-    - Private Security
-    - Federal Agents (IAA/FIB)
-    - Merryweather Security
-    - Gang Security (Families Guards for Franklin's House only, tho you can add more and make ambient families gaurd as well, and other gangs too.)
-- **Area-Specific Security**: Enables customized security configurations for different locations.
-- **Guard Behavior & AI**: Implements intelligent guard positioning, patrols, and dynamic combat responses.
-- **Vehicle Integration**: Integrates security vehicles, vehicle patrol (the gunner on the machine gun), and checkpoints.
-- **Customization**: Utilizes an XML-based configuration system for defining guard loadouts, behaviors, and relationships.
-- **Additional Functionalities**: Can be used to create guard points, secure your own house, custom roadblocks, sniper positions, and various vehicle spawn points.
+### Vehicle Integration
+- **Ground Vehicles**: Guards arrive in cars/trucks and patrol in mounted vehicles
+- **Helicopters**: Aerial support with door gunners for high-security areas
+- **Tactical Response**: Vehicles respond to combat situations and provide backup
+- **Shift Changes**: Guards use vehicles to arrive at and depart from their shifts
 
-## Configuration
+### Automatic Backup System
+- **Dynamic Reinforcements**: Guards call for backup when under attack (no player interaction required)
+- **Multiple Unit Types**: Ground vehicles, tactical helicopters, and attack helicopters
+- **Coordinated Response**: Backup units arrive at the combat location and engage threats
+- **Wave-Based Spawning**: Multiple waves of reinforcements based on combat intensity and duration
+- **Fee System**: Configurable costs and cooldowns for different backup types
 
-### Areas.xml Configuration
+### Relationship System
+- **Guard Factions**: Different security companies can be allies or enemies
+- **Player Respect**: Guards can be friendly, neutral, or hostile based on configuration
+- **Cross-Area Recognition**: Guards from different areas recognize each other based on faction settings
+- **Law Enforcement**: Configurable relationships with police and military
 
-This file defines guarded locations and their associated spawn points.
+## Quick Start
 
-```xml
-<Areas>
-    <Area name="AreaName" model="guard_type" respects="player_name|any">
-        <SpawnPoint type="ped|vehicle|plane|helicopter|boat|largevehicle|mounted" scenario="scenario_name" interior="true|false">
-            <Position x="0.0" y="0.0" z="0.0" />
-            <Heading>0.0</Heading>
-        </SpawnPoint>
-    </Area>
-</Areas>
-````
+### Prerequisites
+1. **Script Hook V** - Download from [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/)
+   - Extract `ScriptHookV.dll` and `dinput8.dll` to your GTA V root directory
 
-#### Area Attributes
+2. **Script Hook V .NET** - Download from [GitHub](https://github.com/scripthookvdotnet/scripthookvdotnet/releases)
+   - Extract `ScriptHookVDotNet.asi`, `ScriptHookVDotNet2.dll`, and `ScriptHookVDotNet3.dll` to your GTA V root directory
 
-  - `name`:  A unique identifier for the area. Example: "MichaelHouse", "NooseHQ".
-  - `model`:  Specifies the guard type to be spawned in this area. This must correspond to an entry defined in `Guards.xml`.
-  - `respects`: Specifies if to respect the Player - Franklin, Michael or Trevor or all. ANY is for Player of any kind, and their names explicitly respects them only.
+### Installing Guard The AREA Mod
 
-#### SpawnPoint Attributes
+1. **Create Scripts Folder**
+   - Navigate to your GTA V root directory (e.g., `C:\Program Files\Rockstar Games\Grand Theft Auto V\`)
+   - Create a folder named `scripts` if it doesn't exist
 
-  - `type`:  Defines the type of entity to spawn at this point.
-      - `ped`: Spawns a human guard.
-      - `vehicle`: Spawns a standard ground vehicle.
-      - `helicopter`: Spawns an aircraft (helicopter).
-      - `boat`: Spawns a water vehicle (boat).
-      - `largevehicle`: Spawns a large ground vehicle, such as a Stockade.
-      - `mounted`: Spawns a mounted vehicle, typically a vehicle with a mounted weapon like an Insurgent.
-      - `plane`: Spawns a plane which needs a big runway space, such as Titan.
-  - `scenario`: (Optional) Specifies a scenario for the spawned entity to perform, influencing its behavior. (use with ped type spawn)
-  - `interior`: A boolean value (true/false) indicating if the spawn point is located inside a building. (use with ped type spawn)
+2. **Install the Mod**
+   - Copy `gta.dll` to the `scripts` folder
+   - The final path should look like: `...\Grand Theft Auto V\scripts\gta.dll`
 
-#### Position Configuration
+3. **XML Configuration Files**
+   - Create a `GTA` folder inside your `scripts` folder (optional but recommended)
+   - Place the following XML files in the `scripts` folder:
+     - `Areas.xml` - Defines protected areas and guard spawn points
+     - `Guards.xml` - Defines guard models, weapons, and behavior
+     - `ScenarioLists.xml` - Defines guard scenarios (patrols, standing posts, etc.)
 
-```xml
-<Position x="-817.86" y="175.38" z="72.23" />
-<Heading>93.34</Heading>
+### Folder Structure
+```
+Grand Theft Auto V\
+├── ScriptHookV.dll
+├── dinput8.dll
+├── ScriptHookVDotNet.asi
+├── ScriptHookVDotNet2.dll
+├── ScriptHookVDotNet3.dll
+└── scripts\
+    ├── gta.dll (this mod)
+    ├── GTA\Areas.xml
+    ├────── Guards.xml
+    └────── ScenarioLists.xml
 ```
 
-  - `x,y,z`:  World coordinates for the spawn point.
-  - `Heading`:  The heading or direction in degrees (0-360) the spawned entity will face.
+### Verifying Installation
 
-### Guards.xml Configuration
+1. Launch GTA V
+2. Look for a `GTA` folder in your scripts directory
+3. Enter a defined area to see guards spawn
 
-This file defines the different guard types and their associated equipment, models, and vehicles.  The `group` attribute in the `<Guard>` tag is intended for filtering by COP, ARMY, SECURITY_GUARD, PRIVATE_SECURITY and more. Check pedrelationship.dat or another file which tells information on groups of ped type. (Custom AI Mods like PEV:DTAR has new sets of Relationship group so utilize them as per needed). Use different name if you want those guards to be respectful to you and you only even if they are of same type as others (dont make army, swat and cop pedtype as your own personal guards).
+## Detailed Documentation
 
-```xml
-<Guards>
-    <Guard name="guard_type" group="group">
-        <PedModel>model_name</PedModel>
-        <Weapon>weapon_name</Weapon>
-        <VehicleModel>vehicle_name</VehicleModel>
-        <LargeVehicleModel>large_name</LargeVehicleModel>
-        <HelicopterModel>heli_name</HelicopterModel>
-        <BoatModel>boat_name</BoatModel>
-        <PlaneModel>plane_name</PlaneModel>
-        <MountedVehicleModel>mounted_name</MountedVehicleModel>
-    </Guard>
-</Guards>
+Full documentation for configuration and code can be found in the `docs` folder and is compatible with MkDocs for building a static website.
+
+Use the following to preview the docs locally:
+
+```powershell
+pip install mkdocs mkdocs-material
+mkdocs serve
 ```
 
-#### Guard Types Available
+Documentation pages included:
+- Architecture
+- Module Reference
+- XML Configuration Reference
+- Usage and Deployment
 
-This mod supports the following guard types, each configurable within the `Guards.xml` file:
-
-1.  `gruppe6_guard`: Gruppe 6 Security
-2.  `army1_guard`: Military Personnel
-3.  `lspd_guard`: LSPD Officers
-4.  `noose_guard`: NOOSE Units
-5.  `lssd_guard`: Sheriff Deputies
-6.  `park_ranger_guard`: Park Rangers
-7.  `security_guard`: Generic Security
-8.  `iaa_guard`: IAA Agents
-9.  `fib_guard`: FIB Agents
-10. `mw_guard`: Merryweather Security
-11. `families_guard`: Franklin's Families Guards
-
-### Guards.xml Example and Explanation
-
-This section provides an example `Guards.xml` configuration snippet and explains the function of each tag.
-
-```xml
-<Guards>
-	<Guard name="gruppe6_guard"  >
-		<PedModel>s_m_m_armoured_02</PedModel>
-		<PedModel>s_m_m_armoured_01</PedModel>
-		<Weapon>WEAPON_ASSAULTRIFLE</Weapon>
-		<Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
-		<Weapon>WEAPON_CARBINERIFLE</Weapon>
-		<Weapon>WEAPON_SMG</Weapon>
-		<Weapon>WEAPON_MILITARYRIFLE</Weapon>
-		<Weapon>WEAPON_BULLPUPRIFLE</Weapon>
-		<Weapon>WEAPON_CARBINERIFLE_MK2</Weapon>
-		<Weapon>WEAPON_COMBATPISTOL</Weapon>
-		<Weapon>WEAPON_HEAVYPISTOL</Weapon>
-		<VehicleModel>STOCKADE</VehicleModel>
-		<VehicleModel>STOCKADE3</VehicleModel>
-		<VehicleModel>SPEEDO</VehicleModel>
-		<VehicleModel>police4</VehicleModel>
-		<VehicleModel>sheriff</VehicleModel>
-		<VehicleModel>policet</VehicleModel>
-		<VehicleModel>riot</VehicleModel>
-		<HelicopterModel></HelicopterModel>
-		<BoatModel></BoatModel>
-		<PlaneModel></PlaneModel>
-		<LargeVehicleModel></LargeVehicleModel>
-		<MountedVehicleModel>insurgent</MountedVehicleModel>
-	</Guard>
-</Guards>
-```
-
-  - **`<Guards>`**:  The root element that encapsulates all guard definitions.
-  - **`<Guard name="gruppe6_guard">`**: Defines a specific guard type. The `name` attribute ("gruppe6\_guard" in this example) is used to reference this guard type in `Areas.xml`.
-  - **`<PedModel>model_name</PedModel>`**: Specifies pedestrian models for the guard. Multiple `<PedModel>` tags allow for random model selection when spawning.
-  - **`<Weapon>weapon_name</Weapon>`**:  Defines weapons assigned to the guard. Multiple `<Weapon>` tags allow for a selection of weapons the guard might use.
-  - **`<VehicleModel>vehicle_name</VehicleModel>`**: Defines vehicle models associated with this guard type. These vehicles can be spawned when using the "vehicle" spawn type in `Areas.xml`.
-  - **`<HelicopterModel>`, `<BoatModel>`, `<PlaneModel>`, `<LargeVehicleModel>`, `<MountedVehicleModel>`**:  These tags are intended for specifying dedicated models for helicopter, boat, plane, large vehicle, and mounted vehicle spawns, respectively, for this guard type. In this example, they are empty, indicating no specific models are defined for these spawn types for `gruppe6_guard`.
-  - It's upto you if you want to keep those tags or not, but any one of those tags are required, if you don't want to use any simply delete the whole Guard tag and use different type from within.
-### Scenarios
-
-#### Default Available Scenarios
-
-```
-WORLD_HUMAN_AA_COFFEE
-WORLD_HUMAN_AA_SMOKE
-WORLD_HUMAN_BINOCULARS
-WORLD_HUMAN_CLIPBOARD
-WORLD_HUMAN_COP_IDLES
-WORLD_HUMAN_DRINKING
-WORLD_HUMAN_GUARD_PATROL
-WORLD_HUMAN_GUARD_STAND
-WORLD_HUMAN_GUARD_STAND_ARMY
-WORLD_HUMAN_SECURITY_SHINE_TORCH
-WORLD_HUMAN_SMOKING
-WORLD_HUMAN_STAND_MOBILE
-```
-
-#### Additional Scenarios
-
-A comprehensive list of available scenarios can be found within the GTA V game files (scenario metadata). Any valid GTA V scenario name can be used in the configuration.
-
-> **Note**:  The effectiveness of scenarios can vary with different guard behaviors. In-game testing is recommended to ensure desired outcomes.
-
-## Examples
-
-### Example 1: Military Base Guard Post
-
-```xml
-<Area name="ArmyGate1" model="army1_guard">
-    <SpawnPoint type="ped">
-        <Position x="-1614.36" y="2806.01" z="17.73" />
-        <Heading>293.30</Heading>
-    </SpawnPoint>
-</Area>
-```
-
-### Example 2: Private Security with Vehicles
-
-```xml
-<Area name="SecurityCheckpoint" model="gruppe6_guard">
-    <SpawnPoint type="ped" scenario="WORLD_HUMAN_GUARD_STAND">
-        <Position x="0.0" y="0.0" z="0.0" />
-        <Heading>90.0</Heading>
-    </SpawnPoint>
-</Area>
-```
-
-## Custom Usage
-
-This mod's flexible design allows for various custom applications, such as:
-
-  - **Law Enforcement Enhancements**: Create roadblocks with LSPD or NOOSE units, establish sniper positions with FIB agents, or enhance police presence in specific areas.
-  - **Gang Territory**: Define gang territories with custom gang security, like Families guards around Franklin's house.
-  - **Private Security Details**: Implement private security details for businesses or player-owned properties using Gruppe 6 or Merryweather guards.
-  - **Scenario-Specific Security**: Trigger different security setups based on in-game events or time of day. (This is in WIP for now)
-
-## Important Notes
-
-1.  **Coordinate System**: Use in-game position logging (typically activated by pressing the 'L' key) to obtain accurate world coordinates for spawn points.
-2.  **Performance Considerations**: Be mindful of the number of spawn points, especially in densely populated areas, to avoid performance issues.
-3.  **Scenario Usage**:  The effectiveness of scenarios may depend on location and guard type. Testing is crucial to achieve the desired behavior. `WORLD_HUMAN_GUARD_STAND` is well-suited for checkpoint scenarios.
-4.  **Vehicle Spawns**:  Ensure sufficient space is available for vehicle spawn points to prevent vehicles from spawning in unintended locations or clipping into objects.
-
-## Installation
-
-1.  Ensure Grand Theft Auto V is updated to the latest version.
-2.  Install [Script Hook V](https://www.google.com/url?sa=E&source=gmail&q=https://www.dev-c.com/gtav/scripthookv/).
-3.  Copy the mod files into the Grand Theft Auto V game directory.
-4.  Configure guard locations and properties in `Areas.xml`.
-5.  Customize guard types and equipment in `Guards.xml`.
-
+See `docs/` for the full content and the generated site at `site/` after running `mkdocs build`.
 ## Contributing
 
-Contributions to this project are welcome. Please submit pull requests for bug fixes or feature additions, or create issues to report bugs and suggest new features.
-
-## Credits
-
-Created by Vampire-Chan.
+Please read `docs/contributing.md` for contribution guidelines and the project standards.
 
 ## License
 
-This project is distributed under standard open-source license terms. See the LICENSE file for complete details.
+This project currently has no LICENSE file. If you want to set a license, add `LICENSE` to the root of the repository.
 
-## Version History
 
-  - **Version 1.0 - "It's Alive\!" (Initial Version)**
+## Documentation
 
-    > Initial release incorporating the core features of spawning guards and vehicles in designated areas.
+The repository includes a full MkDocs site under `docs/` and `mkdocs.yml` to build the website. To preview:
 
-  - **Version 1.1 - "Scenario Tasks"**
+```powershell
+pip install mkdocs mkdocs-material
+mkdocs serve
+```
 
-    > Introduced scenario tasks to guards, enabling behaviors like guarding, looking around, and using flashlights.
+To deploy automatically to GitHub Pages, the workflow `.github/workflows/deploy-docs.yml` can be used.
 
-  - **Version 1.2 - "Expanded Spawn Types and Tactical Options"**
+## XML Configuration Guide
 
-    > Expanded functionality to include Law Snipers, Roadblocks, and additional vehicle spawn types (helicopter, boat, mounted, vehicles) to enhance tactical deployment options.
+The mod uses three XML files to configure all aspects of the security system. Below is a detailed guide for editing each file.
 
-  - **Version 1.3 - "Bug Fixes and Spawn Type Refinement"**
+### 1. Areas.xml - Defining Protected Zones
 
-    > Addressed null reference exceptions and refined spawn type usage to ensure proper model assignments for each spawn type, preventing vehicles from spawning in inappropriate locations like helipads or boats on land. Implemented dedicated model lists for each spawn type. New spawn types are: plane, mounted, largevehicle, vehicle, helicopter and boat. these can be used. For ped type it's ped. 
+This file defines where guards will spawn and patrol.
 
+#### Basic Structure
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Areas>
+  <Area name="AreaName" model="guard_model" scenario="ScenarioName" 
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6"
+        allowsBackup="true" charges="500"
+        respects="MICHAEL, FRANKLIN">
+    <BackupFees>
+        <Aerial cost="5000" cooldown="30" />
+        <Airstrike cost="50000" cooldown="30" />
+        <Ground cost="15000" cooldown="30" />
+    </BackupFees>
+    <SpawnPoint type="ped" scenario="OverrideScenario" interior="true">
+      <Position x="-819.19" y="179.33" z="70.22"/>
+      <Heading>108.0</Heading>
+    </SpawnPoint>
+  </Area>
+</Areas>
+```
+
+#### Area Properties
+
+**Basic Information:**
+- `name`: Unique identifier for this area (must be unique across all areas)
+- `model`: Guard type from Guards.xml to use for this area
+- `scenario`: Default behavior pattern from ScenarioLists.xml
+- `respects`: Characters the guards respect (MICHAEL, FRANKLIN, TREVOR), ALL is an option for any player type.
+
+**Shift System Settings:**
+- `shiftEnabled`: Set to `true` to enable shift changes
+- `shiftDuration`: Schedule for guard shifts in format "start-end,start-end" (24-hour format)
+  - Example: "6-12,12-18,18-2,2-6" = 6am-12pm, 12pm-6pm, 6pm-2am, 2am-6am
+
+**Backup System Settings:**
+- `allowsBackup`: Allow guards to call for reinforcements (true/false)
+- `charges`: Daily maintenance fee deducted from character account
+- `BackupFees`: Cost and cooldown settings for different backup types
+
+**Spawn Points:**
+```xml
+<SpawnPoint type="ped" scenario="OverrideScenario" interior="true">
+  <Position x="-819.19" y="179.33" z="70.22"/>
+  <Heading>108.0</Heading>
+</SpawnPoint>
+```
+
+**Spawn Point Types:**
+- `ped` - Guard on foot at specified position
+- `vehicle` - Stationary vehicle parked
+- `mounted` - Stationary vehicle with guard in turret/gunner seat
+- `largevehicle` - Large  vehicles (multiple guards)
+- `helicopter` - Aerial  with door gunners
+- `plane` - Fixed-wing aircraft 
+- `boat` - Water-based 
+
+**Spawn Point Properties:**
+- `type`: Type of spawn (ped, vehicle, helicopter, etc.)
+- `scenario`: Override scenario that takes precedence over area default
+- `interior`: Whether this spawn point is inside (affects positioning)
+
+### 2. Guards.xml - Defining Guard Types
+
+This file defines the appearance, weapons, and behavior of different guard types.
+
+#### Basic Structure
+```xml
+<?xml version="1.0" ?>
+<Guards>
+  <Guard name="guard_name" group="RELATIONSHIP_GROUP">
+    <PedModel>ped_model_hash</PedModel>
+    <PedModel>another_ped_model</PedModel>
+    <Weapon>WEAPON_HASH</Weapon>
+    <VehicleModel>vehicle_model</VehicleModel>
+    <HelicopterModel>heli_model</HelicopterModel>
+    <BoatModel>boat_model</BoatModel>
+    <PlaneModel>plane_model</PlaneModel>
+    <LargeVehicleModel>large_vehicle_model</LargeVehicleModel>
+    <MountedVehicleModel>vehicle_model</MountedVehicleModel>
+  </Guard>
+</Guards>
+```
+
+#### Guard Properties
+
+**Basic Information:**
+- `name`: Unique identifier used in Areas.xml
+- `group`: Relationship group name used for guard interactions
+
+**Ped Models:**
+- Multiple `<PedModel>` entries - guards will randomly select from these
+- Use GTA V ped model hashes (e.g., `s_m_m_security_01`, `s_m_y_swat_01`)
+
+**Weapons:**
+- Multiple `<Weapon>` entries - guards will randomly select one
+- Available weapons: `WEAPON_PISTOL`, `WEAPON_COMBATPISTOL`, `WEAPON_ASSAULTRIFLE`, `WEAPON_CARBINERIFLE`, `WEAPON_SMG`, `WEAPON_PUMPSHOTGUN`, `WEAPON_SNIPERRIFLE`, and so on etc.
+
+**Vehicle Models by Type:**
+- `<VehicleModel>` - Standard patrol vehicles
+- `<HelicopterModel>` - Aerial patrol vehicles 
+- `<BoatModel>` - Water-based patrol vehicles
+- `<PlaneModel>` - Air-based patrol vehicles
+- `<LargeVehicleModel>` - Large patrol vehicles
+- `<MountedVehicleModel>` - Vehicles with mounted weapons (turrets, etc.)
+
+#### Complete Guard Example
+```xml
+<Guard name="private_security" group="PRIVATE_SECURITY">
+  <PedModel>s_m_m_security_01</PedModel>
+  <PedModel>s_m_m_armoured_01</PedModel>
+  <PedModel>s_m_y_swat_01</PedModel>
+  <Weapon>WEAPON_CARBINERIFLE</Weapon>
+  <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  <Weapon>WEAPON_PISTOL</Weapon>
+  <VehicleModel>police4</VehicleModel>
+  <VehicleModel>riot</VehicleModel>
+  <VehicleModel>stockade</VehicleModel>
+  <HelicopterModel>MAVERICK</HelicopterModel>
+  <MountedVehicleModel>insurgent</MountedVehicleModel>
+</Guard>
+```
+
+Note: If your repository contains a malformed or concatenated `Guards.xml` (multiple XML headers or repeated `<Guards>` sections), use the canonical file `GTA/Guards.cleaned.xml` as the source of truth and run the `tools\apply-canonical-guards.ps1` script to re-write `GTA/Guards.xml` automatically.
+
+#### Common Guard Configuration Types
+
+**Standard Security:**
+```xml
+<Guard name="standard_guard" group="SECURITY_GUARD">
+  <PedModel>s_m_m_security_01</PedModel>
+  <Weapon>WEAPON_PISTOL</Weapon>
+  <VehicleModel>police</VehicleModel>
+</Guard>
+```
+
+**Armed Security:**
+```xml
+<Guard name="armed_guard" group="ARMED_SECURITY">
+  <PedModel>s_m_m_armoured_01</PedModel>
+  <PedModel>s_m_y_swat_01</PedModel>
+  <Weapon>WEAPON_CARBINERIFLE</Weapon>
+  <Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+  <VehicleModel>riot</VehicleModel>
+  <VehicleModel>insurgent</VehicleModel>
+</Guard>
+```
+
+**Military/Police:**
+```xml
+<Guard name="military_guard" group="ARMY">
+  <PedModel>s_m_y_marine_01</PedModel>
+  <PedModel>s_m_y_marine_02</PedModel>
+  <Weapon>WEAPON_CARBINERIFLE</Weapon>
+  <Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
+  <VehicleModel>CRUSADER</VehicleModel>
+  <VehicleModel>BARRACKS</VehicleModel>
+</Guard>
+```
+
+### 3. ScenarioLists.xml - Defining Guard Behaviors
+
+This file defines what guards do when on duty (patrol routes, standing positions, etc.).
+
+#### Basic Structure
+```xml
+<?xml version="1.0" ?>
+<Scenarios>
+  <Scenario name="ScenarioName">
+    <Name>WORLD_HUMAN_GUARD_STAND</Name>
+    <Name>WORLD_HUMAN_SECURITY_SHINE_TORCH</Name>
+    <Name>WORLD_HUMAN_CLIPBOARD</Name>
+  </Scenario>
+</Scenarios>
+```
+
+#### Available Scenario Types
+
+**Standing Guard:**
+- `WORLD_HUMAN_GUARD_STAND` - Guard stands at attention at assigned position
+- `WORLD_HUMAN_GUARD_STAND_FACILITY` - Guard stands at security desk
+- `WORLD_HUMAN_SECURITY_SHINE_TORCH` - Guard shines flashlight around
+
+**Patrol Behaviors:**
+- `WORLD_HUMAN_GUARD_PATROL` - Guard patrols in small area around position
+- `WORLD_HUMAN_COP_IDLES` - Guard stands idle in cop-like manner
+
+**Ambient Activities:**
+- `WORLD_HUMAN_SMOKING` - Guard takes smoking break
+- `WORLD_HUMAN_STAND_MOBILE` - Guard talks on phone
+- `WORLD_HUMAN_HANG_OUT_STREET` - Guard loiters casually
+- `WORLD_HUMAN_CLIPBOARD` - Guard looks at clipboard
+
+**Observation Behaviors:**
+- `WORLD_HUMAN_BINOCULARS` - Guard uses binoculars to watch area
+- `WORLD_HUMAN_STAND_IMPATIENT` - Guard waits impatiently
+
+**Social Behaviors:**
+- `WORLD_HUMAN_PARTYING` - Guard relaxes/socializes
+- `WORLD_HUMAN_DRINKING` - Guard drinks beverage
+- `WORLD_HUMAN_TOURIST_MOBILE` - Guard looks at phone/takes photos
+
+> There are more but its upto you if you can add them or no.
+#### Complete Scenario Examples
+
+**Simple Gate Guard:**
+```xml
+<Scenario name="Guard">
+  <Name>WORLD_HUMAN_GUARD_STAND</Name>
+  <Name>WORLD_HUMAN_GUARD_STAND_FACILITY</Name>
+  <Name>WORLD_HUMAN_SECURITY_SHINE_TORCH</Name>
+</Scenario>
+```
+
+**Perimeter Patrol:**
+```xml
+<Scenario name="Patrol">
+  <Name>WORLD_HUMAN_GUARD_PATROL</Name>
+  <Name>WORLD_HUMAN_COP_IDLES</Name>
+  <Name>WORLD_HUMAN_BINOCULARS</Name>
+</Scenario>
+```
+
+**Ambient Security:**
+```xml
+<Scenario name="Ambient">
+  <Name>WORLD_HUMAN_SMOKING</Name>
+  <Name>WORLD_HUMAN_STAND_MOBILE</Name>
+  <Name>WORLD_HUMAN_HANG_OUT_STREET</Name>
+</Scenario>
+```
+
+## Advanced Features
+
+### Shift System Configuration
+The shift system allows guards to arrive and depart at scheduled times using vehicles:
+
+- Guards arrive in vehicles 10-15 minutes before their shift starts
+- Departure happens 15 minutes before the next shift
+- Vehicles can be different from patrol vehicles
+- Shifts can overlap for smooth transitions
+
+### Backup System Configuration
+The automatic backup system responds to combat situations:
+
+- When guards enter combat, they automatically call for backup
+- Backup types depend on what's configured in the guard's vehicle lists
+- Costs and cooldowns are configurable per area
+- Wave-based spawning with increasing intensity during extended combat
+
+### Relationship Groups
+Different guard types can be configured to work together or against each other:
+- `PRIVATE_SECURITY` - Private security guards
+- `ARMY` - Military personnel
+- `COP` - Police officers
+- `MERRYWEATHER` - Military contractors
+- Custom groups can be created for faction-specific interactions
+
+## Tips and Best Practices
+
+### Performance Optimization
+- **Limit active areas**: Don't create too many overlapping areas in one location
+- **Guard count**: 10-20 guards per area is reasonable; 50+ may impact performance (if chaos happens, backup may arrive but that can crash game, due to game's internal pools limits)
+
+### Realistic Guard Placement
+- **Gates and entrances**: Place standing guards with `WORLD_HUMAN_GUARD_STAND`
+- **Rooftops**: Use snipers with `WORLD_HUMAN_BINOCULARS` or standing positions
+- **Patrol routes**: Keep routes logical (along fences, around buildings)
+- **Vehicle positions**: Place vehicles near roads or parking areas
+
+### Combat Tuning
+- **Backup units**: Configure appropriate vehicle types for the security level needed
+- **Relationship groups**: Set up proper cooperation between different guard types
+
+### Shift System
+- **Realistic timing**: 6-12, 12-18, 18-2, 2-6 = 6-hour shifts covering 24 hours
+- **Vehicles**: Ensure enough vehicles for guards to arrive/depart
+
+### Backup System
+- **Cost Management**: Set appropriate fees to make backup usage strategic
+- **Cooldowns**: Prevent spam usage of expensive backup types
+- **Vehicle Types**: Configure appropriate vehicle lists for desired backup types
+
+### Finding Coordinates
+1. Use a trainer mod to teleport or display coordinates (or simply press L where you stand, or in vehicle)
+2. Stand where you want a guard/spawn point (or press L there to log down the coordinates in the PlyPos.log)
+3. Note X, Y, Z, and current heading (or directly copy paste from PlyPos.log to XML)
+4. Add to XML with appropriate properties
+
+## Troubleshooting
+
+### Common Installation Issues
+- **File Not Found Errors**: Ensure all XML files are in the scripts folder
+- **Script Hook V Errors**: Verify ScriptHookV.dll and dinput8.dll are in the GTA V root
+- **.NET Framework Missing**: Ensure ScriptHookVDotNet is properly installed
+- **Mod Not Loading**: Check that gta.dll is in the scripts folder
+
+### Guards Not Spawning
+- Check XML syntax (proper opening/closing tags)
+- Verify `Areas.xml` is in scripts/GTA folder
+- Ensure ped models exist in GTA V
+- Check logs for errors (Logging.log in scripts/GTA folder)
+- Verify that the area coordinates are accessible in-game
+- Make sure `shiftEnabled` areas have valid shift times
+
+### Guards Attacking Player
+- Check that `respects` attribute includes the current character
+- Ensure proper relationship group setup in Guards.xml
+- Check that vehicle spawns are correctly configured
+- Verify that the guard's relationship settings allow respect for the player
+- Some guards may attack if the player has a wanted level
+
+### Shift Changes Not Working
+- Verify `shiftEnabled="true"` in Areas.xml
+- Ensure shiftDuration format is correct ("6-12,12-18,18-2,2-6")
+- Check that vehicles exist for guard transport (in Guards.xml)
+- Verify that the game time is progressing (shifts depend on in-game time)
+- Make sure the area has vehicle spawn points for shift transport
+
+### Backup System Not Working
+- Ensure `allowsBackup="true"` in Areas.xml
+- Verify guard configuration has appropriate vehicle models in Guards.xml
+- Check that backup fees are properly configured
+- Guards must be in combat for backup to trigger automatically
+- Verify that the guard's vehicle lists have valid vehicle models
+- Check that the area has active guards that can call for backup
+
+### Performance Issues
+- Reduce number of guards per area (aim for 10-20 per area)
+- Decrease number of active areas
+- Limit complex vehicle configurations (helicopters, planes cost more performance)
+- Use fewer spawn points per area
+- Close to the minimum number of areas that provide the experience you want
+
+### Advanced Troubleshooting
+- **Log Files**: Check `scripts\GTA\Logging.log` for detailed error messages
+- **Test in Safe Area**: Start by testing in an open area like the desert to avoid conflicts
+- **Backup Logs**: Check `scripts\GTA\PlyPos.log` for player position information
+- **XML Validation**: Use an XML validator to check for syntax errors
+- **Coordinate Validation**: Use debug tools to verify area coordinates are valid
+
+### Known Limitations
+- The mod relies on ScriptHookV and ScriptHookVDotNet, so ensure they're up to date
+- Very large areas with many spawn points may impact performance
+- Complex vehicle configurations (especially helicopters) require more system resources
+- Some vehicle models may not work properly for certain spawn types
+- In Story Mode, performance may be affected by other scripts
+
+## Mod Customization Examples (imaginary values, use correct in game)
+
+### Military Base Setup
+```xml
+<Area name="MilitaryBase" model="army_guard" scenario="Patrol" 
+      shiftEnabled="true" shiftDuration="6-18"
+      allowsBackup="true" charges="1000"
+      respects="MICHAEL,FRANKLIN">
+  <BackupFees>
+      <Aerial cost="8000" cooldown="45" />
+      <Airstrike cost="80000" cooldown="60" />
+      <Ground cost="25000" cooldown="45" />
+  </BackupFees>
+  <SpawnPoint type="ped">
+    <Position x="2400.0" y="3300.0" z="50.0" />
+    <Heading>180.0</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="mounted">
+    <Position x="2410.0" y="3300.0" z="50.0" />
+    <Heading>180.0</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="2405.0" y="3290.0" z="50.0" />
+    <Heading>0.0</Heading>
+  </SpawnPoint>
+</Area>
+```
+
+### Luxury Mansion Security
+```xml
+<Area name="LuxuryMansion" model="private_security" scenario="Guard"
+      shiftEnabled="true" shiftDuration="6-14,14-22,22-6"
+      allowsBackup="true" charges="3000"
+      respects="MICHAEL,FRANKLIN,TREVOR">
+  <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="30000" cooldown="30" />
+      <Ground cost="10000" cooldown="20" />
+  </BackupFees>
+  <SpawnPoint type="ped">
+    <Position x="-810.0" y="177.0" z="72.5" />
+    <Heading>90.0</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-820.0" y="180.0" z="72.5" />
+    <Heading>0.0</Heading>
+  </SpawnPoint>
+</Area>
+```
+
+## Credits
+
+**Developed by:** Vampire-Chan
+**ScriptHookV:** Alexander Blade
+**ScriptHookVDotNet:** crosire & kagin & contributors
+**GTA V:** Rockstar Games
+
+## License
+
+This mod is free to use and modify for personal use. Do not redistribute without permission.
+
+---
+
+**Enjoy your enhanced security experience in Los Santos!**

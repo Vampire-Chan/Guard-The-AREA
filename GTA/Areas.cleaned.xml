@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Areas>
+  <Area name="MichaelHouse" model="gruppe6_guard" respects="MICHAEL, FRANKLIN" scenario="Guard" shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-819.19" y="179.33" z="72.22" />
+      <Heading>121.15</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="-823.87" y="182.42" z="71.39" />
+      <Heading>124.43</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="Girlsaround" model="girlies" respects="girlies_cops, COP, SWAT, ARMY" scenario="Ambient" shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped">
+      <Position x="-919.55" y="132.83" z="58.70" />
+      <Heading>349.83</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="PacificBank" model="gruppe6_guard" respects="COP, ARMY, SWAT" scenario="Guard" shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" backupSpawnInterval="60">
+    <SpawnPoint type="ped" interior="true">
+      <Position x="231.47" y="211.58" z="105.46" />
+      <Heading>118.47</Heading>
+    </SpawnPoint>
+  </Area>
+
+</Areas>

@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Areas>
+  <!-- name, model, respects, scenario, shiftEnabled, shiftDuration -->
+  <Area name="MichaelHouse" model="gruppe6_guard" respects="MICHAEL, FRANKLIN, AMBIENT_GANG_FAMILY" scenario="Guard"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-819.19" y="179.33" z="72.22" />
+      <Heading>121.15</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-817.70" y="175.70" z="72.22" />
+      <Heading>108.44</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="-823.87" y="182.42" z="71.39" />
+      <Heading>124.43</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="-815.66" y="157.42" z="70.62" />
+      <Heading>289.26</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="mounted">
+      <Position x="-853.27" y="182.46" z="70.20" />
+      <Heading>172.40</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="-856.65" y="144.96" z="61.70" />
+      <Heading>173.64</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="Girlsaround" model="girlies" respects="girlies_cops, COP, SWAT, ARMY" scenario="Ambient"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped">
+      <Position x="-919.55" y="132.83" z="58.70" />
+      <Heading>349.83</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-919.70" y="136.16" z="58.48" />
+      <Heading>201.32</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-915.76" y="135.45" z="58.89" />
+      <Heading>201.42</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-915.39" y="133.82" z="58.94" />
+      <Heading>334.23</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-908.60" y="131.96" z="59.35" />
+      <Heading>342.12</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-908.29" y="134.87" z="59.36" />
+      <Heading>233.64</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-901.49" y="134.31" z="59.35" />
+      <Heading>175.09</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-902.08" y="132.40" z="59.32" />
+      <Heading>34.11</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-894.90" y="130.76" z="59.28" />
+      <Heading>341.29</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-893.62" y="133.59" z="59.33" />
+      <Heading>217.76</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-886.91" y="134.02" z="59.34" />
+      <Heading>190.08</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-885.61" y="131.59" z="59.30" />
+      <Heading>324.98</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-878.47" y="130.52" z="58.90" />
+      <Heading>353.31</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-877.16" y="135.01" z="59.79" />
+      <Heading>151.00</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="SpecializedGuardMichael" model="gruppe6_guard" respects="MICHAEL, FRANKLIN, AMBIENT_GANG_FAMILY" scenario="Guard"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped">
+      <Position x="-852.52" y="170.28" z="67.67" />
+      <Heading>177.16</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="-871.26" y="168.39" z="67.06" />
+      <Heading>0.64</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-845.19" y="181.96" z="70.66" />
+      <Heading>169.96</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-843.71" y="181.89" z="70.77" />
+      <Heading>159.23</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-842.52" y="182.40" z="70.97" />
+      <Heading>181.61</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-840.63" y="182.04" z="71.03" />
+      <Heading>183.23</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-839.09" y="182.28" z="71.17" />
+      <Heading>211.61</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-836.83" y="182.21" z="71.28" />
+      <Heading>180.53</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="-835.34" y="182.21" z="71.34" />
+      <Heading>179.58</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="MerryweatherDock" model="mw_guard" respects="COP, ARMY, SWAT, PRIVATE_SECURITY, SECURITY_GUARD" scenario="Ambient"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6">
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-1070.31" y="-250.48" z="57.95" />
+      <Heading>268.34</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-1073.79" y="-243.37" z="57.91" />
+      <Heading>20.83</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-1070.55" y="-242.69" z="54.00" />
+      <Heading>32.17</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="-1064.87" y="-245.49" z="54.01" />
+      <Heading>212.56</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="509.34" y="-3355.27" z="6.07" />
+      <Heading>93.97</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="478.50" y="-3370.31" z="6.07" />
+      <Heading>195.96</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="PacificBank" model="gruppe6_guard" respects="COP, ARMY, SWAT, PRIVATE_SECURITY, SECURITY_GUARD" scenario="Guard"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" backupSpawnInterval="60">
+    <SpawnPoint type="ped" interior="true">
+      <Position x="231.47" y="211.58" z="105.46" />
+      <Heading>118.47</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="228.68" y="217.47" z="105.55" />
+      <Heading>123.45</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="242.71" y="210.64" z="106.29" />
+      <Heading>9.79</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="238.56" y="221.14" z="106.29" />
+      <Heading>314.65</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="234.21" y="224.60" z="110.28" />
+      <Heading>254.16</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="236.84" y="212.37" z="110.28" />
+      <Heading>331.68</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="252.45" y="207.24" z="110.28" />
+      <Heading>338.84</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="267.42" y="219.39" z="110.28" />
+      <Heading>57.15</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="256.61" y="224.10" z="101.88" />
+      <Heading>348.15</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="252.10" y="225.41" z="101.68" />
+      <Heading>352.06</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="248.78" y="230.34" z="106.29" />
+      <Heading>172.77</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="FranklinHouse" model="families_guard" respects="FRANKLIN, MICHAEL, MICHAEL_GUARD" scenario="Guard"
+        shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="45">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="3.65" y="531.43" z="175.34" />
+      <Heading>322.31</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="7.08" y="542.04" z="176.03" />
+      <Heading>312.99</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="15.96" y="544.14" z="176.03" />
+      <Heading>38.08</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped" interior="true">
+      <Position x="19.66" y="550.21" z="176.21" />
+      <Heading>64.93</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="8.52" y="560.24" z="176.21" />
+      <Heading>123.90</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="FranklinHouseSide" model="sexyhoes_grp" respects="sexyhoes" scenario="Ambient"
+        shiftEnabled="false" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped">
+      <Position x="48.17" y="559.66" z="180.18" />
+      <Heading>29.86</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="55.46" y="562.73" z="180.42" />
+      <Heading>29.24</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="53.54" y="566.15" z="180.48" />
+      <Heading>31.09</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="49.04" y="565.13" z="180.19" />
+      <Heading>10.06</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="50.12" y="562.15" z="179.61" />
+      <Heading>238.91</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="vehicle">
+      <Position x="49.90" y="579.46" z="181.61" />
+      <Heading>45.73</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="41.23" y="583.04" z="182.79" />
+      <Heading>226.58</Heading>
+    </SpawnPoint>
+  </Area>
+
+  <Area name="FranklinaHouseSide" model="sexyhoes_grps" respects="sexyhoess" scenario="Ambient"
+        shiftEnabled="false" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+    <BackupFees>
+      <Aerial cost="3000" cooldown="20" />
+      <Airstrike cost="25000" cooldown="20" />
+      <Ground cost="8000" cooldown="20" />
+    </BackupFees>
+    <SpawnPoint type="ped">
+      <Position x="29.63" y="550.77" z="178.37" />
+      <Heading>22.31</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="29.09" y="552.07" z="178.39" />
+      <Heading>22.32</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="28.28" y="553.99" z="178.41" />
+      <Heading>13.62</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="30.44" y="554.81" z="178.39" />
+      <Heading>287.30</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="33.57" y="555.92" z="178.82" />
+      <Heading>287.30</Heading>
+    </SpawnPoint>
+    <SpawnPoint type="ped">
+      <Position x="36.79" y="557.69" z="179.20" />
+      <Heading>294.85</Heading>
+    </SpawnPoint>
+  </Area>
+
+</Areas>
+<?xml version="1.0" encoding="utf-8" ?>
+<Areas>
+	<!-- name, model, respects, scenario, shiftEnabled, shiftDuration, where respects are not important if you don't want guards to respect you or others. -->
+    <Area name="MichaelHouse" model="gruppe6_guard" respects="MICHAEL, FRANKLIN, AMBIENT_GANG_FAMILY" scenario="Guard" 
+	    shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+		<BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>
+		  <SpawnPoint type="ped" interior="true">
+			<Position x="-819.19" y="179.33" z="72.22" />
+			<Heading>121.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-817.70" y="175.70" z="72.22" />
+			<Heading>108.44</Heading>
+		</SpawnPoint>
+		  <SpawnPoint type="vehicle">
+    <Position x="-823.87" y="182.42" z="71.39" />
+    <Heading>124.43</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-815.66" y="157.42" z="70.62" />
+    <Heading>289.26</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="mounted">
+    <Position x="-853.27" y="182.46" z="70.20" />
+    <Heading>172.40</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-856.65" y="144.96" z="61.70" />
+    <Heading>173.64</Heading>
+  </SpawnPoint>
+
+	</Area> 
+	
+	<Area name="Girlsaround" model="girlies" respects="girlies_cops, COP, SWAT, ARMY" scenario="Ambient" 
+	    shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+		<BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>
+		   <SpawnPoint type="ped">
+    <Position x="-919.55" y="132.83" z="58.70" />
+    <Heading>349.83</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-919.70" y="136.16" z="58.48" />
+    <Heading>201.32</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-915.76" y="135.45" z="58.89" />
+    <Heading>201.42</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-915.39" y="133.82" z="58.94" />
+    <Heading>334.23</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-908.60" y="131.96" z="59.35" />
+    <Heading>342.12</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-908.29" y="134.87" z="59.36" />
+    <Heading>233.64</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-901.49" y="134.31" z="59.35" />
+    <Heading>175.09</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-902.08" y="132.40" z="59.32" />
+    <Heading>34.11</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-894.90" y="130.76" z="59.28" />
+    <Heading>341.29</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-893.62" y="133.59" z="59.33" />
+    <Heading>217.76</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-886.91" y="134.02" z="59.34" />
+    <Heading>190.08</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-885.61" y="131.59" z="59.30" />
+    <Heading>324.98</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-878.47" y="130.52" z="58.90" />
+    <Heading>353.31</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-877.16" y="135.01" z="59.79" />
+    <Heading>151.00</Heading>
+  </SpawnPoint>
+
+
+	</Area>
+	
+    <Area name="SpecializedGuardMichael" model="gruppe6_guard" respects="MICHAEL, FRANKLIN, AMBIENT_GANG_FAMILY" scenario="Guard" 
+	    shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="30">
+		  
+		  <BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>
+	  <SpawnPoint type="ped">
+    <Position x="-852.52" y="170.28" z="67.67" />
+    <Heading>177.16</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="-871.26" y="168.39" z="67.06" />
+    <Heading>0.64</Heading>
+  </SpawnPoint>
+	  <SpawnPoint type="ped">
+    <Position x="-845.19" y="181.96" z="70.66" />
+    <Heading>169.96</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-843.71" y="181.89" z="70.77" />
+    <Heading>159.23</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-842.52" y="182.40" z="70.97" />
+    <Heading>181.61</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-840.63" y="182.04" z="71.03" />
+    <Heading>183.23</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-839.09" y="182.28" z="71.17" />
+    <Heading>211.61</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-836.83" y="182.21" z="71.28" />
+    <Heading>180.53</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="-835.34" y="182.21" z="71.34" />
+    <Heading>179.58</Heading>
+  </SpawnPoint>
+
+	</Area>
+	<Area name="MerryweatherDock" model ="mw_guard" respects="COP, ARMY, SWAT, PRIVATE_SECURITY, SECURITY_GUARD" scenario="Ambient" 
+          shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6">
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-1070.31" y="-250.48" z="57.95" />
+			<Heading>268.34</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-1073.79" y="-243.37" z="57.91" />
+			<Heading>20.83</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-1070.55" y="-242.69" z="54.00" />
+			<Heading>32.17</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="-1064.87" y="-245.49" z="54.01" />
+			<Heading>212.56</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="509.34" y="-3355.27" z="6.07" />
+			<Heading>93.97</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="478.50" y="-3370.31" z="6.07" />
+			<Heading>195.96</Heading>
+		</SpawnPoint>
+	</Area>
+	
+    <Area name="PacificBank" model ="gruppe6_guard" respects="COP, ARMY, SWAT, PRIVATE_SECURITY, SECURITY_GUARD" scenario="Guard" 
+	    shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" backupSpawnInterval="60">
+		<SpawnPoint type="ped" interior="true">
+			<Position x="231.47" y="211.58" z="105.46" />
+			<Heading>118.47</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="228.68" y="217.47" z="105.55" />
+			<Heading>123.45</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="242.71" y="210.64" z="106.29" />
+			<Heading>9.79</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="238.56" y="221.14" z="106.29" />
+			<Heading>314.65</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="234.21" y="224.60" z="110.28" />
+			<Heading>254.16</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="236.84" y="212.37" z="110.28" />
+			<Heading>331.68</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="252.45" y="207.24" z="110.28" />
+			<Heading>338.84</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="267.42" y="219.39" z="110.28" />
+			<Heading>57.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="256.61" y="224.10" z="101.88" />
+			<Heading>348.15</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="252.10" y="225.41" z="101.68" />
+			<Heading>352.06</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="248.78" y="230.34" z="106.29" />
+			<Heading>172.77</Heading>
+		</SpawnPoint>
+	</Area>
+	
+    <Area name="FranklinHouse" model="families_guard" respects="FRANKLIN, MICHAEL, MICHAEL_GUARD" scenario="Guard" 
+	    shiftEnabled="true" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200" backupSpawnInterval="45">
+		<BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>	 
+		<SpawnPoint type="ped" interior="true">
+			<Position x="3.65" y="531.43" z="175.34" />
+			<Heading>322.31</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="7.08" y="542.04" z="176.03" />
+			<Heading>312.99</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="15.96" y="544.14" z="176.03" />
+			<Heading>38.08</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="ped" interior="true">
+			<Position x="19.66" y="550.21" z="176.21" />
+			<Heading>64.93</Heading>
+		</SpawnPoint>
+		<SpawnPoint type="vehicle">
+			<Position x="8.52" y="560.24" z="176.21" />
+			<Heading>123.90</Heading>
+		</SpawnPoint>
+	</Area>
+	
+	<Area name="FranklinHouseSide" model="sexyhoes_grp" respects="sexyhoes" scenario="Ambient" 
+          shiftEnabled="false" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+		<BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>	 
+		  <SpawnPoint type="ped">
+    <Position x="48.17" y="559.66" z="180.18" />
+    <Heading>29.86</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="55.46" y="562.73" z="180.42" />
+    <Heading>29.24</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="53.54" y="566.15" z="180.48" />
+    <Heading>31.09</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="49.04" y="565.13" z="180.19" />
+    <Heading>10.06</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="50.12" y="562.15" z="179.61" />
+    <Heading>238.91</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="49.90" y="579.46" z="181.61" />
+    <Heading>45.73</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="41.23" y="583.04" z="182.79" />
+    <Heading>226.58</Heading>
+  </SpawnPoint>
+
+	</Area>
+	
+	<Area name="FranklinaHouseSide" model="sexyhoes_grps" respects="sexyhoess" scenario="Ambient" 
+          shiftEnabled="false" shiftDuration="6-12,12-18,18-2,2-6" allowsBackup="true" charges="200">
+		<BackupFees>
+			<Aerial cost="3000" cooldown="20" />
+			<Airstrike cost="25000" cooldown="20" />
+			<Ground cost="8000" cooldown="20" />
+		</BackupFees>	 
+		  
+  <SpawnPoint type="ped">
+    <Position x="29.63" y="550.77" z="178.37" />
+    <Heading>22.31</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="29.09" y="552.07" z="178.39" />
+    <Heading>22.32</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="28.28" y="553.99" z="178.41" />
+    <Heading>13.62</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="30.44" y="554.81" z="178.39" />
+    <Heading>287.30</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="33.57" y="555.92" z="178.82" />
+    <Heading>287.30</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="36.79" y="557.69" z="179.20" />
+    <Heading>294.85</Heading>
+  </SpawnPoint>
+
+	</Area>
+	
+</Areas>

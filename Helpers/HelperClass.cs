@@ -1,4 +1,4 @@
-﻿using GTA.Native;
+using GTA.Native;
 using GTA;
 using System;
 using System.Collections.Generic;
@@ -6,84 +6,62 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GTA.Math;
-using static VehicleExtensions;
+using System.Text.RegularExpressions;
+
 
 public static class HelperClass
 {
-    public static int GetWeaponComponentExtraCount(this WeaponComponent component, WeaponHash weapon)
+
+    #region Shared Resources and Caching
+    // Consolidated random instance
+    public static readonly Random SharedRandom = new Random();
+    [Obsolete("Use SharedRandom instead")]
+    public static readonly Random rand = SharedRandom; // Backward compatibility
+
+    // Hash caching for performance
+    private static readonly Dictionary<string, uint> _hashCache = new Dictionary<string, uint>();
+    private static readonly Dictionary<string, Model> _modelCache = new Dictionary<string, Model>();
+
+    // Reusable OutputArguments to reduce allocations
+    private static readonly OutputArgument _reusableOutputArg = new OutputArgument();
+    private static readonly OutputArgument _reusableOutputArg2 = new OutputArgument();
+    #endregion
+
+    #region Utility Methods with Caching
+    private static uint GetHashCached(string input)
     {
-        return Function.Call<int>(Hash.GET_WEAPON_COMPONENT_VARIANT_EXTRA_COUNT, weapon);
-    }
-    public static bool IsTaskActive(this Ped ped, PedTask taskId)
-    {
-        return Function.Call<bool>(Hash.GET_IS_TASK_ACTIVE, new InputArgument[2]
+        if (!_hashCache.TryGetValue(input, out uint hash))
         {
-            ped.Handle,
-            (int)taskId
-        });
-    }
-    public static void SetPedCycleVehicleWeapon(this Ped ped)
-    {
-        Function.Call(Hash.SET_PED_CYCLE_VEHICLE_WEAPONS_ONLY, ped);
-    }
-    public static void GiveWeaponWithComponent(this WeaponHash weap, Ped ped, WeaponComponentHash component)
-    {
-        Function.Call(Hash.GIVE_WEAPON_COMPONENT_TO_PED, ped, weap, component);
+            hash = (uint)Function.Call<int>(Hash.GET_HASH_KEY, input);
+            _hashCache[input] = hash;
+        }
+        return hash;
     }
 
-    public static void RemoveWeaponWithComponent(this WeaponHash weap, Ped ped, WeaponComponentHash component)
+    private static Model GetModelCached(string modelName)
     {
-        Function.Call(Hash.REMOVE_WEAPON_COMPONENT_FROM_PED, ped, weap, component);
+        if (!_modelCache.TryGetValue(modelName, out Model model))
+        {
+            model = new Model(modelName);
+            _modelCache[modelName] = model;
+        }
+        return model;
     }
 
-    public static void GiveSpecialAmmo(this WeaponHash weap, Ped ped, string ammotype)
+    public static Vector3 GetCrosshairCoords()
     {
-        Function.Call(Hash.ADD_PED_AMMO_BY_TYPE, ped, StringHash.AtStringHash(ammotype));
-    }
-    public static bool PlaceOnGround(this Prop prop)
-    {
-        return Function.Call<bool>(Hash.PLACE_OBJECT_ON_GROUND_PROPERLY, new InputArgument[1] { prop.Handle });
-    }
-
-    public static void ForceVehiclesToAvoid(this Prop prop, bool toggle)
-    {
-        Function.Call(Hash.SET_OBJECT_FORCE_VEHICLES_TO_AVOID, prop.Handle, toggle);
-    }
-    public static Relationship GetRelationshipBetweenGroups(int group1, int group2)
-    {
-        return (Relationship)Function.Call<int>(Hash.GET_RELATIONSHIP_BETWEEN_GROUPS, group1, group2);
+        try
+        {
+            Logger.Log.Info("Getting Crosshair Coordinates!!");
+            return World.Raycast(GameplayCamera.Position, GameplayCamera.Direction, 1000f, IntersectFlags.Everything, Game.Player.Character).HitPosition;
+        }
+        catch (Exception ex)
+        {
+            Logger.Log.Error($"Error getting crosshair coordinates: {ex.Message}");
+            return Vector3.Zero;
+        }
     }
 
-    // Set the relationship between two groups
-    public static void SetRelationshipBetweenGroups(Relationship relationship, int group1, int group2)
-    {
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group1, group2);
-        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group2, group1);
-    }
-
-    public static Vector3 GetHeliSpawnCoordinates(this Ped ped)
-    {
-        return Function.Call<Vector3>(Hash.FIND_SPAWN_COORDINATES_FOR_HELI, ped);
-    }
-
-    public static void StandGuard(this Ped ped, Vector3 defend, float heading, string anim_scenario)
-    {
-        Function.Call(Hash.TASK_STAND_GUARD, ped, defend.X, defend.Y, defend.Z, heading, anim_scenario);
-    }
-    public static void GuardCurrentPosition(this Ped ped, bool defensive)
-    {
-        Function.Call(Hash.TASK_GUARD_CURRENT_POSITION, ped, 40f, 35f, defensive);
-    }
-
-    public static void SetDriverAbility(this Ped p, float value)
-    {
-        Function.Call(Hash.SET_DRIVER_ABILITY, p, value);
-    }
-    public static void AssignDefaultTask(this Ped ped)
-    {
-        Function.Call(Hash.CLEAR_DEFAULT_PRIMARY_TASK, ped.Handle);
-    }
-    // Functions - 3. Functions
     public static void Subtitle(string msg)
     {
         GTA.UI.Screen.ShowSubtitle(msg);
@@ -94,255 +72,261 @@ public static class HelperClass
         GTA.UI.Notification.PostTicker(msg, false);
     }
 
-    public static Vehicle CreateVehicle(VehicleInformation info, Vector3 pos, float head)
+    public static float GetRandomFloat(double min, double max)
+    {
+        return (float)(SharedRandom.NextDouble() * (max - min) + min);
+    }
+
+    public static double GetDouble()
+    {
+        return SharedRandom.NextDouble();
+    }
+
+    public static bool GetBool()
+    {
+        return GetDouble() >= 0.5;
+    }
+
+    public static Vector3 RandomPointInsideCircle(Vector3 center, float radius)
+    {
+        double distance = (double)radius * Math.Sqrt(GetDouble());
+        double angle = GetDouble() * 2.0 * Math.PI;
+        return new Vector3(center.X + (float)(distance * Math.Cos(angle)), center.Y + (float)(distance * Math.Sin(angle)), center.Z);
+    }
+
+    public static float NormalizeAngle(float value)
+    {
+        const float fullCircle = 360f;
+        return value - (float)Math.Floor(value / fullCircle) * fullCircle;
+    }
+
+    public static Vector3 GetPointBetweenTwoVectors(Vector3 start, Vector3 end, float ratio)
+    {
+        return new Vector3(
+            start.X + (end.X - start.X) * ratio,
+            start.Y + (end.Y - start.Y) * ratio,
+            start.Z + (end.Z - start.Z) * ratio
+        );
+    }
+
+    public static float GetAngleBetweenTwoPoints(Vector3 source, Vector3 target)
+    {
+        return (target - source).Normalized.ToHeading();
+    }
+    #endregion
+
+    #region Ped Extensions with Error Handling
+    public static int GetLastDamageBone(this Ped ped)
     {
         try
         {
-            if (info == null) throw new Exception("Invalid Vehicle Information");
-            var v = World.CreateVehicle(info.VehicleDetails.Name, pos, head);
-
-            if (v != null) // Ensure vehicle creation was successful
-            {
-                v.InstallModKit(); //install modkit first
-
-                //// Apply Vehicle Mods
-                //if (info.VehicleDetails.VehicleMods != null && info.VehicleDetails.VehicleMods.Count > 0)
-                //{
-                //    foreach (var mod in info.VehicleDetails.VehicleMods)
-                //    {
-                //        if (TryParseModType(mod.Type, out ModType modTypeEnum)) //Convert string to ModType enum
-                //        {
-                //            v.SetVehicleMod(modTypeEnum, mod.Index, false); // Apply each mod
-                //        }
-                //        else
-                //        {
-                //            // Handle invalid ModType string if needed, e.g., log an error
-                //            //Game.Console.output($"[WARNING] Invalid ModType string: {mod.Type}");
-                //        }
-                //    }
-                //}
-
-                //// Apply Vehicle Liveries
-                //if (info.VehicleDetails.VehicleLiveries != null && info.VehicleDetails.VehicleLiveries.Count > 0)
-                //{
-                //    foreach (var livery in info.VehicleDetails.VehicleLiveries)
-                //    {
-                //        if (livery.Set == "Livery")
-                //        {
-                //            v.SetLivery(0, livery.Index); // Apply Livery
-                //        }
-                //        else if (livery.Set == "Livery2")
-                //        {
-                //            v.SetLivery(1, livery.Index); // Apply Livery2
-                //        }
-                //        else
-                //        {
-                //            // Handle invalid Livery set string if needed, e.g., log a warning
-                //            //Game.Console.output($"[WARNING] Invalid Livery Set string: {livery.Set}");
-                //        }
-                //    }
-                //}
-
-
-                //if (info.VehicleDetails.VehicleHealth.Engine.HasValue) v.EngineHealth = info.VehicleDetails.VehicleHealth.Engine.Value;
-                //if (info.VehicleDetails.VehicleHealth.Body.HasValue) v.BodyHealth = info.VehicleDetails.VehicleHealth.Body.Value;
-                //if (info.VehicleDetails.VehicleHealth.Petrol.HasValue) v.PetrolTankHealth = info.VehicleDetails.VehicleHealth.Petrol.Value;
-
-                //// Apply Vehicle Weapons (Placeholder - Implementation Needed) - to be applied during Peds Initialization.
-                //if (info.VehicleDetails.VehicleWeaponDetailsList != null && info.VehicleDetails.VehicleWeaponDetailsList.Count > 0)
-                //{
-                //    // TODO: Implement vehicle weapon handling logic here
-                //    // This might involve attaching weapon entities to the vehicle,
-                //    // setting up weapon parameters, etc.
-                //    //Game.Console.output("[INFO] Vehicle Weapons configuration is not yet implemented in CreateVehicle function.");
-                //}
-
-                var p = v.CreatePed(info.PilotInfo.PilotModelList[new Random().Next(0, info.SoldierInfo.SoldierModels.Count)], info.SoldierInfo.WeaponInfoList[new Random().Next(0, info.SoldierInfo.WeaponInfoList.Count)], VehicleSeat.Driver, PedType.Cop);
-
-                //AIManager.Cops.Add(p); // Add driver to Cops list in AIManager
-                for (int i = 0; i < v.PassengerCapacity-1; i++)
-                {
-                    var ped = v.CreatePed(info.SoldierInfo.SoldierModels[new Random().Next(0, info.SoldierInfo.SoldierModels.Count)], info.SoldierInfo.WeaponInfoList[new Random().Next(0, info.SoldierInfo.WeaponInfoList.Count)], (VehicleSeat)i, PedType.Cop);
-                    //AIManager.Cops.Add(ped);
-                }
-            }
-            return v;
+            Function.Call<bool>(Hash.GET_PED_LAST_DAMAGE_BONE, ped, _reusableOutputArg);
+            return _reusableOutputArg.GetResult<int>();
         }
         catch (Exception ex)
         {
-            Notification($"{ex.Message}, {ex.InnerException}, {ex.StackTrace}");
-            return null; // Vehicle creation failed
-        } 
-        
+            Logger.Log.Error($"Error getting last damage bone: {ex.Message}");
+            return -1;
+        }
     }
 
-    public static Ped CreatePed(this Vehicle veh, string pedModelName, WeaponInformation info, VehicleSeat seat, PedType type)
+    public static void ClearLastDamageBone(this Ped ped)
     {
         try
         {
-            var pedModel = new Model(pedModelName);
-            pedModel.Request(1000);
-
-            if (!pedModel.IsValid || !pedModel.IsInCdImage)
-                throw new ArgumentException($"Invalid ped model: {pedModelName}");
-
-            var ped = Function.Call<Ped>(Hash.CREATE_PED_INSIDE_VEHICLE, veh, (int)type, pedModel, seat, 1, 1);
-            ped.Model.MarkAsNoLongerNeeded();
-            
-            ped.SetAsCop(true);
-
-            //ped.SetCombatAttribute(CombatAttributes.CanFightArmedPedsWhenNotArmed, true);
-            //ped.SetCombatAttribute(CombatAttributes.AlwaysFlee, false);
-            //ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, true);
-            ////ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);  //use this true for heli/plane
-            //if (veh.ClassType == VehicleClass.Helicopters || veh.ClassType == VehicleClass.Planes)
-            //{
-            //    ped.SetCombatAttribute(CombatAttributes.CanLeaveVehicle, false);
-            //    ped.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-            //    ped.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true);
-            //}
-            //ped.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-            //ped.SetCombatAttribute(CombatAttributes.RequiresLosToShoot, true);
-
-            //if (ped.PedType == PedType.Swat || ped.PedType == PedType.Army) ped.SetCombatAttribute(CombatAttributes.CanThrowSmokeGrenade, true); //use for swat/army type ped only
-
-            //if (veh.ClassType == VehicleClass.Boats)
-            //{
-            //    ped.SetCombatAttribute(CombatAttributes.CanSeeUnderwaterPeds, true);
-            //}
-
-            //ped.SetCombatAttribute(CombatAttributes.MoveToLocationBeforeCoverSearch, true);
-
-            //ped.SetCombatAttribute(CombatAttributes.PreferNonAircraftTargets, true); //for ground ones, non air peds.
-
-            //ped.SetCombatAttribute(CombatAttributes.CanDoDrivebys, true);
-            //ped.SetConfigFlag(PedConfigFlagToggles.CreatedByDispatch, true);
-            //ped.SetConfigFlag(PedConfigFlagToggles.LawWillOnlyAttackIfPlayerIsWanted, true);
-            //ped.SetConfigFlag(PedConfigFlagToggles.KeepRelationshipGroupAfterCleanUp, true);
-            //ped.PopulationType = EntityPopulationType.RandomAmbient;
-
-            if (seat != VehicleSeat.Driver)
-            {
-                if (info.SecondaryWeaponList != null)
-                {
-                    foreach (var gun in info.SecondaryWeaponList)
-                    {
-                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
-                        //component setups here.
-                    }
-                }
-                if (info.PrimaryWeaponList != null)
-                {
-                    foreach (var gun in info.PrimaryWeaponList)
-                    {
-                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
-                        
-                        //component setups here.
-                    }
-                }
-            }
-            else
-            {
-                if (info.PrimaryWeaponList != null)
-                {
-                    foreach (var gun in info.PrimaryWeaponList)
-                    {
-                        ped.Weapons.Give(gun.Name, gun.Ammo, true, true);
-                        //component setups here.
-                    }
-                }
-            }
-
-
-            return ped;
+            Function.Call(Hash.CLEAR_PED_LAST_DAMAGE_BONE, ped);
         }
         catch (Exception ex)
         {
-            Notification($"{ex.Message}, {ex.InnerException}, {ex.StackTrace}");
-            return null;
+            Logger.Log.Error($"Error clearing last damage bone: {ex.Message}");
         }
     }
 
-    public static Vector3 FindEmergencyLandingSpotForPed(Ped ped)
+    public static void PlayAmbientSpeech(this Ped ped, string speechFile, bool immediately)
     {
-        Vector3 position = ped.Position;
-        float approxHeightForPoint = World.GetApproxHeightForPoint(position);
-        Vector3 vector = RandomPointInsideCircle(ped.GetOffsetPosition(new Vector3(0f, Math.Max(position.Z - approxHeightForPoint, 50f), 0f)), 25f);
-        if (!World.GetSafePositionForPed(vector, out var safePosition, GetSafePositionFlags.NotInterior | GetSafePositionFlags.NotWater | GetSafePositionFlags.OnlyNetworkSpawn) && !World.GetSafePositionForPed(vector, out safePosition, GetSafePositionFlags.NotInterior | GetSafePositionFlags.OnlyNetworkSpawn))
+        try
         {
-            return vector;
+            if (immediately)
+            {
+                Function.Call(Hash.STOP_CURRENT_PLAYING_AMBIENT_SPEECH, ped);
+            }
+            Function.Call(Hash.SET_AUDIO_FLAG, "IsDirectorModeActive", 1);
+            Function.Call(Hash.PLAY_PED_AMBIENT_SPEECH_NATIVE, ped, speechFile, "SPEECH_PARAMS_FORCE");
+            Function.Call(Hash.SET_AUDIO_FLAG, "IsDirectorModeActive", 0);
         }
-        return safePosition;
-    }
-
-    public static Vector3 FindSearchPointForAutomobile(Vector3 vStartPosition, float fMaxRadius, bool bUseLastSeenPosition = false)
-    {
-        Vector3 position = RandomPointInsideCircle(vStartPosition, fMaxRadius);
-        if (bUseLastSeenPosition)
+        catch (Exception ex)
         {
-            Vector3 vector = Game.Player.WantedCenterPosition.Around(40f);
-            if (vector.DistanceTo2D(vStartPosition) < fMaxRadius)
-            {
-                position = vector;
-            }
-            else
-            {
-                Vector3 position2 = Game.Player.Character.Position;
-                float num = Math.Max(fMaxRadius / 2f, 120f);
-                position = GetPointBetweenTwoVectors(position2, vector, num / position2.DistanceTo2D(vector));
-            }
+            Logger.Log.Error($"Error playing ambient speech: {ex.Message}");
         }
-        return World.GetNextPositionOnStreet(position);
     }
 
-    public static Vector3 FindSearchPointForBoat(Vector3 vStartPosition, float fMaxRadius, bool bUseLastSeenPosition = false)
+    public static bool HasBeenDamagedByWeapon(this Ped ped, WeaponHash weapon)
     {
-        Vector3 result = RandomPointInsideCircle(vStartPosition, fMaxRadius);
-        if (bUseLastSeenPosition)
+        try
         {
-            Vector3 vector = Game.Player.WantedCenterPosition.Around(40f);
-            if (vector.DistanceTo2D(vStartPosition) < fMaxRadius)
-            {
-                result = vector;
-            }
-            else
-            {
-                Vector3 position = Game.Player.Character.Position;
-                float num = Math.Max(fMaxRadius / 2f, 120f);
-                result = GetPointBetweenTwoVectors(position, vector, num / position.DistanceTo2D(vector));
-            }
+            return Function.Call<bool>(Hash.HAS_PED_BEEN_DAMAGED_BY_WEAPON, ped, weapon.GetHashCode(), 0);
         }
-        result.Z = vStartPosition.Z;
-        if (GetWaterLevelNoWaves(new Vector3(result.X, result.Y, 200f), out var fHeight))
+        catch (Exception ex)
         {
-            result.Z = fHeight;
+            Logger.Log.Error($"Error checking weapon damage: {ex.Message}");
+            return false;
         }
-        return result;
     }
 
-    public static int GetWantedLevelThreshold(int wantedLvl)
+    public static void ClearLastWeaponDamage(this Ped ped)
     {
-        return Function.Call<int>(Hash.GET_WANTED_LEVEL_THRESHOLD, new InputArgument[1] { wantedLvl });
+        try
+        {
+            Function.Call(Hash.CLEAR_PED_LAST_WEAPON_DAMAGE, ped);
+        }
+        catch (Exception ex)
+        {
+            Logger.Log.Error($"Error clearing last weapon damage: {ex.Message}");
+        }
     }
 
-    public static int GetNumberOfResourcesAssignedToWantedLvl(DispatchType dispatchType)
+    public static bool IsTaskActive(this Ped ped, PedTask taskId)
     {
-        return Function.Call<int>(Hash.GET_NUMBER_RESOURCES_ALLOCATED_TO_WANTED_LEVEL, new InputArgument[1] { (int)dispatchType });
+        return Function.Call<bool>(Hash.GET_IS_TASK_ACTIVE, ped.Handle, (int)taskId);
     }
 
-    public static bool DoesScenarioExistInArea(Vector3 vSearchArea, float fRadius, bool bUnoccupied)
+    public static void SetPedCycleVehicleWeapon(this Ped ped)
     {
-        return Function.Call<bool>(Hash.DOES_SCENARIO_EXIST_IN_AREA, new InputArgument[5] { vSearchArea.X, vSearchArea.Y, vSearchArea.Z, fRadius, bUnoccupied });
+        Function.Call(Hash.SET_PED_CYCLE_VEHICLE_WEAPONS_ONLY, ped);
     }
 
-    public static bool IsSphereVisibleToPlayer(Vector3 vCenter, float fRadius)
+    public static void SetDriverAbility(this Ped ped, float value)
     {
-        return Function.Call<bool>(Hash.IS_SPHERE_VISIBLE, new InputArgument[4] { vCenter.X, vCenter.Y, vCenter.Z, fRadius });
+        Function.Call(Hash.SET_DRIVER_ABILITY, ped, value);
+    }
+
+    public static void AssignDefaultTask(this Ped ped)
+    {
+        Function.Call(Hash.CLEAR_DEFAULT_PRIMARY_TASK, ped.Handle);
+    }
+
+    public static void StandGuard(this Ped ped, Vector3 defend, float heading, string animScenario)
+    {
+        Function.Call(Hash.TASK_STAND_GUARD, ped, defend.X, defend.Y, defend.Z, heading, animScenario);
+    }
+
+    public static void GuardCurrentPosition(this Ped ped, bool defensive)
+    {
+        Function.Call(Hash.TASK_GUARD_CURRENT_POSITION, ped, 40f, 35f, defensive);
+    }
+    #endregion
+
+    #region Weapon Extensions with Cached Hashes
+    public static void GiveWeaponWithComponent(this WeaponHash weapon, Ped ped, WeaponComponentHash component)
+    {
+        Function.Call(Hash.GIVE_WEAPON_COMPONENT_TO_PED, ped, weapon, component);
+    }
+
+    public static void RemoveWeaponWithComponent(this WeaponHash weapon, Ped ped, WeaponComponentHash component)
+    {
+        Function.Call(Hash.REMOVE_WEAPON_COMPONENT_FROM_PED, ped, weapon, component);
+    }
+
+    public static void GiveSpecialAmmo(this WeaponHash weapon, Ped ped, string ammoType)
+    {
+        Function.Call(Hash.ADD_PED_AMMO_BY_TYPE, ped, StringHash.AtStringHash(ammoType));
+    }
+
+    public static int GetWeaponComponentExtraCount(this WeaponComponent component, WeaponHash weapon)
+    {
+        return Function.Call<int>(Hash.GET_WEAPON_COMPONENT_VARIANT_EXTRA_COUNT, weapon);
+    }
+    #endregion
+
+    #region Prop Extensions
+    public static bool PlaceOnGround(this Prop prop)
+    {
+        return Function.Call<bool>(Hash.PLACE_OBJECT_ON_GROUND_PROPERLY, prop.Handle);
+    }
+
+    public static void ForceVehiclesToAvoid(this Prop prop, bool toggle)
+    {
+        Function.Call(Hash.SET_OBJECT_FORCE_VEHICLES_TO_AVOID, prop.Handle, toggle);
+    }
+    #endregion
+
+    #region Relationship Management
+    public static Relationship GetRelationshipBetweenGroups(int group1, int group2)
+    {
+        return (Relationship)Function.Call<int>(Hash.GET_RELATIONSHIP_BETWEEN_GROUPS, group1, group2);
+    }
+
+    public static void SetRelationshipBetweenGroups(Relationship relationship, int group1, int group2)
+    {
+        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group1, group2);
+        Function.Call(Hash.SET_RELATIONSHIP_BETWEEN_GROUPS, (int)relationship, group2, group1);
+    }
+    #endregion
+
+
+    #region Water and Height Utilities with Reusable OutputArguments
+    public static float GetWaterHeight(Vector3 position)
+    {
+        try
+        {
+            Function.Call(Hash.GET_WATER_HEIGHT, position.X, position.Y, position.Z, _reusableOutputArg);
+            return _reusableOutputArg.GetResult<float>();
+        }
+        catch (Exception ex)
+        {
+            Logger.Log.Fatal($"GetWaterHeight error: {ex.Message}");
+            return 0f;
+        }
+    }
+
+    public static unsafe bool GetWaterLevelNoWaves(Vector3 startPoint, out float height)
+    {
+        height = 0f;
+        try
+        {
+            if (Function.Call<bool>(Hash.GET_WATER_HEIGHT_NO_WAVES, startPoint.X, startPoint.Y, startPoint.Z, _reusableOutputArg))
+            {
+                height = _reusableOutputArg.GetResult<float>();
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Log.Error($"GetWaterLevelNoWaves error: {ex.Message}");
+        }
+        return false;
+    }
+    #endregion
+
+    #region Native Function Utilities with Optimized OutputArguments
+    public static Vector3 GetHeliSpawnCoordinates(this Ped ped)
+    {
+        return Function.Call<Vector3>(Hash.FIND_SPAWN_COORDINATES_FOR_HELI, ped);
+    }
+
+    public static int GetWantedLevelThreshold(int wantedLevel)
+    {
+        return Function.Call<int>(Hash.GET_WANTED_LEVEL_THRESHOLD, wantedLevel);
+    }
+
+    public static int GetNumberOfResourcesAssignedToWantedLevel(DispatchType dispatchType)
+    {
+        return Function.Call<int>(Hash.GET_NUMBER_RESOURCES_ALLOCATED_TO_WANTED_LEVEL, (int)dispatchType);
+    }
+
+    public static bool DoesScenarioExistInArea(Vector3 searchArea, float radius, bool unoccupied)
+    {
+        return Function.Call<bool>(Hash.DOES_SCENARIO_EXIST_IN_AREA, searchArea.X, searchArea.Y, searchArea.Z, radius, unoccupied);
+    }
+
+    public static bool IsSphereVisibleToPlayer(Vector3 center, float radius)
+    {
+        return Function.Call<bool>(Hash.IS_SPHERE_VISIBLE, center.X, center.Y, center.Z, radius);
     }
 
     public static int AddSpeedZone(Vector3 position, float radius, float speed, bool affectsMissionVehs = false)
     {
-        return Function.Call<int>(Hash.ADD_ROAD_NODE_SPEED_ZONE, new InputArgument[6] { position.X, position.Y, position.Z, radius, speed, affectsMissionVehs });
+        return Function.Call<int>(Hash.ADD_ROAD_NODE_SPEED_ZONE, position.X, position.Y, position.Z, radius, speed, affectsMissionVehs);
     }
 
     public static void RemoveSpeedZone(int id)
@@ -350,389 +334,362 @@ public static class HelperClass
         Function.Call(Hash.REMOVE_ROAD_NODE_SPEED_ZONE, id);
     }
 
-    //use OutputArgument instead of NativeVector3 thingy (original ScriptHookVDotNet way
-    public static unsafe bool FindSpawnPointInDirection(Vector3 vPosition, Vector3 vDirection, float fIdealDistance, out Vector3 vSpawnPoint)
+    public static unsafe bool FindSpawnPointInDirection(Vector3 position, Vector3 direction, float idealDistance, out Vector3 spawnPoint)
     {
-        OutputArgument nativeVector = new OutputArgument();
-        if (Function.Call<bool>(Hash.FIND_SPAWN_POINT_IN_DIRECTION, new InputArgument[8]
+        if (Function.Call<bool>(Hash.FIND_SPAWN_POINT_IN_DIRECTION,
+            position.X, position.Y, position.Z,
+            direction.X, direction.Y, direction.Z,
+            idealDistance, _reusableOutputArg))
         {
-                vPosition.X,
-                vPosition.Y,
-                vPosition.Z,
-                vDirection.X,
-                vDirection.Y,
-                vDirection.Z,
-                fIdealDistance,
-                nativeVector
-        }))
-        {
-            vSpawnPoint = nativeVector.GetResult<Vector3>();
+            spawnPoint = _reusableOutputArg.GetResult<Vector3>();
             return true;
         }
-        vSpawnPoint = Vector3.Zero;
+        spawnPoint = Vector3.Zero;
         return false;
     }
 
-    public static unsafe bool GetWaterLevelNoWaves(Vector3 vStartPoint, out float fHeight)
+    public static unsafe void GetSpawnCoordsForVehicleNode(int nodeAddress, Vector3 targetDirection, out Vector3 spawnPosition, out float heading)
     {
-        fHeight = 0f;
-        OutputArgument num = new OutputArgument();
-        if (Function.Call<bool>(Hash.GET_WATER_HEIGHT_NO_WAVES, new InputArgument[4]
-        {
-                vStartPoint.X,
-                vStartPoint.Y,
-                vStartPoint.Z,
-                num
-        }))
-        {
-            fHeight = num.GetResult<float>();
-            return true;
-        }
-        return false;
+        Function.Call(Hash.GET_SPAWN_COORDS_FOR_VEHICLE_NODE, nodeAddress,
+            targetDirection.X, targetDirection.Y, targetDirection.Z,
+            _reusableOutputArg, _reusableOutputArg2);
+        spawnPosition = _reusableOutputArg.GetResult<Vector3>();
+        heading = _reusableOutputArg2.GetResult<float>();
     }
 
-    public static unsafe void GetSpawnCoordsForVehicleNode(int iNodeAddress, Vector3 vTargetDirection, out Vector3 vSpawnPosition, out float fHeading)
-    {//same thing OutputArguemnt
-        OutputArgument nativeVector = new OutputArgument();
-        OutputArgument num = new OutputArgument();
-        Function.Call(Hash.GET_SPAWN_COORDS_FOR_VEHICLE_NODE, iNodeAddress, vTargetDirection.X, vTargetDirection.Y, vTargetDirection.Z, nativeVector, num);
-        vSpawnPosition = nativeVector.GetResult<Vector3>();
-        fHeading = num.GetResult<float>();
-    }
+    public static unsafe bool GetRandomVehicleNode(Vector3 center, float radius, int minLanes, bool avoidDeadEnds, bool avoidHighways, out Vector3 nodePosition, out int nodeAddress)
+    {
+        nodeAddress = 0;
+        nodePosition = Vector3.Zero;
 
-    public static unsafe bool GetRandomVehicleNode(Vector3 vCenter, float fRadius, int iMinLanes, bool bAvoidDeadEnds, bool bAvoidHighways, out Vector3 vNodePosition, out int iNodeAddress)
-    { //here as well OutputArg
-        iNodeAddress = 0;
-        vNodePosition = Vector3.Zero;
-        OutputArgument num = new OutputArgument();
-        OutputArgument nativeVector = new OutputArgument();
-        if (Function.Call<bool>(Hash.GET_RANDOM_VEHICLE_NODE, new InputArgument[9]
+        if (Function.Call<bool>(Hash.GET_RANDOM_VEHICLE_NODE,
+            center.X, center.Y, center.Z, radius, minLanes, avoidDeadEnds, avoidHighways,
+            _reusableOutputArg, _reusableOutputArg2))
         {
-                vCenter.X,
-                vCenter.Y,
-                vCenter.Z,
-                fRadius,
-                iMinLanes,
-                bAvoidDeadEnds,
-                bAvoidHighways,
-                nativeVector,
-                num
-        }))
-        {
-            iNodeAddress = num.GetResult<int>();
-            vNodePosition = nativeVector.GetResult<Vector3>();
+            nodePosition = _reusableOutputArg.GetResult<Vector3>();
+            nodeAddress = _reusableOutputArg2.GetResult<int>();
             return true;
         }
         return false;
     }
-    public static Vector3 FindSearchPointForHelicopter(Vector3 vStartPosition, float fMaxRadius, float fHeight, bool bUseLastSeenPosition = false)
+    #endregion
+
+    #region Search Point Methods with Consistent Random Usage
+    public static Vector3 FindSearchPointForAutomobile(Vector3 startPosition, float maxRadius, bool useLastSeenPosition = false)
     {
-        Vector3 result = RandomPointInsideCircle(vStartPosition, fMaxRadius);
-        if (bUseLastSeenPosition)
+        Vector3 position = RandomPointInsideCircle(startPosition, maxRadius);
+        if (useLastSeenPosition)
         {
-            Vector3 vector = Game.Player.WantedCenterPosition.Around(40f);
-            if (vector.DistanceTo2D(vStartPosition) < fMaxRadius)
+            Vector3 lastKnown = ImportantChecks.LastKnownLocation.Around(20);
+            if (lastKnown.DistanceTo2D(startPosition) < maxRadius)
             {
-                result = vector;
+                position = lastKnown;
             }
             else
             {
-                Vector3 position = Game.Player.Character.Position;
-                float num = Math.Max(fMaxRadius / 2f, 120f);
-                result = GetPointBetweenTwoVectors(position, vector, num / position.DistanceTo2D(vector));
+                Vector3 playerPos = Game.Player.Character.Position;
+                float distance = Math.Max(maxRadius / 2f, 120f);
+                position = GetPointBetweenTwoVectors(playerPos, lastKnown, distance / playerPos.DistanceTo2D(lastKnown));
             }
         }
-        result.Z += fHeight;
-        return result;
+        return World.GetNextPositionOnStreet(position);
     }
 
-    public static Vector3 FindSearchPointForPlane(Vector3 vStartPosition, float fMaxRadius, float fHeight, bool bUseLastSeenPosition = false)
+    public static Vector3 FindSearchPointForBoat(Vector3 startPosition, float maxRadius, bool useLastSeenPosition = false)
     {
-        Vector3 result = FindSearchPointForHelicopter(vStartPosition, fMaxRadius, fHeight, bUseLastSeenPosition);
-        Vector3 vector = new Vector3(result.X, result.Y, 1000f);
-        if (!World.GetGroundHeight(vector, out var height, GetGroundHeightMode.ConsiderWaterAsGroundNoWaves))
+        Vector3 result = RandomPointInsideCircle(startPosition, maxRadius);
+        if (useLastSeenPosition)
         {
-            height = World.GetApproxHeightForPoint(vector);
-        }
-        result.Z = Math.Max(height + fHeight, result.Z);
-        return result;
-    }
-
-    public static Vector3 FindSearchPointForSubmarine(Vector3 vStartPosition, float fMaxRadius, bool bUseLastSeenPosition = false)
-    {
-        Vector3 result = RandomPointInsideCircle(vStartPosition, fMaxRadius);
-        if (bUseLastSeenPosition)
-        {
-            Vector3 vector = Game.Player.WantedCenterPosition.Around(40f);
-            if (vector.DistanceTo2D(vStartPosition) < fMaxRadius)
+            Vector3 lastKnown = ImportantChecks.LastKnownLocation.Around(50);
+            if (lastKnown.DistanceTo2D(startPosition) < maxRadius)
             {
-                result = vector;
+                result = lastKnown;
             }
             else
             {
-                Vector3 position = Game.Player.Character.Position;
-                float num = Math.Max(fMaxRadius / 2f, 120f);
-                result = GetPointBetweenTwoVectors(position, vector, num / position.DistanceTo2D(vector));
+                Vector3 playerPos = Game.Player.Character.Position;
+                float distance = Math.Max(maxRadius / 2f, 120f);
+                result = GetPointBetweenTwoVectors(playerPos, lastKnown, distance / playerPos.DistanceTo2D(lastKnown));
             }
         }
-        Vector3 vector2 = new Vector3(result.X, result.Y, 200f);
-        if (!GetWaterLevelNoWaves(vector2, out var fHeight))
+        result.Z = startPosition.Z;
+        if (GetWaterLevelNoWaves(new Vector3(result.X, result.Y, 200f), out var waterHeight))
+        {
+            result.Z = waterHeight;
+        }
+        return result;
+    }
+
+    public static Vector3 FindSearchPointForHelicopter(Vector3 startPosition, float maxRadius, float height, bool useLastSeenPosition = false)
+    {
+        Vector3 result = RandomPointInsideCircle(startPosition, maxRadius);
+        if (useLastSeenPosition)
+        {
+            Vector3 lastKnown = ImportantChecks.LastKnownLocation.Around(60);
+            if (lastKnown.DistanceTo2D(startPosition) < maxRadius)
+            {
+                result = lastKnown;
+            }
+            else
+            {
+                Vector3 playerPos = Game.Player.Character.Position;
+                float distance = Math.Max(maxRadius / 2f, 120f);
+                result = GetPointBetweenTwoVectors(playerPos, lastKnown, distance / playerPos.DistanceTo2D(lastKnown));
+            }
+        }
+        result.Z += height;
+        return result;
+    }
+
+    public static Vector3 FindSearchPointForPlane(Vector3 startPosition, float maxRadius, float height, bool useLastSeenPosition = false)
+    {
+        Vector3 result = FindSearchPointForHelicopter(startPosition, maxRadius, height, useLastSeenPosition);
+        Vector3 testPoint = new Vector3(result.X, result.Y, 1000f);
+        if (!World.GetGroundHeight(testPoint, out var groundHeight, GetGroundHeightMode.ConsiderWaterAsGroundNoWaves))
+        {
+            groundHeight = World.GetApproxHeightForPoint(testPoint);
+        }
+        result.Z = Math.Max(groundHeight + height, result.Z);
+        return result;
+    }
+
+    public static Vector3 FindSearchPointForSubmarine(Vector3 startPosition, float maxRadius, bool useLastSeenPosition = false)
+    {
+        Vector3 result = RandomPointInsideCircle(startPosition, maxRadius);
+        if (useLastSeenPosition)
+        {
+            Vector3 lastKnown = ImportantChecks.LastKnownLocation.Around(50f) + Vector3.WorldDown * 20;
+            if (lastKnown.DistanceTo2D(startPosition) < maxRadius)
+            {
+                result = lastKnown;
+            }
+            else
+            {
+                Vector3 playerPos = Game.Player.Character.Position;
+                float distance = Math.Max(maxRadius / 2f, 120f);
+                result = GetPointBetweenTwoVectors(playerPos, lastKnown, distance / playerPos.DistanceTo2D(lastKnown));
+            }
+        }
+        Vector3 testPoint = new Vector3(result.X, result.Y, 200f);
+        if (!GetWaterLevelNoWaves(testPoint, out var waterHeight))
         {
             return Vector3.Zero;
         }
-        result.Z = Math.Min(result.Z, fHeight - 10f);
-        if (World.GetGroundHeight(vector2, out var height))
+        result.Z = Math.Min(result.Z, waterHeight - 10f);
+        if (World.GetGroundHeight(testPoint, out var groundHeight))
         {
-            result.Z = Math.Max(result.Z, height + 15f);
+            result.Z = Math.Max(result.Z, groundHeight + 15f);
         }
         return result;
     }
+    #endregion
 
-    public static bool FindSpawnPointForAutomobile(Ped pTarget, Vector3 vStartPosition, float fMinDistance, float fMaxDistance, out Vector3 vSpawnPoint, out float fSpawnHeading, int iMaxTries = 5)
+    #region Spawn Point Finding Methods with Optimized Performance
+
+    public static bool FindSpawnPointForAutomobile(Ped target, Vector3 startPosition, float minDistance, float maxDistance, out Vector3 spawnPoint, out float spawnHeading, int maxTries = 5)
     {
-        float speed = pTarget.Speed;
-        Vector3 position = pTarget.Position;
+        float speed = target.Speed;
+        Vector3 targetPos = target.Position;
+
         if (speed >= 14f)
         {
-            Vector2 vector = pTarget.Velocity;
-            fSpawnHeading = 0f;
-            vSpawnPoint = Vector3.Zero;
-            for (int i = 0; i < iMaxTries; i++)
-            {
-                if (!FindSpawnPointInDirection(vStartPosition, new Vector3(vector.X, vector.Y, 0f), GetRandomFloat(fMinDistance, fMaxDistance), out var vSpawnPoint2))
-                {
-                    continue;
-                }
-                ShapeTestHandle shapeTestHandle = ShapeTest.StartTestCapsule(vSpawnPoint2, vSpawnPoint2, 5f, IntersectFlags.Vehicles);
-                ShapeTestStatus shapeTestStatus = ShapeTestStatus.NonExistent;
-                ShapeTestResult result = default;
-                if (!shapeTestHandle.IsRequestFailed)
-                {
-                    while ((shapeTestStatus = shapeTestHandle.GetResult(out result)) == ShapeTestStatus.NonExistent)
-                    {
-                        Script.Yield();
-                    }
-                }
-                if (shapeTestStatus == ShapeTestStatus.Ready && !result.DidHit)
-                {
-                    vSpawnPoint = vSpawnPoint2;
-                    if (!IsSphereVisibleToPlayer(vSpawnPoint2, 5f))
-                    {
-                        break;
-                    }
-                }
-            }
-            if (vSpawnPoint == Vector3.Zero)
-            {
-                return false;
-            }
-            fSpawnHeading = GetAngleBetweenTwoPoints(vSpawnPoint, position);
-            if (GetRandomVehicleNode(vSpawnPoint, 5f, 0, bAvoidDeadEnds: true, bAvoidHighways: false, out var _, out var iNodeAddress))
-            {
-                GetSpawnCoordsForVehicleNode(iNodeAddress, position, out var vSpawnPosition, out var fHeading);
-                if (vSpawnPosition != Vector3.Zero)
-                {
-                    vSpawnPoint = vSpawnPosition;
-                    fSpawnHeading = fHeading;
-                }
-            }
+            return FindSpawnPointForFastMovingTarget(target, startPosition, minDistance, maxDistance, out spawnPoint, out spawnHeading, maxTries);
         }
         else
         {
-            fSpawnHeading = 0f;
-            vSpawnPoint = Vector3.Zero;
-            int num = 0;
-            bool bAllowSwitchedOff = false;
-            PathNode pathNode = null;
-            while (num < iMaxTries)
+            return FindSpawnPointForSlowMovingTarget(target, startPosition, minDistance, maxDistance, out spawnPoint, out spawnHeading, maxTries);
+        }
+    }
+
+    private static bool FindSpawnPointForFastMovingTarget(Ped target, Vector3 startPosition, float minDistance, float maxDistance, out Vector3 spawnPoint, out float spawnHeading, int maxTries)
+    {
+        Vector2 velocity = target.Velocity;
+        spawnHeading = 0f;
+        spawnPoint = Vector3.Zero;
+
+        for (int i = 0; i < maxTries; i++)
+        {
+            if (!FindSpawnPointInDirection(startPosition, new Vector3(velocity.X, velocity.Y, 0f), GetRandomFloat(minDistance, maxDistance), out var candidateSpawn))
             {
-                if ((pathNode = PathFind.GetClosestVehicleNode(vStartPosition.Around(GetRandomFloat(fMinDistance, fMaxDistance)), fMaxDistance, (flags) => bAllowSwitchedOff || !flags.HasFlag(VehiclePathNodePropertyFlags.SwitchedOff) && !flags.HasFlag(VehiclePathNodePropertyFlags.Boat) && !flags.HasFlag(VehiclePathNodePropertyFlags.LeadsToDeadEnd))) != null)
-                {
-                    Vector3 position2 = pathNode.Position;
-                    ShapeTestHandle shapeTestHandle2 = ShapeTest.StartTestCapsule(position2, position2, 5f, IntersectFlags.Vehicles);
-                    ShapeTestStatus shapeTestStatus2 = ShapeTestStatus.NonExistent;
-                    ShapeTestResult result2 = default;
-                    if (!shapeTestHandle2.IsRequestFailed)
-                    {
-                        while ((shapeTestStatus2 = shapeTestHandle2.GetResult(out result2)) == ShapeTestStatus.NonExistent)
-                        {
-                            Script.Yield();
-                        }
-                    }
-                    if (shapeTestStatus2 == ShapeTestStatus.Ready && !result2.DidHit)
-                    {
-                        vSpawnPoint = position2;
-                        if (!IsSphereVisibleToPlayer(position2, 5f))
-                        {
-                            break;
-                        }
-                    }
-                }
-                num++;
-                bAllowSwitchedOff = num > iMaxTries / 2;
+                continue;
             }
-            if (vSpawnPoint == Vector3.Zero)
+
+            if (IsSpawnPointValid(candidateSpawn))
             {
-                return false;
-            }
-            fSpawnHeading = GetAngleBetweenTwoPoints(vSpawnPoint, position);
-            GetSpawnCoordsForVehicleNode(pathNode.Handle, position, out var vSpawnPosition2, out var fHeading2);
-            if (vSpawnPosition2 != Vector3.Zero)
-            {
-                vSpawnPoint = vSpawnPosition2;
-                fSpawnHeading = fHeading2;
+                spawnPoint = candidateSpawn;
+                break;
             }
         }
+
+        if (spawnPoint == Vector3.Zero)
+            return false;
+
+        spawnHeading = GetAngleBetweenTwoPoints(spawnPoint, target.Position);
+        OptimizeSpawnPointWithVehicleNode(ref spawnPoint, ref spawnHeading, target.Position);
+
         return true;
     }
 
-    public static bool FindSpawnPointForAircraft(Ped pTarget, Vector3 vStartPosition, float fMinDistance, float fMaxDistance, float fHeight, out Vector3 vSpawnPoint, out float fSpawnHeading, int iMaxTries = 3)
+    private static bool FindSpawnPointForSlowMovingTarget(Ped target, Vector3 startPosition, float minDistance, float maxDistance, out Vector3 spawnPoint, out float spawnHeading, int maxTries)
     {
-        vSpawnPoint = Vector3.Zero;
-        for (int i = 0; i < iMaxTries; i++)
+        spawnHeading = 0f;
+        spawnPoint = Vector3.Zero;
+
+        int attempts = 0;
+        bool allowSwitchedOff = false;
+        PathNode pathNode = null;
+
+        while (attempts < maxTries)
         {
-            Vector3 vector = vStartPosition.Around(GetRandomFloat(fMinDistance, fMaxDistance));
-            float val = vector.Z + fHeight;
-            if (World.GetGroundHeight(new Vector3(vector.X, vector.Y, 1000f), out var height, GetGroundHeightMode.ConsiderWaterAsGroundNoWaves))
+            Vector3 searchPos = startPosition.Around(GetRandomFloat(minDistance, maxDistance));
+            pathNode = PathFind.GetClosestVehicleNode(searchPos, maxDistance,
+                (flags) => allowSwitchedOff || (!flags.HasFlag(VehiclePathNodePropertyFlags.SwitchedOff) &&
+                                              !flags.HasFlag(VehiclePathNodePropertyFlags.Boat) &&
+                                              !flags.HasFlag(VehiclePathNodePropertyFlags.LeadsToDeadEnd)));
+
+            if (pathNode != null)
             {
-                vector.Z = Math.Max(height + Math.Max(fHeight / 2f, 20f), val);
+                Vector3 nodePos = pathNode.Position;
+                if (IsSpawnPointValid(nodePos))
+                {
+                    spawnPoint = nodePos;
+                    break;
+                }
+            }
+
+            attempts++;
+            allowSwitchedOff = attempts > maxTries / 2;
+        }
+
+        if (spawnPoint == Vector3.Zero)
+            return false;
+
+        spawnHeading = GetAngleBetweenTwoPoints(spawnPoint, target.Position);
+        if (pathNode != null)
+        {
+            OptimizeSpawnPointWithVehicleNode(pathNode.Handle, ref spawnPoint, ref spawnHeading, target.Position);
+        }
+
+        return true;
+    }
+
+    private static bool IsSpawnPointValid(Vector3 position)
+    {
+        ShapeTestHandle shapeTest = ShapeTest.StartTestCapsule(position, position, 5f, IntersectFlags.Vehicles);
+        ShapeTestResult result;
+
+        while (shapeTest.GetResult(out result) == ShapeTestStatus.NonExistent)
+        {
+            Script.Yield();
+        }
+
+        return !result.DidHit && !IsSphereVisibleToPlayer(position, 5f);
+    }
+
+    private static void OptimizeSpawnPointWithVehicleNode(ref Vector3 spawnPoint, ref float spawnHeading, Vector3 targetPosition)
+    {
+        if (GetRandomVehicleNode(spawnPoint, 5f, 0, true, false, out _, out var nodeAddress))
+        {
+            GetSpawnCoordsForVehicleNode(nodeAddress, targetPosition, out var optimizedPos, out var optimizedHeading);
+            if (optimizedPos != Vector3.Zero)
+            {
+                spawnPoint = optimizedPos;
+                spawnHeading = optimizedHeading;
+            }
+        }
+    }
+
+    private static void OptimizeSpawnPointWithVehicleNode(int nodeHandle, ref Vector3 spawnPoint, ref float spawnHeading, Vector3 targetPosition)
+    {
+        GetSpawnCoordsForVehicleNode(nodeHandle, targetPosition, out var optimizedPos, out var optimizedHeading);
+        if (optimizedPos != Vector3.Zero)
+        {
+            spawnPoint = optimizedPos;
+            spawnHeading = optimizedHeading;
+        }
+    }
+
+    public static bool FindSpawnPointForAircraft(Ped target, Vector3 startPosition, float minDistance, float maxDistance, float height, out Vector3 spawnPoint, out float spawnHeading, int maxTries = 3)
+    {
+        spawnPoint = Vector3.Zero;
+
+        for (int i = 0; i < maxTries; i++)
+        {
+            Vector3 candidatePos = startPosition.Around(GetRandomFloat(minDistance, maxDistance));
+            float targetHeight = candidatePos.Z + height;
+
+            if (World.GetGroundHeight(new Vector3(candidatePos.X, candidatePos.Y, 1000f), out var groundHeight, GetGroundHeightMode.ConsiderWaterAsGroundNoWaves))
+            {
+                candidatePos.Z = Math.Max(groundHeight + Math.Max(height / 2f, 20f), targetHeight);
             }
             else
             {
-                float approxHeightForPoint = World.GetApproxHeightForPoint(vector);
-                vector.Z = Math.Max(approxHeightForPoint + Math.Max(fHeight / 2f, 20f), val);
+                float approxHeight = World.GetApproxHeightForPoint(candidatePos);
+                candidatePos.Z = Math.Max(approxHeight + Math.Max(height / 2f, 20f), targetHeight);
             }
-            vSpawnPoint = vector;
-            if (!IsSphereVisibleToPlayer(vector, 5f))
+
+            spawnPoint = candidatePos;
+            if (!IsSphereVisibleToPlayer(candidatePos, 5f))
             {
                 break;
             }
         }
-        fSpawnHeading = GetAngleBetweenTwoPoints(vSpawnPoint, pTarget.Position);
-        return vSpawnPoint != Vector3.Zero;
+
+        spawnHeading = GetAngleBetweenTwoPoints(spawnPoint, target.Position);
+        return spawnPoint != Vector3.Zero;
     }
 
-    public static bool FindSpawnPointForBoat(Ped pTarget, Vector3 vStartPosition, float fMinDistance, float fMaxDistance, out Vector3 vSpawnPoint, out float fSpawnHeading, int iMaxTries = 5)
+    public static bool FindSpawnPointForBoat(Ped target, Vector3 startPosition, float minDistance, float maxDistance, out Vector3 spawnPoint, out float spawnHeading, int maxTries = 30)
     {
-        vSpawnPoint = Vector3.Zero;
-        for (int i = 0; i < iMaxTries; i++)
+        spawnPoint = Vector3.Zero;
+
+        for (int i = 0; i < maxTries; i++)
         {
-            Vector3 vector = vStartPosition.Around(GetRandomFloat(fMinDistance, fMaxDistance));
-            if (GetWaterLevelNoWaves(new Vector3(vector.X, vector.Y, 200f), out var fHeight))
+            Vector3 candidatePos = startPosition.Around(GetRandomFloat(minDistance, maxDistance));
+            if (GetWaterLevelNoWaves(new Vector3(candidatePos.X, candidatePos.Y, 200f), out var waterHeight))
             {
-                if (!World.GetGroundHeight(new Vector3(vector.X, vector.Y, 1000f), out var height))
+                if (World.GetGroundHeight(new Vector3(candidatePos.X, candidatePos.Y, 1000f), out var groundHeight))
                 {
-                    height = World.GetApproxHeightForPoint(vSpawnPoint);
-                }
-                if (!(fHeight - height < 1f))
-                {
-                    vector.Z = fHeight;
-                    vSpawnPoint = vector;
-                    break;
+                    // Ensure sufficient water depth
+                    if (waterHeight - groundHeight >= 1f)
+                    {
+                        candidatePos.Z = waterHeight;
+                        spawnPoint = candidatePos;
+                        break;
+                    }
                 }
             }
         }
-        fSpawnHeading = GetAngleBetweenTwoPoints(vSpawnPoint, pTarget.Position);
-        return vSpawnPoint != Vector3.Zero;
+
+        spawnHeading = GetAngleBetweenTwoPoints(spawnPoint, target.Position);
+        return spawnPoint != Vector3.Zero;
     }
 
-    public static float NormalizeAngle(float value)
+    public static bool FindSpawnPointForSubmarine(Ped target, Vector3 startPosition, float minDistance, float maxDistance, out Vector3 spawnPoint, out float spawnHeading, int maxTries = 5)
     {
-        float num = 360f;
-        return value - (float)Math.Floor(value / num) * num;
-    }
+        spawnPoint = Vector3.Zero;
 
-    public static Vector3 GetPointBetweenTwoVectors(Vector3 start, Vector3 end, float ratio)
-    {
-        Vector3 result = new Vector3(start.X, start.Y, start.Z);
-        result.X = start.X > end.X ? result.X - Math.Abs(end.X - start.X) * ratio : result.X + Math.Abs(end.X - start.X) * ratio;
-        result.Y = start.Y > end.Y ? result.Y - Math.Abs(end.Y - start.Y) * ratio : result.Y + Math.Abs(end.Y - start.Y) * ratio;
-        result.Z = start.Z > end.Z ? result.Z - Math.Abs(end.Z - start.Z) * ratio : result.Z + Math.Abs(end.Z - start.Z) * ratio;
-        return result;
-    }
-
-    public static bool IsAnglePointLookingAtPoint(Vector3 positionSource, Vector3 targetPoint, float sourceXHeading, float sourceYHeading, float angleX, float angleY)
-    {
-        float angleBetweenTwo2DPoints = GetAngleBetweenTwo2DPoints(positionSource.X, positionSource.Y, targetPoint.X, targetPoint.Y);
-        float angleBetweenTwo2DPoints2 = GetAngleBetweenTwo2DPoints(positionSource.X, positionSource.Z, targetPoint.X, targetPoint.Z);
-        if (Math.Abs(NormalizeAngle(angleBetweenTwo2DPoints) - NormalizeAngle(sourceXHeading)) < angleX)
+        for (int i = 0; i < maxTries; i++)
         {
-            return Math.Abs(NormalizeAngle(angleBetweenTwo2DPoints2) - NormalizeAngle(sourceYHeading)) < angleY;
-        }
-        return false;
-    }
-    public static Vector3 RotateVector(Vector3 input, Vector3 rotation)
-    {
-        input.Y = (float)(Math.Cos(rotation.X) * input.Y - Math.Sin(rotation.X) * input.Z);
-        input.Z = (float)(Math.Sin(rotation.X) * input.Y + Math.Cos(rotation.X) * input.Z);
-        input.X = (float)(Math.Cos(rotation.Y) * input.X + Math.Sin(rotation.Y) * input.Z);
-        input.Z = (float)(Math.Cos(rotation.Y) * input.Z - Math.Sin(rotation.Y) * input.X);
-        input.X = (float)(Math.Cos(rotation.Z) * input.X - Math.Sin(rotation.Z) * input.Y);
-        input.Y = (float)(Math.Sin(rotation.Z) * input.X + Math.Cos(rotation.Z) * input.Y);
-        return input;
-    }
-
-    public static bool IsAnglePointLookingAtPoint(Vector3 positionSource, Vector3 targetPoint, float sourceHeading, float angle)
-    {
-        return Math.Abs(NormalizeAngle(GetAngleBetweenTwoPoints(positionSource, targetPoint)) - NormalizeAngle(sourceHeading)) < angle;
-    }
-
-    public static float GetAngleBetweenTwoPoints(Vector3 source, Vector3 target)
-    {
-        return (target - source).Normalized.ToHeading();
-    }
-
-    public static float GetAngleBetweenTwoPoints(Vector2 source, Vector2 target)
-    {
-        return (float)(Math.Atan2(target.Y - source.Y, target.X - source.X) * (180.0 / Math.PI));
-    }
-
-    public static float GetAngleBetweenTwo2DPoints(float sourceX, float sourceY, float targetX, float targetY)
-    {
-        return (float)(Math.Atan2(targetY - sourceY, targetX - sourceX) * (180.0 / Math.PI));
-    }
-    public static float GetRandomFloat(double min, double max)
-    {
-        return (float)(new Random().NextDouble() * (max - min) + min);
-    }
-
-    public static double GetDouble()
-    {
-        return new Random().NextDouble();
-    }
-
-    public static bool GetBool()
-    {
-        return GetDouble() >= 0.5;
-    }
-    public static Vector3 RandomPointInsideCircle(Vector3 center, float radius)
-    {
-        double num = (double)radius * Math.Sqrt(GetDouble());
-        double num2 = GetDouble() * 2.0 * Math.PI;
-        return new Vector3(center.X + (float)(num * Math.Cos(num2)), center.Y + (float)(num * Math.Sin(num2)), center.Z);
-    }
-
-    public static bool FindSpawnPointForSubmarine(Ped pTarget, Vector3 vStartPosition, float fMinDistance, float fMaxDistance, out Vector3 vSpawnPoint, out float fSpawnHeading, int iMaxTries = 5)
-    {
-        vSpawnPoint = Vector3.Zero;
-        for (int i = 0; i < iMaxTries; i++)
-        {
-            Vector3 vector = vStartPosition.Around(GetRandomFloat(fMinDistance, fMaxDistance));
-            if (GetWaterLevelNoWaves(new Vector3(vector.X, vector.Y, 200f), out var fHeight))
+            Vector3 candidatePos = startPosition.Around(GetRandomFloat(minDistance, maxDistance));
+            if (GetWaterLevelNoWaves(new Vector3(candidatePos.X, candidatePos.Y, 200f), out var waterHeight))
             {
-                if (!World.GetGroundHeight(new Vector3(vector.X, vector.Y, 1000f), out var height))
+                if (World.GetGroundHeight(new Vector3(candidatePos.X, candidatePos.Y, 1000f), out var groundHeight))
                 {
-                    height = World.GetApproxHeightForPoint(vSpawnPoint);
-                }
-                if (!(fHeight - height < 10f))
-                {
-                    vector.Z = Math.Max(height + 4f, Math.Min(vector.Z, fHeight - 4f));
-                    vSpawnPoint = vector;
-                    break;
+                    // Need deeper water for submarines
+                    if (waterHeight - groundHeight >= 10f)
+                    {
+                        candidatePos.Z = Math.Max(groundHeight + 4f, Math.Min(candidatePos.Z, waterHeight - 4f));
+                        spawnPoint = candidatePos;
+                        break;
+                    }
                 }
             }
         }
-        fSpawnHeading = GetAngleBetweenTwoPoints(vSpawnPoint, pTarget.Position);
-        return vSpawnPoint != Vector3.Zero;
+
+        spawnHeading = GetAngleBetweenTwoPoints(spawnPoint, target.Position);
+        return spawnPoint != Vector3.Zero;
     }
+    #endregion
+
 }

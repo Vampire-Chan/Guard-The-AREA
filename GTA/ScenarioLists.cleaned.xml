@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScenarioLists>
+  <ScenarioList name="Guard">
+    <Scenario>WORLD_HUMAN_GUARD_STAND</Scenario>
+    <Scenario>WORLD_HUMAN_GUARD_PATROL</Scenario>
+    <Scenario>WORLD_HUMAN_GUARD_STAND_FACILITY</Scenario>
+  </ScenarioList>
+
+  <ScenarioList name="BreakAndRun">
+    <Scenario>WORLD_HUMAN_BRAINED</Scenario>
+    <Scenario>WORLD_HUMAN_MOBILE_HUMAN</Scenario>
+  </ScenarioList>
+
+  <ScenarioList name="Ambient">
+    <Scenario>WORLD_HUMAN_SMOKING</Scenario>
+    <Scenario>WORLD_HUMAN_STAND_IMPATIENT</Scenario>
+  </ScenarioList>
+</ScenarioLists>

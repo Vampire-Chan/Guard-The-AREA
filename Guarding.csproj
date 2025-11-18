@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 	<PropertyGroup>
-		<AssemblyName>GuardTheArea</AssemblyName>
+		<AssemblyName>gta</AssemblyName>
 		<GenerateAssemblyInfo>False</GenerateAssemblyInfo>
 		<UseWindowsForms>True</UseWindowsForms>
 		<TargetFramework>net48</TargetFramework>
@@ -16,11 +16,20 @@
 		<DebugType>pdbonly</DebugType>
 	</PropertyGroup>
 
+	<!-- Exclude backup folders from compilation -->
+	<ItemGroup>
+		<Compile Remove="Backup_*\**" />
+		<EmbeddedResource Remove="Backup_*\**" />
+		<None Remove="Backup_*\**" />
+	</ItemGroup>
+
 	<!-- Reference Includes -->
 	<ItemGroup>
+		<Reference Include="iFruitAddon2">
+		  <HintPath>..\..\Games\GTAV\scripts\iFruitAddon2.dll</HintPath>
+		</Reference>
 		<Reference Include="ScriptHookVDotNet3">
-			<HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
-			<Private>False</Private>
+		  <HintPath>..\..\Games\GTAV\ScriptHookVDotNet3.dll</HintPath>
 		</Reference>
 		<Reference Include="System.Core" />
 	</ItemGroup>

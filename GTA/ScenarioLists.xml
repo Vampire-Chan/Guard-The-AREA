@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Scenarios>
+  <!-- Predefined scenario sets. Keep the 'name' attributes as they are referenced by Areas.xml -->
+  <Scenario name="Guard">
+    <Name>WORLD_HUMAN_GUARD_STAND</Name>
+    <Name>WORLD_HUMAN_SECURITY_SHINE_TORCH</Name>
+    <Name>WORLD_HUMAN_GUARD_PATROL</Name>
+    <Name>WORLD_HUMAN_CLIPBOARD</Name>
+    <Name>WORLD_HUMAN_STAND_MOBILE</Name>
+    <Name>WORLD_HUMAN_COP_IDLES</Name>
+  </Scenario>
+
+  <Scenario name="Ambient">
+    <Name>WORLD_HUMAN_SMOKING</Name>
+    <Name>WORLD_HUMAN_HANG_OUT_STREET</Name>
+    <Name>WORLD_HUMAN_STAND_MOBILE</Name>
+    <Name>WORLD_HUMAN_TOURIST_MOBILE</Name>
+    <Name>WORLD_HUMAN_AA_COFFEE</Name>
+    <Name>WORLD_HUMAN_BUM_STANDING</Name>
+  </Scenario>
+
+  <Scenario name="Patrol">
+    <Name>WORLD_HUMAN_GUARD_PATROL</Name>
+    <Name>WORLD_HUMAN_COP_IDLES</Name>
+    <Name>WORLD_HUMAN_STAND_GUARD</Name>
+    <Name>WORLD_HUMAN_CAR_PARK_ATTENDANT</Name>
+    <Name>WORLD_HUMAN_MUSCLE_FLEX</Name>
+    <Name>WORLD_HUMAN_GUARD_STAND_ARMY</Name>
+  </Scenario>
+
+  <Scenario name="Random">
+    <Name>WORLD_HUMAN_DRINKING</Name>
+    <Name>WORLD_HUMAN_PARTYING</Name>
+    <Name>WORLD_HUMAN_TOURIST_MOBILE</Name>
+    <Name>WORLD_HUMAN_BINOCULARS</Name>
+    <Name>WORLD_HUMAN_PAPARAZZI</Name>
+  </Scenario>
+
+</Scenarios>
+<?xml version="1.0" ?>
+<Scenarios>
+<!-- Hardcoded names, do not change the name, but you can change the scenario names inside it, like world_human_guard_stand to smething else or add new -->
+    <Scenario name="Guard">
+        <Name>WORLD_HUMAN_GUARD_STAND</Name>
+        <Name>WORLD_HUMAN_SECURITY_SHINE_TORCH</Name>
+        <Name>WORLD_HUMAN_GUARD_PATROL</Name>
+        <Name>WORLD_HUMAN_CLIPBOARD</Name>
+        <Name>WORLD_HUMAN_STAND_MOBILE</Name>
+        <Name>WORLD_HUMAN_COP_IDLES</Name>
+    </Scenario>
+    <Scenario name="Ambient">
+        <Name>WORLD_HUMAN_SMOKING</Name>
+        <Name>WORLD_HUMAN_HANG_OUT_STREET</Name>
+        <Name>WORLD_HUMAN_STAND_MOBILE</Name>
+        <Name>WORLD_HUMAN_TOURIST_MOBILE</Name>
+        <Name>WORLD_HUMAN_AA_COFFEE</Name>
+        <Name>WORLD_HUMAN_BUM_STANDING</Name>
+    </Scenario>
+    <Scenario name="Patrol">
+        <Name>WORLD_HUMAN_GUARD_PATROL</Name>
+        <Name>WORLD_HUMAN_COP_IDLES</Name>
+        <Name>WORLD_HUMAN_STAND_GUARD</Name>
+        <Name>WORLD_HUMAN_CAR_PARK_ATTENDANT</Name>
+        <Name>WORLD_HUMAN_MUSCLE_FLEX</Name>
+        <Name>WORLD_HUMAN_GUARD_STAND_ARMY</Name>
+    </Scenario>
+    
+    <Scenario name="Random">
+        <Name>WORLD_HUMAN_DRINKING</Name>
+        <Name>WORLD_HUMAN_PARTYING</Name>
+        <Name>WORLD_HUMAN_TOURIST_MOBILE</Name>
+        <Name>WORLD_HUMAN_BINOCULARS</Name>
+        <Name>WORLD_HUMAN_PAPARAZZI</Name>
+    </Scenario>
+</Scenarios>

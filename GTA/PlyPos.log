@@ -1,0 +1,28 @@
+  <SpawnPoint type="ped">
+    <Position x="48.17" y="559.66" z="180.18" />
+    <Heading>29.86</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="55.46" y="562.73" z="180.42" />
+    <Heading>29.24</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="53.54" y="566.15" z="180.48" />
+    <Heading>31.09</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="49.04" y="565.13" z="180.19" />
+    <Heading>10.06</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="50.12" y="562.15" z="179.61" />
+    <Heading>238.91</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="vehicle">
+    <Position x="49.90" y="579.46" z="181.61" />
+    <Heading>45.73</Heading>
+  </SpawnPoint>
+  <SpawnPoint type="ped">
+    <Position x="41.23" y="583.04" z="182.79" />
+    <Heading>226.58</Heading>
+  </SpawnPoint>

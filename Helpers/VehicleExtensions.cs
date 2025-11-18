@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GTA.Math;
 
-    public static class VehicleExtensions
+public static class VehicleExtensions
     {
         public static void InstallModKit(this Vehicle cars)
         {
@@ -78,17 +79,17 @@ using System.Threading.Tasks;
             }
         }
 
-        public static void EnableHeliWeapons(this Vehicle helicopter)
-        {
-            // we give and then allow to use them.
-            helicopter.Driver.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true); //this flag is set when player is in aircraft
-            helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, true);
-            helicopter.Driver.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
-            helicopter.Driver.SetCombatAttribute(CombatAttributes.UseRocketsAgainstVehiclesOnly, true);
-            helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
-        }
+    public static void EnableHeliWeapons(this Vehicle helicopter)
+    {
+        // we give and then allow to use them.
+        helicopter.Driver.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, true); //this flag is set when player is in aircraft
+        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttackIfVehicleHasMountedGuns, true);
+        helicopter.Driver.SetCombatAttribute(CombatAttributes.ForceCheckAttackAngleForMountedGuns, true);
+        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseRocketsAgainstVehiclesOnly, true);
+        helicopter.Driver.SetCombatAttribute(CombatAttributes.UseVehicleAttack, true);
+    }
 
-        public static void DisableHeliWeapons(this Vehicle helicopter)
+    public static void DisableHeliWeapons(this Vehicle helicopter)
         {
             //remove their ability to use them
             helicopter.Driver.SetCombatAttribute(CombatAttributes.PreferAirCombatWhenInAircraft, false); //this flag is set when player is in aircraft

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Guards.xml - pre-clean backup - contains full pre-clean Guards.xml content -->
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Guards.xml - Guard types, ped models, weapons, and vehicles -->
+<Guards>
+  <Guard name="gruppe6_guard" group="MICHAEL_GUARD">
+    <PedModel>s_m_m_armoured_02</PedModel>
+    <PedModel>s_m_m_armoured_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+    <Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
+    <Weapon>WEAPON_COMBATPISTOL</Weapon>
+    <VehicleModel>STOCKADE</VehicleModel>
+    <VehicleModel>GRANGER2</VehicleModel>
+  </Guard>
+
+  <Guard name="gruppe6_police_guard" group="PRIVATE_SECURITY">
+    <PedModel>s_m_y_swat_01</PedModel>
+    <PedModel>s_m_m_armoured_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+    <VehicleModel>CRUSADER</VehicleModel>
+  </Guard>
+
+  <Guard name="lspd_guard" group="COP">
+    <PedModel>s_m_y_cop_01</PedModel>
+    <PedModel>s_f_y_cop_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>POLICE</VehicleModel>
+  </Guard>
+
+  <Guard name="noose_guard" group="SECURITY_GUARD">
+    <PedModel>s_m_y_swat_01</PedModel>
+    <Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+  </Guard>
+
+  <Guard name="families_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>G_M_Y_FAMFOR_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+  </Guard>
+
+  <Guard name="Vagos_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>G_F_Y_VAGOS_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+  <Guard name="HighSec" group="AMBIENT_GANG_FAMILY">
+    <PedModel>S_M_M_HIGHSEC_01</PedModel>
+    <PedModel>S_M_M_HIGHSEC_02</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+</Guards>
+  <Guard name="gruppe6_guard" group="MICHAEL_GUARD">
+    <PedModel>s_m_m_armoured_02</PedModel>
+    <PedModel>s_m_m_armoured_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+    <Weapon>WEAPON_ADVANCEDRIFLE</Weapon>
+    <Weapon>WEAPON_COMBATPISTOL</Weapon>
+    <VehicleModel>STOCKADE</VehicleModel>
+    <VehicleModel>GRANGER2</VehicleModel>
+    <MountedVehicleModel>TECHNICAL</MountedVehicleModel>
+    <HelicopterModel>ANNIHILATOR</HelicopterModel>
+  </Guard>
+
+  <Guard name="sexyhoes_grp" group="sexyhoes">
+    <PedModel>s_f_y_hooker_01</PedModel>
+    <PedModel>a_f_y_beach_02</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>INFERNUS</VehicleModel>
+  </Guard>
+
+  <Guard name="sexyhoes_grps" group="sexyhoess">
+    <PedModel>s_f_y_hooker_02</PedModel>
+    <PedModel>s_f_y_hooker_03</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>AKUMA</VehicleModel>
+  </Guard>
+
+  <Guard name="girlies" group="girlies_cops">
+    <PedModel>a_f_y_vinewood_01</PedModel>
+    <PedModel>a_f_y_bevhills_05</PedModel>
+    <Weapon>WEAPON_CARBINERIFLE</Weapon>
+    <VehicleModel>POLICE2</VehicleModel>
+  </Guard>
+
+  <Guard name="gruppe6_police_guard" group="PRIVATE_SECURITY">
+    <PedModel>s_m_m_armoured_02</PedModel>
+    <PedModel>s_m_y_cop_01</PedModel>
+    <PedModel>s_m_y_swat_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+    <Weapon>WEAPON_COMBATPISTOL</Weapon>
+    <VehicleModel>STOCKADE</VehicleModel>
+    <VehicleModel>CRUSADER</VehicleModel>
+    <HelicopterModel>ANNIHILATOR</HelicopterModel>
+  </Guard>
+
+  <Guard name="army1_guard" group="ARMY">
+    <PedModel>S_M_Y_MARINE_01</PedModel>
+    <PedModel>S_M_Y_MARINE_02</PedModel>
+    <Weapon>WEAPON_COMBATMG</Weapon>
+    <VehicleModel>CRUSADER</VehicleModel>
+    <VehicleModel>INSURGENT</VehicleModel>
+  </Guard>
+
+  <Guard name="lspd_guard" group="COP">
+    <PedModel>s_m_y_cop_01</PedModel>
+    <PedModel>s_f_y_cop_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>POLICE</VehicleModel>
+  </Guard>
+
+  <Guard name="noose_guard" group="SECURITY_GUARD">
+    <PedModel>s_m_y_swat_01</PedModel>
+    <Weapon>WEAPON_PUMPSHOTGUN</Weapon>
+    <VehicleModel>RHINO</VehicleModel>
+  </Guard>
+
+  <Guard name="lssd_guard" group="COP">
+    <PedModel>s_m_y_sheriff_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>SHERIFF</VehicleModel>
+  </Guard>
+
+  <Guard name="park_ranger_guard" group="COP">
+    <PedModel>s_m_y_pranger_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+  </Guard>
+
+  <Guard name="security_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>s_m_m_security_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>STOCKADE</VehicleModel>
+  </Guard>
+
+  <Guard name="iaa_guard" group="COP">
+    <PedModel>s_m_m_ciasec_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>FBI</VehicleModel>
+  </Guard>
+
+  <Guard name="fib_guard" group="COP">
+    <PedModel>s_m_m_fibsec_01</PedModel>
+    <PedModel>s_m_m_fiboffice_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>FBI</VehicleModel>
+    <VehicleModel>FBI2</VehicleModel>
+  </Guard>
+
+  <Guard name="mw_guard" group="PRIVATE_SECURITY">
+    <PedModel>S_M_Y_BLACKOPS_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>MESA3</VehicleModel>
+    <VehicleModel>CRUSADER</VehicleModel>
+  </Guard>
+
+  <Guard name="families_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>G_M_Y_FAMFOR_01</PedModel>
+    <Weapon>WEAPON_PISTOL</Weapon>
+    <VehicleModel>BALLER</VehicleModel>
+  </Guard>
+
+  <Guard name="Vagos_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>IG_VAGOSPEAK</PedModel>
+    <PedModel>G_F_Y_VAGOS_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+    <VehicleModel>TECHNICAL</VehicleModel>
+  </Guard>
+
+  <Guard name="Mex_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>G_M_M_MEXBOSS_01</PedModel>
+    <PedModel>G_M_Y_MEXGANG_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+  <Guard name="korean_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>G_M_M_KORBOSS_01</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+  <Guard name="ballas_guard" group="AMBIENT_GANG_FAMILY">
+    <PedModel>CSB_BALLAS_LEADER</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+  <Guard name="HighSec" group="AMBIENT_GANG_FAMILY">
+    <PedModel>S_M_M_HIGHSEC_01</PedModel>
+    <PedModel>S_M_M_HIGHSEC_02</PedModel>
+    <Weapon>WEAPON_ASSAULTRIFLE</Weapon>
+  </Guard>
+
+</Guards>
+<!-- End of file backup -->

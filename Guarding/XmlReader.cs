@@ -4,13 +4,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-
 public class XmlReader
 {
     private readonly string _xmlFilePath;
     private readonly string _guardsXmlPath;
     private readonly string _scenarioXmlPath;
-    private readonly Dictionary<string, Scenarios> _scenarioData; // Store scenarios in a dictionary for quick lookup
 
     public XmlReader(string areasFilePath)
     {
@@ -18,22 +16,21 @@ public class XmlReader
         _guardsXmlPath = Path.Combine(Path.GetDirectoryName(areasFilePath), "Guards.xml");
         _scenarioXmlPath = Path.Combine(Path.GetDirectoryName(areasFilePath), "ScenarioLists.xml");
 
-        _scenarioData = LoadScenarios(); // Load once and use dictionary for fast retrieval
+        Logger.Log.Info($"XmlReader initialized with Areas: {_xmlFilePath}, Guards: {_guardsXmlPath}, Scenarios: {_scenarioXmlPath}");
     }
 
     private List<string> ParseRelationshipString(string relationshipString)
     {
         return string.IsNullOrWhiteSpace(relationshipString)
             ? new List<string>()
-            : relationshipString.Split(',')
-                                .Select(x => x.Trim())
-                                .Where(x => !string.IsNullOrWhiteSpace(x))
-                                .ToList();
+            : relationshipString.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
     }
 
     public Dictionary<string, Scenarios> LoadScenarios()
     {
+        Logger.Log.Info("Loading scenarios...");
         var scenarios = new Dictionary<string, Scenarios>();
+
         XElement xml = XElement.Load(_scenarioXmlPath);
 
         foreach (var scenarioElement in xml.Elements("Scenario"))
@@ -47,13 +44,15 @@ public class XmlReader
                                                              .ToList();
 
             scenarios[scenarioName] = new Scenarios(scenarioName, scenarioAnimations);
+            Logger.Log.Info($"Loaded Scenario: {scenarioName} with {scenarioAnimations.Count} animations");
         }
 
         return scenarios;
     }
 
-    public List<Area> LoadAreasFromXml()
+    public List<Area> LoadAreasFromXml(Dictionary<string, Scenarios> scenarios = null)
     {
+        Logger.Log.Info("Loading areas...");
         var areas = new List<Area>();
         XElement xml = XElement.Load(_xmlFilePath);
 
@@ -62,24 +61,89 @@ public class XmlReader
             string areaName = areaElement.Attribute("name")?.Value;
             string model = areaElement.Attribute("model")?.Value;
             string defaultScenario = areaElement.Attribute("scenario")?.Value;
-
             bool.TryParse(areaElement.Attribute("override")?.Value, out bool relationshipOverride);
+
+            // Parse shift attributes
+            bool.TryParse(areaElement.Attribute("shiftEnabled")?.Value, out bool shiftEnabled);
+            string shiftDuration = areaElement.Attribute("shiftDuration")?.Value;
+
+            // Parse backup attributes
+            bool.TryParse(areaElement.Attribute("allowsBackup")?.Value ?? "true", out bool allowsBackup);
+            int.TryParse(areaElement.Attribute("charges")?.Value ?? "0", out int dailyCharges);
+
+            // Parse backup fees from BackupFees element
+            var backupFeesElement = areaElement.Element("BackupFees");
+            var backupFees = new BackupFeesConfig();
+            if (backupFeesElement != null)
+            {
+                var aerialElement = backupFeesElement.Element("Aerial");
+                if (aerialElement != null)
+                {
+                    int.TryParse(aerialElement.Attribute("cost")?.Value ?? "5000", out int aerialCost);
+                    int.TryParse(aerialElement.Attribute("cooldown")?.Value ?? "30", out int aerialCooldown);
+                    backupFees.AerialCost = aerialCost;
+                    backupFees.AerialCooldown = aerialCooldown;
+                }
+
+                var airstrikeElement = backupFeesElement.Element("Airstrike");
+                if (airstrikeElement != null)
+                {
+                    int.TryParse(airstrikeElement.Attribute("cost")?.Value ?? "50000", out int airstrikeCost);
+                    int.TryParse(airstrikeElement.Attribute("cooldown")?.Value ?? "30", out int airstrikeCooldown);
+                    backupFees.AirstrikeCost = airstrikeCost;
+                    backupFees.AirstrikeCooldown = airstrikeCooldown;
+                }
+
+                var groundElement = backupFeesElement.Element("Ground");
+                if (groundElement != null)
+                {
+                    int.TryParse(groundElement.Attribute("cost")?.Value ?? "15000", out int groundCost);
+                    int.TryParse(groundElement.Attribute("cooldown")?.Value ?? "30", out int groundCooldown);
+                    backupFees.GroundCost = groundCost;
+                    backupFees.GroundCooldown = groundCooldown;
+                }
+            }
 
             var hate = ParseRelationshipString(areaElement.Attribute("hates")?.Value);
             var dislike = ParseRelationshipString(areaElement.Attribute("dislikes")?.Value);
             var respect = areaElement.Attribute("respects")?.Value;
             var like = ParseRelationshipString(areaElement.Attribute("likes")?.Value);
 
-            // Assign the scenario based on the default scenario name
-            _scenarioData.TryGetValue(defaultScenario, out Scenarios assignedScenario);
+            // Use the passed scenarios parameter instead of static field
+            Scenarios assignedScenario = null;
+            if (scenarios != null)
+            {
+                scenarios.TryGetValue(defaultScenario, out assignedScenario);
+            }
 
-            // Create area
-            Area area = new Area(areaName, model, defaultScenario, hate, dislike, respect, like, assignedScenario, relationshipOverride);
+            Area area = new Area(areaName, model, defaultScenario, hate, dislike, respect, like, assignedScenario, relationshipOverride)
+            {
+                ShiftEnabled = shiftEnabled,
+                ShiftDuration = shiftDuration,
+                AllowsBackup = allowsBackup,
+                DailyCharges = dailyCharges,
+                BackupFees = backupFees
+            };
+
+            // Parse optional backup spawn interval (seconds) per area
+            int.TryParse(areaElement.Attribute("backupSpawnInterval")?.Value ?? "0", out int spawnInterval);
+            area.BackupSpawnIntervalSeconds = spawnInterval;
+
+            if (spawnInterval > 0)
+            {
+                Logger.Log.Info($"Area {areaName}: backupSpawnInterval set to {spawnInterval} seconds");
+            }
+
+            Logger.Log.Info($"Created Area: {areaName}, Scenario: {defaultScenario}, Model: {model}, ShiftEnabled: {shiftEnabled}, ShiftDuration: {shiftDuration}, AllowsBackup: {allowsBackup}, DailyCharges: {dailyCharges}");
 
             foreach (var spawnPointElement in areaElement.Elements("SpawnPoint"))
             {
                 var positionElement = spawnPointElement.Element("Position");
-                if (positionElement == null) continue;
+                if (positionElement == null)
+                {
+                    Logger.Log.Info("Skipped spawn point due to missing Position");
+                    continue;
+                }
 
                 float.TryParse(positionElement.Attribute("x")?.Value, out float x);
                 float.TryParse(positionElement.Attribute("y")?.Value, out float y);
@@ -90,8 +154,7 @@ public class XmlReader
                 string scenario = spawnPointElement.Attribute("scenario")?.Value;
                 bool.TryParse(spawnPointElement.Attribute("interior")?.Value, out bool interior);
 
-                // Determine final animation
-                string finalAnimation = scenario; // Direct override if provided
+                string finalAnimation = scenario;
                 if (string.IsNullOrEmpty(finalAnimation) && assignedScenario != null && assignedScenario.ScenarioList.Count > 0)
                 {
                     finalAnimation = assignedScenario.ScenarioList[new Random().Next(assignedScenario.ScenarioList.Count)];
@@ -99,18 +162,39 @@ public class XmlReader
 
                 Vector3 position = new(x, y, z);
                 area.AddSpawnPoint(position, heading, type, scenario, interior, finalAnimation);
+                Logger.Log.Info($"  SpawnPoint at ({x},{y},{z}) Type: {type}, Scenario: {finalAnimation}");
             }
 
             areas.Add(area);
         }
 
+        Logger.Log.Info($"Finished loading {areas.Count} areas.");
         return areas;
     }
 
-    public Dictionary<string, GuardConfig> LoadGuardConfigs()
+
+        public Dictionary<string, GuardConfig> LoadGuardConfigs()
     {
+        Logger.Log.Info("Loading guard configs...");
         var guardConfigs = new Dictionary<string, GuardConfig>();
-        XElement xml = XElement.Load(_guardsXmlPath);
+        XElement xml = null;
+        try
+        {
+            xml = XElement.Load(_guardsXmlPath);
+        }
+        catch (Exception ex)
+        {
+            var cleanedPath = Path.Combine(Path.GetDirectoryName(_guardsXmlPath), "Guards.cleaned.xml");
+            Logger.Log.Warn($"Failed to load {_guardsXmlPath}: {ex.Message}. Trying fallback: {cleanedPath}");
+            if (File.Exists(cleanedPath))
+            {
+                xml = XElement.Load(cleanedPath);
+            }
+            else
+            {
+                throw;
+            }
+        }
 
         foreach (var guardElement in xml.Elements("Guard"))
         {
@@ -136,8 +220,10 @@ public class XmlReader
             };
 
             guardConfigs[guardName] = config;
+            Logger.Log.Info($"Loaded GuardConfig: {guardName}, Peds: {config.PedModels.Count}, Weapons: {config.Weapons.Count}");
         }
 
+        Logger.Log.Info($"Finished loading {guardConfigs.Count} guards.");
         return guardConfigs;
     }
 }

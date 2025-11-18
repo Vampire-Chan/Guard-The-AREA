@@ -3,36 +3,91 @@ using System.IO;
 
 public static class Logger
 {
-    private static readonly string LogFilePath = "./scripts/Logging.log";
-    private static bool _enabled;
+    public static readonly Logging Log;
 
     static Logger()
     {
-        // Ensure the directory exists
-        Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath));
+        //Logging.IsEnabled = true;
+        Log = new Logging("./scripts/GTA/Logging.log");
+    }
+}
+
+public class Logging
+{
+    public static bool IsEnabled { get; set; } = true;
+
+    [Flags]
+    private enum LogLevel
+    {
+        TRACE = 0,
+        INFO = 1,
+        DEBUG = 2,
+        WARNING = 3,
+        ERROR = 4,
+        FATAL = 5
     }
 
-    public static void SetEnabled(bool enabled)
-    {
-        _enabled = enabled;
-    }
+    private readonly object fileLock = new();
+    private readonly string datetimeFormat;
+    private readonly string logFilename;
 
-    public static void Log(string message)
+    public Logging(string name)
     {
-        if (!_enabled)
-        {
-            return;
-        }
+        datetimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+        logFilename = name;
 
         try
         {
-            string logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
-            File.AppendAllText(LogFilePath, logMessage + Environment.NewLine);
+            // Ensure folder exists
+            string dir = Path.GetDirectoryName(logFilename);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            // Create file with header if it doesn't exist
+            if (!File.Exists(logFilename))
+            {
+                using StreamWriter writer = File.CreateText(logFilename);
+                writer.WriteLine($"{DateTime.Now.ToString(datetimeFormat)} Log file '{logFilename}' created.");
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
-            // If logging fails, you can optionally handle it here (e.g., ignore or show a notification)
+            Console.WriteLine($"[Logger Init] Failed: {ex.Message}");
+        }
+    }
+
+    public void Trace(string text) => WriteFormattedLog(LogLevel.TRACE, text);
+    public void Info(string text) => WriteFormattedLog(LogLevel.INFO, text);
+    public void Debug(string text) => WriteFormattedLog(LogLevel.DEBUG, text);
+    public void Warning(string text) => WriteFormattedLog(LogLevel.WARNING, text);
+    public void Error(string text) => WriteFormattedLog(LogLevel.ERROR, text);
+    public void Fatal(string text) => WriteFormattedLog(LogLevel.FATAL, text);
+
+    private void WriteFormattedLog(LogLevel level, string text)
+    {
+        if (!IsEnabled || string.IsNullOrWhiteSpace(text)) return;
+
+        string prefix = level switch
+        {
+            LogLevel.TRACE => "[TRACE]   ",
+            LogLevel.INFO => "[INFO]    ",
+            LogLevel.DEBUG => "[DEBUG]   ",
+            LogLevel.WARNING => "[WARNING] ",
+            LogLevel.ERROR => "[ERROR]   ",
+            LogLevel.FATAL => "[FATAL]   ",
+            _ => "[LOG]     "
+        };
+
+        string fullMessage = $"{DateTime.Now.ToString(datetimeFormat)} {prefix}{text}";
+        WriteLine(fullMessage, append: true);
+    }
+
+    private void WriteLine(string text, bool append = false)
+    {
+        lock (fileLock)
+        {
+            using StreamWriter writer = new StreamWriter(logFilename, append, System.Text.Encoding.UTF8);
+            writer.WriteLine(text);
         }
     }
 }
